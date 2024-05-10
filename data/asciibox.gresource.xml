@@ -3,5 +3,6 @@
     <gresource prefix="/com/github/nobodygx/asciibox/">
         <file compressed="true" preprocess="xml-stripblanks">ui/task_row.ui</file>
         <file compressed="true" preprocess="xml-stripblanks">ui/window.ui</file>
+        <file compressed="true" preprocess="xml-stripblanks" alias="gtk/help-overlay.ui">ui/shortcuts.ui</file>
     </gresource>
 </gresources>

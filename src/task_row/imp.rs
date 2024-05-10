@@ -4,7 +4,6 @@ use glib::Binding;
 use gtk::subclass::prelude::*;
 use gtk::{glib, CheckButton, CompositeTemplate, Label};
 
-// ANCHOR: struct_and_subclass
 // Object holding the state
 #[derive(Default, CompositeTemplate)]
 #[template(resource = "/com/github/nobodygx/asciibox/ui/task_row.ui")]
@@ -33,7 +32,6 @@ impl ObjectSubclass for TaskRow {
         obj.init_template();
     }
 }
-// ANCHOR_END: struct_and_subclass
 
 // Trait shared by all GObjects
 impl ObjectImpl for TaskRow {}

@@ -8,13 +8,11 @@ use pango::{AttrInt, AttrList};
 
 use crate::task_object::TaskObject;
 
-// ANCHOR: glib_wrapper
 glib::wrapper! {
     pub struct TaskRow(ObjectSubclass<imp::TaskRow>)
     @extends gtk::Box, gtk::Widget,
     @implements gtk::Accessible, gtk::Buildable, gtk::ConstraintTarget, gtk::Orientable;
 }
-// ANCHOR_END: glib_wrapper
 
 impl Default for TaskRow {
     fn default() -> Self {
@@ -27,7 +25,6 @@ impl TaskRow {
         Object::builder().build()
     }
 
-    // ANCHOR: bind
     pub fn bind(&self, task_object: &TaskObject) {
         // Get state
         let completed_button = self.imp().completed_button.get();
@@ -68,14 +65,11 @@ impl TaskRow {
         // Save binding
         bindings.push(content_label_binding);
     }
-    // ANCHOR_END: bind
 
-    // ANCHOR: unbind
     pub fn unbind(&self) {
         // Unbind all stored bindings
         for binding in self.imp().bindings.borrow_mut().drain(..) {
             binding.unbind();
         }
     }
-    // ANCHOR_END: unbind
 }

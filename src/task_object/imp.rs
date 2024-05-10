@@ -7,7 +7,6 @@ use gtk::subclass::prelude::*;
 
 use super::TaskData;
 
-// ANCHOR: struct_and_subclass
 // Object holding the state
 #[derive(Properties, Default)]
 #[properties(wrapper_type = super::TaskObject)]
@@ -27,4 +26,3 @@ impl ObjectSubclass for TaskObject {
 // Trait shared by all GObjects
 #[glib::derived_properties]
 impl ObjectImpl for TaskObject {}
-// ANCHOR_END: struct_and_subclass

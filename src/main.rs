@@ -1,11 +1,13 @@
 mod task_object;
 mod task_row;
+mod utils;
 mod window;
 
 use gtk::prelude::*;
 use gtk::{gio, glib, Application};
 use window::Window;
 
+const APP_ID: &str = "com.github.nobodygx.asciibox";
 pub static PKGDATADIR: &str = "../data";
 
 // ANCHOR: main
@@ -16,15 +18,20 @@ fn main() -> glib::ExitCode {
     gio::resources_register(&resources);
 
     // Create a new application
-    let app = Application::builder()
-        .application_id("com.github.nobodygx.asciibox")
-        .build();
+    let app = Application::builder().application_id(APP_ID).build();
 
     // Connect to "activate" signal of `app`
+    app.connect_startup(setup_shortcuts);
     app.connect_activate(build_ui);
 
     // Run the application
     app.run()
+}
+
+fn setup_shortcuts(app: &Application) {
+    app.set_accels_for_action("win.filter('All')", &["<Ctrl>a"]);
+    app.set_accels_for_action("win.filter('Open')", &["<Ctrl>o"]);
+    app.set_accels_for_action("win.filter('Done')", &["<Ctrl>d"]);
 }
 
 fn build_ui(app: &Application) {
