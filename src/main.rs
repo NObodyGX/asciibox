@@ -4,7 +4,7 @@ mod utils;
 mod window;
 
 use gdk::Display;
-use gtk::prelude::*;
+use adw::prelude::*;
 use gtk::{gdk, gio, glib, CssProvider};
 use window::Window;
 

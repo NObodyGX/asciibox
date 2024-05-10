@@ -2,17 +2,13 @@ mod imp;
 
 use std::fs::File;
 
+use adw::subclass::prelude::*;
+use adw::{prelude::*, ActionRow};
 use gio::Settings;
 use glib::{clone, Object};
-use gtk::subclass::prelude::*;
-use gtk::{
-    gio, glib, CustomFilter, FilterListModel, NoSelection,
-    SignalListItemFactory,
-};
-use gtk::{prelude::*, ListItem};
+use gtk::{gio, glib, Align, CheckButton, CustomFilter, FilterListModel, NoSelection};
 
 use crate::task_object::{TaskData, TaskObject};
-use crate::task_row::TaskRow;
 use crate::utils::data_path;
 use crate::APP_ID;
 
@@ -92,10 +88,19 @@ impl Window {
         // Get state and set model
         self.imp().tasks.replace(Some(model));
 
-        // Wrap model with filter and selection and pass it to the list view
+        // ANCHOR: bind_model
+        // Wrap model with filter and selection and pass it to the list box
         let filter_model = FilterListModel::new(Some(self.tasks()), self.filter());
         let selection_model = NoSelection::new(Some(filter_model.clone()));
-        self.imp().tasks_list.set_model(Some(&selection_model));
+        self.imp().tasks_list.bind_model(
+            Some(&selection_model),
+            clone!(@weak self as window => @default-panic, move |obj| {
+                let task_object = obj.downcast_ref().expect("The object should be of type `TaskObject`.");
+                let row = window.create_task_row(task_object);
+                row.upcast()
+            }),
+        );
+        // ANCHOR_END: bind_model
 
         // Filter model whenever the value of the key "filter" changes
         self.settings().connect_changed(
@@ -104,7 +109,25 @@ impl Window {
                 filter_model.set_filter(window.filter().as_ref());
             }),
         );
+
+        // ANCHOR: connect_items_changed
+        // Assure that the task list is only visible when it is supposed to
+        self.set_task_list_visible(&self.tasks());
+        self.tasks().connect_items_changed(
+            clone!(@weak self as window => move |tasks, _, _, _| {
+                window.set_task_list_visible(tasks);
+            }),
+        );
+        // ANCHOR_END: connect_items_changed
     }
+
+    // ANCHOR: set_task_list_visible
+    /// Assure that `tasks_list` is only visible
+    /// if the number of tasks is greater than 0
+    fn set_task_list_visible(&self, tasks: &gio::ListStore) {
+        self.imp().tasks_list.set_visible(tasks.n_items() > 0);
+    }
+    // ANCHOR_END: set_task_list_visible
 
     fn restore_data(&self) {
         if let Ok(file) = File::open(data_path()) {
@@ -123,6 +146,36 @@ impl Window {
             self.tasks().extend_from_slice(&task_objects);
         }
     }
+
+    // ANCHOR: create_task_row
+    fn create_task_row(&self, task_object: &TaskObject) -> ActionRow {
+        // Create check button
+        let check_button = CheckButton::builder()
+            .valign(Align::Center)
+            .can_focus(false)
+            .build();
+
+        // Create row
+        let row = ActionRow::builder()
+            .activatable_widget(&check_button)
+            .build();
+        row.add_prefix(&check_button);
+
+        // Bind properties
+        task_object
+            .bind_property("completed", &check_button, "active")
+            .bidirectional()
+            .sync_create()
+            .build();
+        task_object
+            .bind_property("content", &row, "title")
+            .sync_create()
+            .build();
+
+        // Return row
+        row
+    }
+    // ANCHOR_END: create_task_row
 
     fn setup_callbacks(&self) {
         // Setup callback for activation of the entry
@@ -152,58 +205,6 @@ impl Window {
         // Add new task to model
         let task = TaskObject::new(false, content);
         self.tasks().append(&task);
-    }
-
-    fn setup_factory(&self) {
-        // Create a new factory
-        let factory = SignalListItemFactory::new();
-
-        // Create an empty `TaskRow` during setup
-        factory.connect_setup(move |_, list_item| {
-            // Create `TaskRow`
-            let task_row = TaskRow::new();
-            list_item
-                .downcast_ref::<ListItem>()
-                .expect("Needs to be ListItem")
-                .set_child(Some(&task_row));
-        });
-
-        // Tell factory how to bind `TaskRow` to a `TaskObject`
-        factory.connect_bind(move |_, list_item| {
-            // Get `TaskObject` from `ListItem`
-            let task_object = list_item
-                .downcast_ref::<ListItem>()
-                .expect("Needs to be ListItem")
-                .item()
-                .and_downcast::<TaskObject>()
-                .expect("The item has to be an `TaskObject`.");
-
-            // Get `TaskRow` from `ListItem`
-            let task_row = list_item
-                .downcast_ref::<ListItem>()
-                .expect("Needs to be ListItem")
-                .child()
-                .and_downcast::<TaskRow>()
-                .expect("The child has to be a `TaskRow`.");
-
-            task_row.bind(&task_object);
-        });
-
-        // Tell factory how to unbind `TaskRow` from `TaskObject`
-        factory.connect_unbind(move |_, list_item| {
-            // Get `TaskRow` from `ListItem`
-            let task_row = list_item
-                .downcast_ref::<ListItem>()
-                .expect("Needs to be ListItem")
-                .child()
-                .and_downcast::<TaskRow>()
-                .expect("The child has to be a `TaskRow`.");
-
-            task_row.unbind();
-        });
-
-        // Set the factory of the list view
-        self.imp().tasks_list.set_factory(Some(&factory));
     }
 
     fn setup_actions(&self) {

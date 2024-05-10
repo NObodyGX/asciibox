@@ -1,16 +1,19 @@
 use std::cell::RefCell;
 use std::fs::File;
 
+use adw::subclass::prelude::*;
+
 use gio::Settings;
 use glib::subclass::InitializingObject;
-use gtk::prelude::*;
-use gtk::subclass::prelude::*;
-use gtk::{gio, glib, CompositeTemplate, Entry, ListView};
+
+use adw::prelude::*;
+use gtk::{gio, glib, CompositeTemplate, Entry, ListBox};
 use std::cell::OnceCell;
 
 use crate::task_object::{TaskData, TaskObject};
 use crate::utils::data_path;
 
+// ANCHOR: window
 // Object holding the state
 #[derive(CompositeTemplate, Default)]
 #[template(resource = "/com/github/nobodygx/asciibox/ui/window.ui")]
@@ -18,7 +21,7 @@ pub struct Window {
     #[template_child]
     pub entry: TemplateChild<Entry>,
     #[template_child]
-    pub tasks_list: TemplateChild<ListView>,
+    pub tasks_list: TemplateChild<ListBox>,
     pub tasks: RefCell<Option<gio::ListStore>>,
     pub settings: OnceCell<Settings>,
 }
@@ -44,6 +47,7 @@ impl ObjectSubclass for Window {
         obj.init_template();
     }
 }
+// ANCHOR_END: window
 
 // Trait shared by all GObjects
 impl ObjectImpl for Window {
@@ -57,7 +61,6 @@ impl ObjectImpl for Window {
         obj.setup_tasks();
         obj.restore_data();
         obj.setup_callbacks();
-        obj.setup_factory();
         obj.setup_actions();
     }
 }
