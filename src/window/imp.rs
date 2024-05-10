@@ -11,7 +11,6 @@ use std::cell::OnceCell;
 use crate::task_object::{TaskData, TaskObject};
 use crate::utils::data_path;
 
-// ANCHOR: struct_default
 // Object holding the state
 #[derive(CompositeTemplate, Default)]
 #[template(resource = "/com/github/nobodygx/asciibox/ui/window.ui")]
@@ -23,9 +22,7 @@ pub struct Window {
     pub tasks: RefCell<Option<gio::ListStore>>,
     pub settings: OnceCell<Settings>,
 }
-// ANCHOR_END: struct_default
 
-// ANCHOR: object_subclass
 // The central trait for subclassing a GObject
 #[glib::object_subclass]
 impl ObjectSubclass for Window {
@@ -47,9 +44,7 @@ impl ObjectSubclass for Window {
         obj.init_template();
     }
 }
-// ANCHOR_END: object_subclass
 
-// ANCHOR: object_impl
 // Trait shared by all GObjects
 impl ObjectImpl for Window {
     fn constructed(&self) {
@@ -66,12 +61,10 @@ impl ObjectImpl for Window {
         obj.setup_actions();
     }
 }
-// ANCHOR_END: object_impl
 
 // Trait shared by all widgets
 impl WidgetImpl for Window {}
 
-// ANCHOR: window_impl
 // Trait shared by all windows
 impl WindowImpl for Window {
     fn close_request(&self) -> glib::Propagation {
@@ -86,13 +79,13 @@ impl WindowImpl for Window {
 
         // Save state to file
         let file = File::create(data_path()).expect("Could not create json file.");
-        serde_json::to_writer(file, &backup_data).expect("Could not write data to json file");
+        serde_json::to_writer(file, &backup_data)
+            .expect("Could not write data to json file");
 
         // Pass close request on to the parent
         self.parent_close_request()
     }
 }
-// ANCHOR_END: window_impl
 
 // Trait shared by all application windows
 impl ApplicationWindowImpl for Window {}

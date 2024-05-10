@@ -4,5 +4,6 @@
         <file compressed="true" preprocess="xml-stripblanks">ui/task_row.ui</file>
         <file compressed="true" preprocess="xml-stripblanks">ui/window.ui</file>
         <file compressed="true" preprocess="xml-stripblanks" alias="gtk/help-overlay.ui">ui/shortcuts.ui</file>
+        <file compressed="true">themes/style.css</file>
     </gresource>
 </gresources>

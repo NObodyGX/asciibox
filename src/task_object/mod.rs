@@ -9,7 +9,6 @@ glib::wrapper! {
     pub struct TaskObject(ObjectSubclass<imp::TaskObject>);
 }
 
-// ANCHOR: impl
 impl TaskObject {
     pub fn new(completed: bool, content: String) -> Self {
         Object::builder()
@@ -30,12 +29,9 @@ impl TaskObject {
         Self::new(task_data.completed, task_data.content)
     }
 }
-// ANCHOR_END: impl
 
-// ANCHOR: task_data
 #[derive(Default, Clone, Serialize, Deserialize)]
 pub struct TaskData {
     pub completed: bool,
     pub content: String,
 }
-// ANCHOR_END: task_data
