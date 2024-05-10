@@ -5,7 +5,7 @@ mod window;
 
 use gdk::Display;
 use gtk::prelude::*;
-use gtk::{gdk, gio, glib, Application, CssProvider};
+use gtk::{gdk, gio, glib, CssProvider};
 use window::Window;
 
 const APP_ID: &str = "com.github.nobodygx.asciibox";
@@ -19,7 +19,7 @@ fn main() -> glib::ExitCode {
     gio::resources_register(&resources);
 
     // Create a new application
-    let app = Application::builder().application_id(APP_ID).build();
+    let app = adw::Application::builder().application_id(APP_ID).build();
 
     // Connect to "activate" signal of `app`
     app.connect_startup(|app| {
@@ -32,7 +32,7 @@ fn main() -> glib::ExitCode {
     app.run()
 }
 
-fn setup_shortcuts(app: &Application) {
+fn setup_shortcuts(app: &adw::Application) {
     app.set_accels_for_action("win.filter('All')", &["<Ctrl>a"]);
     app.set_accels_for_action("win.filter('Open')", &["<Ctrl>o"]);
     app.set_accels_for_action("win.filter('Done')", &["<Ctrl>d"]);
@@ -53,7 +53,7 @@ fn load_css() {
 }
 // ANCHOR_END: load_css
 
-fn build_ui(app: &Application) {
+fn build_ui(app: &adw::Application) {
     // Create a new custom window and present it
     let window = Window::new(app);
     window.present();

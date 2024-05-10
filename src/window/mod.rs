@@ -6,7 +6,7 @@ use gio::Settings;
 use glib::{clone, Object};
 use gtk::subclass::prelude::*;
 use gtk::{
-    gio, glib, Application, CustomFilter, FilterListModel, NoSelection,
+    gio, glib, CustomFilter, FilterListModel, NoSelection,
     SignalListItemFactory,
 };
 use gtk::{prelude::*, ListItem};
@@ -24,7 +24,7 @@ glib::wrapper! {
 }
 
 impl Window {
-    pub fn new(app: &Application) -> Self {
+    pub fn new(app: &adw::Application) -> Self {
         // Create new window
         Object::builder().property("application", app).build()
     }
@@ -45,7 +45,6 @@ impl Window {
     }
 
     fn tasks(&self) -> gio::ListStore {
-        // Get state
         self.imp()
             .tasks
             .borrow()

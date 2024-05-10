@@ -64,6 +64,10 @@
             <child>
               <object class="GtkListView" id="tasks_list">
                 <property name="valign">start</property>
+                <style>
+                  <class name="frame"/>
+                  <class name="separators"/>
+                </style>
               </object>
             </child>
           </object>
