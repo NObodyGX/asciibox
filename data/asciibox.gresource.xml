@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <gresources>
     <gresource prefix="/com/github/nobodygx/asciibox/">
-        <file compressed="true">ui/main_window.ui</file>
+        <file compressed="true" preprocess="xml-stripblanks">ui/task_row.ui</file>
+        <file compressed="true" preprocess="xml-stripblanks">ui/window.ui</file>
     </gresource>
 </gresources>
