@@ -14,9 +14,9 @@ cd $pwd
 if [ $is_clean -eq 1 ]; then
   rm -rf _build
 fi
-meson _build
+meson setup _build
 cd $pwd/_build
-ninja
+meson compile
 
 cd $pwd/_build/src
 ./asciibox
