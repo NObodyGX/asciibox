@@ -3,7 +3,7 @@ use std::fs::File;
 
 use gio::Settings;
 use glib::subclass::InitializingObject;
-use gtk::prelude::*;
+use gtk::{prelude::*, MenuButton};
 use gtk::subclass::prelude::*;
 use gtk::{gio, glib, CompositeTemplate, Entry, ListView};
 use std::cell::OnceCell;
@@ -21,6 +21,8 @@ pub struct Window {
     pub tasks_list: TemplateChild<ListView>,
     pub tasks: RefCell<Option<gio::ListStore>>,
     pub settings: OnceCell<Settings>,
+    #[template_child]
+    pub main_menu_button: TemplateChild<MenuButton>,
 }
 
 // The central trait for subclassing a GObject
@@ -54,6 +56,7 @@ impl ObjectImpl for Window {
         // Setup
         let obj = self.obj();
         obj.setup_settings();
+        obj.setup_widget();
         obj.setup_tasks();
         obj.restore_data();
         obj.setup_callbacks();

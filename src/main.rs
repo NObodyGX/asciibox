@@ -4,6 +4,7 @@ mod utils;
 mod window;
 mod application;
 mod config;
+mod gui;
 
 use gtk::prelude::*;
 use gtk::{gio, glib};

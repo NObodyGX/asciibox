@@ -45,6 +45,14 @@ impl Window {
             .expect("`settings` should be set in `setup_settings`.")
     }
 
+    fn setup_widget(&self) {
+        let imp = self.imp();
+        let popover = imp.main_menu_button.popover().unwrap();
+        let popover_menu = popover.downcast::<gtk::PopoverMenu>().unwrap();
+        let theme = crate::gui::ThemeSelector::new();
+        popover_menu.add_child(&theme, "theme");
+    }
+
     fn tasks(&self) -> gio::ListStore {
         self.imp()
             .tasks

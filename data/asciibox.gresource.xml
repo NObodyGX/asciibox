@@ -3,8 +3,10 @@
     <gresource prefix="/com/github/nobodygx/asciibox/">
         <file compressed="true" preprocess="xml-stripblanks">ui/task_row.ui</file>
         <file compressed="true" preprocess="xml-stripblanks">ui/window.ui</file>
+        <file compressed="true" preprocess="xml-stripblanks">ui/theme_selector.ui</file>
         <file compressed="true" preprocess="xml-stripblanks" alias="gtk/help-overlay.ui">ui/shortcuts.ui</file>
         <file compressed="true">themes/style.css</file>
+        <file compressed="true">themes/theme_selector.css</file>
     </gresource>
     <gresource prefix="/com/github/nobodygx/asciibox/icons/scalable/apps/">
         <file preprocess="xml-stripblanks" alias="logo.svg">icons/hicolor/scalable/apps/com.github.nobodygx.asciibox.svg</file>

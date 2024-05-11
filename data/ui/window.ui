@@ -29,7 +29,7 @@
       <object class="AdwHeaderBar" id="header_bar">
         <property name="centering-policy">strict</property>
         <child type="end">
-          <object class="GtkMenuButton">
+          <object class="GtkMenuButton" id="main_menu_button">
             <property name="icon-name">open-menu-symbolic</property>
             <property name="menu-model">main-menu</property>
             <property name="tooltip-text" translatable="yes">Main Menu</property>
