@@ -15,6 +15,8 @@ mod imp {
 
     use gtk::Label;
 
+    use crate::gui::SvgbobPage;
+
     use super::*;
 
     // Object holding the state
@@ -31,6 +33,8 @@ mod imp {
         pub stack: TemplateChild<adw::ViewStack>,
         #[template_child]
         pub label_title: TemplateChild<Label>,
+        #[template_child]
+        pub discover: TemplateChild<SvgbobPage>,
 
         pub stack_child: Arc<Mutex<LinkedList<(String, String)>>>,
         pub settings: OnceCell<Settings>,

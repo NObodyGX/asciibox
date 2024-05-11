@@ -87,10 +87,7 @@
                                     <object class="GtkViewport" id="discover_view">
                                       <property name="scroll-to-focus">False</property>
                                       <child>
-                                        <!-- <object class="Discover" id="discover" /> -->
-                                        <object class="GtkLabel" id="discover">
-                                          <property name="label">discover</property>
-                                        </object>
+                                        <object class="SvgbobPage" id="discover" />
                                       </child>
                                     </object>
                                   </child>

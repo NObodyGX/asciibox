@@ -16,20 +16,20 @@ pwd=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 # cp $pwd/data/com.github.nobodygx.asciibox.gschema.xml /usr/share/glib-2.0/schemas/
 # glib-compile-schemas /usr/share/glib-2.0/schemas/
 
-
+bdir="_build"
 cd $pwd
 if [ $is_clean -eq 1 ]; then
-  meson setup _build --reconfigure
+  meson setup $bdir --reconfigure
 elif [ $is_clean -eq 2 ]; then
-  rm -rf _build
-  meson setup _build
+  rm -rf $bdir
+  meson setup $bdir
 else
-  meson setup _build
+  meson setup $bdir
 fi
-cd $pwd/_build
+cd $pwd/$bdir
 meson compile
 
-cd $pwd/_build/src
+cd $pwd/$bdir/src
 ./asciibox
 cd -
 cd -
