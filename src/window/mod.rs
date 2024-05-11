@@ -2,24 +2,23 @@ mod imp;
 
 use std::fs::File;
 
-use adw::prelude::*;
-use adw::subclass::prelude::*;
-use adw::{ActionRow, AlertDialog, ResponseAppearance};
 use gio::Settings;
 use glib::{clone, Object};
+use gtk::subclass::prelude::*;
 use gtk::{
-    gio, glib, pango, Align, CheckButton, CustomFilter, Entry, FilterListModel, Label,
-    ListBoxRow, NoSelection,
+    gio, glib, CustomFilter, FilterListModel, NoSelection,
+    SignalListItemFactory,
 };
+use gtk::{prelude::*, ListItem};
 
-use crate::collection_object::{CollectionData, CollectionObject};
-use crate::task_object::TaskObject;
+use crate::task_object::{TaskData, TaskObject};
+use crate::task_row::TaskRow;
 use crate::utils::data_path;
 use crate::APP_ID;
 
 glib::wrapper! {
     pub struct Window(ObjectSubclass<imp::Window>)
-        @extends adw::ApplicationWindow, gtk::ApplicationWindow, gtk::Window, gtk::Widget,
+        @extends gtk::ApplicationWindow, gtk::Window, gtk::Widget,
         @implements gio::ActionGroup, gio::ActionMap, gtk::Accessible, gtk::Buildable,
                     gtk::ConstraintTarget, gtk::Native, gtk::Root, gtk::ShortcutManager;
 }
@@ -45,36 +44,13 @@ impl Window {
             .expect("`settings` should be set in `setup_settings`.")
     }
 
-    // ANCHOR: helper
     fn tasks(&self) -> gio::ListStore {
-        self.current_collection().tasks()
-    }
-
-    fn current_collection(&self) -> CollectionObject {
         self.imp()
-            .current_collection
+            .tasks
             .borrow()
             .clone()
-            .expect("`current_collection` should be set in `set_current_collections`.")
+            .expect("Could not get current tasks.")
     }
-
-    fn collections(&self) -> gio::ListStore {
-        self.imp()
-            .collections
-            .get()
-            .expect("`collections` should be set in `setup_collections`.")
-            .clone()
-    }
-
-    fn set_filter(&self) {
-        self.imp()
-            .current_filter_model
-            .borrow()
-            .clone()
-            .expect("`current_filter_model` should be set in `set_current_collection`.")
-            .set_filter(self.filter().as_ref());
-    }
-    // ANCHOR_END: helper
 
     fn filter(&self) -> Option<CustomFilter> {
         // Get filter state from settings
@@ -109,156 +85,43 @@ impl Window {
         }
     }
 
-    // ANCHOR: setup_collections
-    fn setup_collections(&self) {
-        let collections = gio::ListStore::new::<CollectionObject>();
-        self.imp()
-            .collections
-            .set(collections.clone())
-            .expect("Could not set collections");
+    fn setup_tasks(&self) {
+        // Create new model
+        let model = gio::ListStore::new::<TaskObject>();
 
-        self.imp().collections_list.bind_model(
-            Some(&collections),
-            clone!(@weak self as window => @default-panic, move |obj| {
-                let collection_object = obj
-                    .downcast_ref()
-                    .expect("The object should be of type `CollectionObject`.");
-                let row = window.create_collection_row(collection_object);
-                row.upcast()
+        // Get state and set model
+        self.imp().tasks.replace(Some(model));
+
+        // Wrap model with filter and selection and pass it to the list view
+        let filter_model = FilterListModel::new(Some(self.tasks()), self.filter());
+        let selection_model = NoSelection::new(Some(filter_model.clone()));
+        self.imp().tasks_list.set_model(Some(&selection_model));
+
+        // Filter model whenever the value of the key "filter" changes
+        self.settings().connect_changed(
+            Some("filter"),
+            clone!(@weak self as window, @weak filter_model => move |_, _| {
+                filter_model.set_filter(window.filter().as_ref());
             }),
-        )
+        );
     }
-    // ANCHOR_END: setup_collections
 
-    // ANCHOR: restore_data
     fn restore_data(&self) {
         if let Ok(file) = File::open(data_path()) {
             // Deserialize data from file to vector
-            let backup_data: Vec<CollectionData> = serde_json::from_reader(file)
-                .expect(
-                    "It should be possible to read `backup_data` from the json file.",
-                );
+            let backup_data: Vec<TaskData> = serde_json::from_reader(file).expect(
+                "It should be possible to read `backup_data` from the json file.",
+            );
 
-            // Convert `Vec<CollectionData>` to `Vec<CollectionObject>`
-            let collections: Vec<CollectionObject> = backup_data
+            // Convert `Vec<TaskData>` to `Vec<TaskObject>`
+            let task_objects: Vec<TaskObject> = backup_data
                 .into_iter()
-                .map(CollectionObject::from_collection_data)
+                .map(TaskObject::from_task_data)
                 .collect();
 
             // Insert restored objects into model
-            self.collections().extend_from_slice(&collections);
-
-            // Set first collection as current
-            if let Some(first_collection) = collections.first() {
-                self.set_current_collection(first_collection.clone());
-            }
+            self.tasks().extend_from_slice(&task_objects);
         }
-    }
-    // ANCHOR_END: restore_data
-
-    // ANCHOR: create_collection_row
-    fn create_collection_row(
-        &self,
-        collection_object: &CollectionObject,
-    ) -> ListBoxRow {
-        let label = Label::builder()
-            .ellipsize(pango::EllipsizeMode::End)
-            .xalign(0.0)
-            .build();
-
-        collection_object
-            .bind_property("title", &label, "label")
-            .sync_create()
-            .build();
-
-        ListBoxRow::builder().child(&label).build()
-    }
-    // ANCHOR_END: create_collection_row
-
-    // ANCHOR: set_current_collection
-    fn set_current_collection(&self, collection: CollectionObject) {
-        // Wrap model with filter and selection and pass it to the list box
-        let tasks = collection.tasks();
-        let filter_model = FilterListModel::new(Some(tasks.clone()), self.filter());
-        let selection_model = NoSelection::new(Some(filter_model.clone()));
-        self.imp().tasks_list.bind_model(
-            Some(&selection_model),
-            clone!(@weak self as window => @default-panic, move |obj| {
-                let task_object = obj
-                    .downcast_ref()
-                    .expect("The object should be of type `TaskObject`.");
-                let row = window.create_task_row(task_object);
-                row.upcast()
-            }),
-        );
-
-        // Store filter model
-        self.imp().current_filter_model.replace(Some(filter_model));
-
-        // If present, disconnect old `tasks_changed` handler
-        if let Some(handler_id) = self.imp().tasks_changed_handler_id.take() {
-            self.tasks().disconnect(handler_id);
-        }
-
-        // Assure that the task list is only visible when it is supposed to
-        self.set_task_list_visible(&tasks);
-        let tasks_changed_handler_id = tasks.connect_items_changed(
-            clone!(@weak self as window => move |tasks, _, _, _| {
-                window.set_task_list_visible(tasks);
-            }),
-        );
-        self.imp()
-            .tasks_changed_handler_id
-            .replace(Some(tasks_changed_handler_id));
-
-        // Set current tasks
-        self.imp().current_collection.replace(Some(collection));
-
-        self.select_collection_row();
-    }
-    // ANCHOR_END: set_current_collection
-
-    // ANCHOR: set_task_list_visible
-    fn set_task_list_visible(&self, tasks: &gio::ListStore) {
-        self.imp().tasks_list.set_visible(tasks.n_items() > 0);
-    }
-    // ANCHOR_END: set_task_list_visible
-
-    // ANCHOR: select_collection_row
-    fn select_collection_row(&self) {
-        if let Some(index) = self.collections().find(&self.current_collection()) {
-            let row = self.imp().collections_list.row_at_index(index as i32);
-            self.imp().collections_list.select_row(row.as_ref());
-        }
-    }
-    // ANCHOR_END: select_collection_row
-
-    fn create_task_row(&self, task_object: &TaskObject) -> ActionRow {
-        // Create check button
-        let check_button = CheckButton::builder()
-            .valign(Align::Center)
-            .can_focus(false)
-            .build();
-
-        // Create row
-        let row = ActionRow::builder()
-            .activatable_widget(&check_button)
-            .build();
-        row.add_prefix(&check_button);
-
-        // Bind properties
-        task_object
-            .bind_property("completed", &check_button, "active")
-            .bidirectional()
-            .sync_create()
-            .build();
-        task_object
-            .bind_property("content", &row, "title")
-            .sync_create()
-            .build();
-
-        // Return row
-        row
     }
 
     fn setup_callbacks(&self) {
@@ -275,49 +138,7 @@ impl Window {
                 window.new_task();
             }),
         );
-
-        // ANCHOR: setup_callbacks
-        // Filter model whenever the value of the key "filter" changes
-        self.settings().connect_changed(
-            Some("filter"),
-            clone!(@weak self as window => move |_, _| {
-                window.set_filter();
-            }),
-        );
-
-        // Setup callback when items of collections change
-        self.set_stack();
-        self.collections().connect_items_changed(
-            clone!(@weak self as window => move |_, _, _, _| {
-                window.set_stack();
-            }),
-        );
-
-        // Setup callback for activating a row of collections list
-        self.imp().collections_list.connect_row_activated(
-            clone!(@weak self as window => move |_, row| {
-                let index = row.index();
-                let selected_collection = window.collections()
-                    .item(index as u32)
-                    .expect("There needs to be an object at this position.")
-                    .downcast::<CollectionObject>()
-                    .expect("The object needs to be a `CollectionObject`.");
-                window.set_current_collection(selected_collection);
-                window.imp().split_view.set_show_content(true);
-            }),
-        );
-        // ANCHOR_END: setup_callbacks
     }
-
-    // ANCHOR: set_stack
-    fn set_stack(&self) {
-        if self.collections().n_items() > 0 {
-            self.imp().stack.set_visible_child_name("main");
-        } else {
-            self.imp().stack.set_visible_child_name("placeholder");
-        }
-    }
-    // ANCHOR_END: set_stack
 
     fn new_task(&self) {
         // Get content from entry and clear it
@@ -331,6 +152,58 @@ impl Window {
         // Add new task to model
         let task = TaskObject::new(false, content);
         self.tasks().append(&task);
+    }
+
+    fn setup_factory(&self) {
+        // Create a new factory
+        let factory = SignalListItemFactory::new();
+
+        // Create an empty `TaskRow` during setup
+        factory.connect_setup(move |_, list_item| {
+            // Create `TaskRow`
+            let task_row = TaskRow::new();
+            list_item
+                .downcast_ref::<ListItem>()
+                .expect("Needs to be ListItem")
+                .set_child(Some(&task_row));
+        });
+
+        // Tell factory how to bind `TaskRow` to a `TaskObject`
+        factory.connect_bind(move |_, list_item| {
+            // Get `TaskObject` from `ListItem`
+            let task_object = list_item
+                .downcast_ref::<ListItem>()
+                .expect("Needs to be ListItem")
+                .item()
+                .and_downcast::<TaskObject>()
+                .expect("The item has to be an `TaskObject`.");
+
+            // Get `TaskRow` from `ListItem`
+            let task_row = list_item
+                .downcast_ref::<ListItem>()
+                .expect("Needs to be ListItem")
+                .child()
+                .and_downcast::<TaskRow>()
+                .expect("The child has to be a `TaskRow`.");
+
+            task_row.bind(&task_object);
+        });
+
+        // Tell factory how to unbind `TaskRow` from `TaskObject`
+        factory.connect_unbind(move |_, list_item| {
+            // Get `TaskRow` from `ListItem`
+            let task_row = list_item
+                .downcast_ref::<ListItem>()
+                .expect("Needs to be ListItem")
+                .child()
+                .and_downcast::<TaskRow>()
+                .expect("The child has to be a `TaskRow`.");
+
+            task_row.unbind();
+        });
+
+        // Set the factory of the list view
+        self.imp().tasks_list.set_factory(Some(&factory));
     }
 
     fn setup_actions(&self) {
@@ -355,65 +228,4 @@ impl Window {
             }
         }
     }
-
-    // ANCHOR: new_collection
-    async fn new_collection(&self) {
-        // Create entry
-        let entry = Entry::builder()
-            .placeholder_text("Name")
-            .activates_default(true)
-            .build();
-
-        let cancel_response = "cancel";
-        let create_response = "create";
-
-        // Create new dialog
-        let dialog = AlertDialog::builder()
-            .heading("New Collection")
-            .close_response(cancel_response)
-            .default_response(create_response)
-            .extra_child(&entry)
-            .build();
-        dialog
-            .add_responses(&[(cancel_response, "Cancel"), (create_response, "Create")]);
-        // Make the dialog button insensitive initially
-        dialog.set_response_enabled(create_response, false);
-        dialog.set_response_appearance(create_response, ResponseAppearance::Suggested);
-
-        // Set entry's css class to "error", when there is no text in it
-        entry.connect_changed(clone!(@weak dialog => move |entry| {
-            let text = entry.text();
-            let empty = text.is_empty();
-
-            dialog.set_response_enabled(create_response, !empty);
-
-            if empty {
-                entry.add_css_class("error");
-            } else {
-                entry.remove_css_class("error");
-            }
-        }));
-
-        let response = dialog.choose_future(self).await;
-
-        // Return if the user chose `cancel_response`
-        if response == cancel_response {
-            return;
-        }
-
-        // Create a new list store
-        let tasks = gio::ListStore::new::<TaskObject>();
-
-        // Create a new collection object from the title the user provided
-        let title = entry.text().to_string();
-        let collection = CollectionObject::new(&title, tasks);
-
-        // Add new collection object and set current tasks
-        self.collections().append(&collection);
-        self.set_current_collection(collection);
-
-        // Show the content
-        self.imp().split_view.set_show_content(true);
-    }
-    // ANCHOR_END: new_collection
 }
