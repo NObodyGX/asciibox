@@ -1,6 +1,3 @@
-mod task_object;
-mod task_row;
-mod utils;
 mod application;
 mod config;
 mod gui;
@@ -11,6 +8,8 @@ use application::AsciiboxApplication;
 
 const APP_ID: &str = "com.github.nobodygx.asciibox";
 const APP_NAME: &str = "asciibox";
+
+// only for local temp test
 pub static PKGDATADIR: &str = "../data";
 
 // ANCHOR: main
