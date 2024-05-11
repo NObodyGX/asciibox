@@ -33,9 +33,8 @@ fn main() -> glib::ExitCode {
 }
 
 fn setup_shortcuts(app: &adw::Application) {
-    app.set_accels_for_action("win.filter('All')", &["<Ctrl>a"]);
-    app.set_accels_for_action("win.filter('Open')", &["<Ctrl>o"]);
-    app.set_accels_for_action("win.filter('Done')", &["<Ctrl>d"]);
+    app.set_accels_for_action("win.execute", &["<Ctrl>r"]);
+    app.set_accels_for_action("win.clearall", &["<Ctrl>l"]);
 }
 
 // ANCHOR: load_css
