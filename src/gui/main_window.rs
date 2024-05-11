@@ -1,30 +1,113 @@
-mod imp;
-
 use std::fs::File;
 
 use gio::Settings;
 use glib::{clone, Object};
 use gtk::subclass::prelude::*;
-use gtk::{
-    gio, glib, CustomFilter, FilterListModel, NoSelection,
-    SignalListItemFactory,
-};
-use gtk::{prelude::*, ListItem};
+use gtk::{gio, glib, CustomFilter, FilterListModel, NoSelection, SignalListItemFactory,CompositeTemplate, Entry, ListView, MenuButton, prelude::*, ListItem};
+use std::cell::RefCell;
+use glib::subclass::InitializingObject;
+use std::cell::OnceCell;
 
 use crate::task_object::{TaskData, TaskObject};
-use crate::task_row::TaskRow;
 use crate::utils::data_path;
-use crate::APP_ID;
 use crate::application::AsciiboxApplication;
+use crate::task_row::TaskRow;
+use crate::APP_ID;
+
+
+mod imp {
+    use super::*;
+
+    // Object holding the state
+    #[derive(CompositeTemplate, Default)]
+    #[template(resource = "/com/github/nobodygx/asciibox/ui/window.ui")]
+    pub struct MainWindow {
+        #[template_child]
+        pub entry: TemplateChild<Entry>,
+        #[template_child]
+        pub tasks_list: TemplateChild<ListView>,
+        pub tasks: RefCell<Option<gio::ListStore>>,
+        pub settings: OnceCell<Settings>,
+        #[template_child]
+        pub main_menu_button: TemplateChild<MenuButton>,
+    }
+
+    // The central trait for subclassing a GObject
+    #[glib::object_subclass]
+    impl ObjectSubclass for MainWindow {
+        // `NAME` needs to match `class` attribute of template
+        const NAME: &'static str = "AsciiboxWinodw";
+        type Type = super::MainWindow;
+        type ParentType = gtk::ApplicationWindow;
+
+        fn class_init(klass: &mut Self::Class) {
+            klass.bind_template();
+
+            // Create action to remove done tasks and add to action group "win"
+            klass.install_action("win.remove-done-tasks", None, |window, _, _| {
+                window.remove_done_tasks();
+            });
+        }
+
+        fn instance_init(obj: &InitializingObject<Self>) {
+            obj.init_template();
+        }
+    }
+
+    // Trait shared by all GObjects
+    impl ObjectImpl for MainWindow {
+        fn constructed(&self) {
+            // Call "constructed" on parent
+            self.parent_constructed();
+
+            // Setup
+            let obj = self.obj();
+            obj.setup_settings();
+            obj.setup_widget();
+            obj.setup_tasks();
+            obj.restore_data();
+            obj.setup_callbacks();
+            obj.setup_factory();
+            obj.setup_actions();
+        }
+    }
+
+    // Trait shared by all widgets
+    impl WidgetImpl for MainWindow {}
+
+    // Trait shared by all windows
+    impl WindowImpl for MainWindow {
+        fn close_request(&self) -> glib::Propagation {
+            // Store task data in vector
+            let backup_data: Vec<TaskData> = self
+                .obj()
+                .tasks()
+                .iter::<TaskObject>()
+                .filter_map(Result::ok)
+                .map(|task_object| task_object.task_data())
+                .collect();
+
+            // Save state to file
+            let file = File::create(data_path()).expect("Could not create json file.");
+            serde_json::to_writer(file, &backup_data).expect("Could not write data to json file");
+
+            // Pass close request on to the parent
+            self.parent_close_request()
+        }
+    }
+
+    // Trait shared by all application windows
+    impl ApplicationWindowImpl for MainWindow {}
+}
 
 glib::wrapper! {
-    pub struct Window(ObjectSubclass<imp::Window>)
+    pub struct MainWindow(ObjectSubclass<imp::MainWindow>)
         @extends gtk::ApplicationWindow, gtk::Window, gtk::Widget,
         @implements gio::ActionGroup, gio::ActionMap, gtk::Accessible, gtk::Buildable,
                     gtk::ConstraintTarget, gtk::Native, gtk::Root, gtk::ShortcutManager;
 }
 
-impl Window {
+impl MainWindow {
     pub fn new(app: &AsciiboxApplication) -> Self {
         // Create new window
         Object::builder().property("application", app).build()
@@ -118,9 +201,8 @@ impl Window {
     fn restore_data(&self) {
         if let Ok(file) = File::open(data_path()) {
             // Deserialize data from file to vector
-            let backup_data: Vec<TaskData> = serde_json::from_reader(file).expect(
-                "It should be possible to read `backup_data` from the json file.",
-            );
+            let backup_data: Vec<TaskData> = serde_json::from_reader(file)
+                .expect("It should be possible to read `backup_data` from the json file.");
 
             // Convert `Vec<TaskData>` to `Vec<TaskObject>`
             let task_objects: Vec<TaskObject> = backup_data
@@ -142,11 +224,11 @@ impl Window {
             }));
 
         // Setup callback for clicking (and the releasing) the icon of the entry
-        self.imp().entry.connect_icon_release(
-            clone!(@weak self as window => move |_,_| {
+        self.imp()
+            .entry
+            .connect_icon_release(clone!(@weak self as window => move |_,_| {
                 window.new_task();
-            }),
-        );
+            }));
     }
 
     fn new_task(&self) {

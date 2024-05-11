@@ -2,7 +2,7 @@ use gtk::{gio, glib};
 use glib::clone;
 use adw::prelude::*;
 use adw::subclass::prelude::*;
-use crate::window::Window;
+use crate::gui::MainWindow;
 use crate::config::VERSION;
 
 
@@ -59,8 +59,8 @@ impl AsciiboxApplication {
             .property("flags", flags)
             .build()
     }
-    fn create_window(&self) -> Window {
-        let window = Window::new(&self.clone());
+    fn create_window(&self) -> MainWindow {
+        let window = MainWindow::new(&self.clone());
 
         window.present();
         window

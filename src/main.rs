@@ -1,7 +1,6 @@
 mod task_object;
 mod task_row;
 mod utils;
-mod window;
 mod application;
 mod config;
 mod gui;
