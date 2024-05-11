@@ -8,15 +8,15 @@ use application::AsciiboxApplication;
 
 const APP_ID: &str = "com.github.nobodygx.asciibox";
 const APP_NAME: &str = "asciibox";
-
+use config::PKGDATADIR;
 // only for local temp test
-pub static PKGDATADIR: &str = "../data";
 
 // ANCHOR: main
 fn main() -> glib::ExitCode {
     // Register and include resources
-    let resources = gio::Resource::load(PKGDATADIR.to_owned() + "/asciibox.gresource")
-        .expect("Could not load resources");
+    let resources =
+        gio::Resource::load(PKGDATADIR.to_owned() + "/asciibox.gresource")
+            .expect("Could not load resources");
     gio::resources_register(&resources);
 
     // Create a new application
