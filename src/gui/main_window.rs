@@ -1,15 +1,20 @@
 use gio::Settings;
 use glib::Object;
 use gtk::subclass::prelude::*;
-use gtk::{gio, glib, CompositeTemplate, ListView, MenuButton, prelude::*};
+use gtk::{gio, glib, CompositeTemplate, MenuButton, prelude::*};
 use glib::subclass::InitializingObject;
 use std::cell::OnceCell;
+use std::collections::LinkedList;
 
 use crate::application::AsciiboxApplication;
 use crate::APP_ID;
 
 
 mod imp {
+    use std::sync::{Arc, Mutex};
+
+    use gtk::Label;
+
     use super::*;
 
     // Object holding the state
@@ -17,22 +22,35 @@ mod imp {
     #[template(resource = "/com/github/nobodygx/asciibox/ui/main_window.ui")]
     pub struct MainWindow {
         #[template_child]
-        pub tasks_list: TemplateChild<ListView>,
-        pub settings: OnceCell<Settings>,
-        #[template_child]
         pub main_menu_button: TemplateChild<MenuButton>,
+        #[template_child]
+        pub toast_overlay: TemplateChild<adw::ToastOverlay>,
+        #[template_child]
+        pub base_stack: TemplateChild<gtk::Stack>,
+        #[template_child]
+        pub stack: TemplateChild<adw::ViewStack>,
+        #[template_child]
+        pub label_title: TemplateChild<Label>,
+
+        pub stack_child: Arc<Mutex<LinkedList<(String, String)>>>,
+        pub settings: OnceCell<Settings>,
     }
 
-    // The central trait for subclassing a GObject
+    impl MainWindow {
+        pub fn clear_title(&self) {
+        }
+    }
+
     #[glib::object_subclass]
     impl ObjectSubclass for MainWindow {
         // `NAME` needs to match `class` attribute of template
-        const NAME: &'static str = "AsciiboxWinodw";
+        const NAME: &'static str = "MainWindow";
         type Type = super::MainWindow;
         type ParentType = gtk::ApplicationWindow;
 
         fn class_init(klass: &mut Self::Class) {
             klass.bind_template();
+            klass.bind_template_instance_callbacks();
 
             // Create action to remove done tasks and add to action group "win"
             klass.install_action("win.execute_task", None, |window, _, _| {
@@ -45,13 +63,10 @@ mod imp {
         }
     }
 
-    // Trait shared by all GObjects
     impl ObjectImpl for MainWindow {
         fn constructed(&self) {
-            // Call "constructed" on parent
             self.parent_constructed();
 
-            // Setup
             let obj = self.obj();
             obj.setup_settings();
             obj.setup_widget();
@@ -59,13 +74,10 @@ mod imp {
         }
     }
 
-    // Trait shared by all widgets
     impl WidgetImpl for MainWindow {}
 
-    // Trait shared by all windows
     impl WindowImpl for MainWindow {
         fn close_request(&self) -> glib::Propagation {
-            // Pass close request on to the parent
             self.parent_close_request()
         }
     }
@@ -116,5 +128,50 @@ impl MainWindow {
 
     fn execute_task(&self) {
         println!("exec task start !!!!")
+    }
+}
+
+#[gtk::template_callbacks]
+impl MainWindow {
+
+    #[template_callback]
+    fn stack_visible_child_cb(&self) {
+        let imp = self.imp();
+        let stack = imp.stack.get();
+        let label = imp.label_title.get();
+        if let Some(visible_child_name) = stack.visible_child_name() {
+            let mut stack_child = LinkedList::new();
+            if let Ok(sc) = imp.stack_child.lock() {
+                stack_child = (*sc).clone();
+            }
+            if let Some(child) = stack_child.back() {
+                if visible_child_name == child.0 {
+                    return;
+                }
+            }
+            if stack_child.len() == 1 {
+                if visible_child_name == "discover"
+                    || visible_child_name == "toplist"
+                    || visible_child_name == "my"
+                {
+                    if let Ok(mut sc) = imp.stack_child.lock() {
+                        sc.pop_back();
+                        sc.push_back((visible_child_name.to_string(), "".to_owned()));
+                    }
+                } else if let Ok(mut sc) = imp.stack_child.lock() {
+                    sc.push_back((visible_child_name.to_string(), label.text().to_string()));
+                }
+            } else if visible_child_name == "discover"
+                || visible_child_name == "toplist"
+                || visible_child_name == "my"
+            {
+                if let Ok(mut sc) = imp.stack_child.lock() {
+                    sc.clear();
+                    sc.push_back((visible_child_name.to_string(), "".to_owned()));
+                }
+            } else if let Ok(mut sc) = imp.stack_child.lock() {
+                sc.push_back((visible_child_name.to_string(), label.text().to_string()));
+            }
+        }
     }
 }
