@@ -1,14 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
 <schemalist>
     <schema id="com.github.nobodygx.asciibox" path="/com/github/nobodygx/asciibox/">
-        <key name="filter" type="s">
+        <key name="theme-style" type="s">
             <choices>
-                <choice value='All' />
-                <choice value='Open' />
-                <choice value='Done' />
+                <choice value='system' />
+                <choice value='light' />
+                <choice value='dark' />
             </choices>
-            <default>'All'</default>
-            <summary>Filter of the tasks</summary>
+            <default>'system'</default>
+            <summary>Settings theme</summary>
+        </key>
+        <key name="font-family-entry" type="s">
+            <default>''</default>
+            <summary>Output font family show</summary>
+        </key>
+        <key name="font-size-entry" type="s">
+            <default>''</default>
+            <summary>Output size family show</summary>
+        </key>
+        <key name="syntax-mode"  type="u">
+            <default>0</default>
+            <summary>Svgbob input syntax support</summary>
+        </key>
+        <key name="strict-mode" type="b">
+            <default>false</default>
+            <summary>Enable strict mode for input</summary>
         </key>
     </schema>
 </schemalist>

@@ -3,6 +3,7 @@ use glib::clone;
 use adw::prelude::*;
 use adw::subclass::prelude::*;
 use crate::gui::MainWindow;
+use crate::gui::MainPreferences;
 use crate::config::VERSION;
 
 
@@ -36,7 +37,8 @@ mod imp {
             let obj = self.obj();
             let app = obj.downcast_ref::<super::AsciiboxApplication>().unwrap();
             let window = app.create_window();
-            window.set_default_size(600, 350);
+            window.set_default_size(1280, 720);
+            // todo: read settings
             window.set_title(Some("Asciibox"));
 
             window.present();
@@ -87,15 +89,11 @@ impl AsciiboxApplication {
     }
 
     fn show_prefrerences(&self) {
-        // let window = self.active_window().unwrap();
-        // let preferences = NeteaseCloudMusicGtk4Preferences::new();
-        // preferences.set_modal(true);
-        // preferences.set_transient_for(Some(&window));
-
-        // let (size, unit) = crate::path::get_cache_size();
-        // preferences.set_cache_size_label(size, unit);
-
-        // preferences.present();
+        let window = self.active_window().unwrap();
+        let preferences = MainPreferences::new();
+        preferences.set_modal(true);
+        preferences.set_transient_for(Some(&window));
+        preferences.present();
     }
 
     fn show_about(&self) {
