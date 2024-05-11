@@ -27,7 +27,7 @@ pub struct Window {
 #[glib::object_subclass]
 impl ObjectSubclass for Window {
     // `NAME` needs to match `class` attribute of template
-    const NAME: &'static str = "TodoWindow";
+    const NAME: &'static str = "AsciiboxWinodw";
     type Type = super::Window;
     type ParentType = gtk::ApplicationWindow;
 
