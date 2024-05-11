@@ -1,3 +1,8 @@
 # readme
 
-a simple ascii text tools for gen asciidoc and svgbob
+a simple ascii svgbob text generator tools using mermaid syntax
+
+
+## dev
+
+your can ignore the local config.rs in repo

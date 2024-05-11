@@ -20,7 +20,7 @@ mod imp {
 
     // Object holding the state
     #[derive(CompositeTemplate, Default)]
-    #[template(resource = "/com/github/nobodygx/asciibox/ui/window.ui")]
+    #[template(resource = "/com/github/nobodygx/asciibox/ui/main_window.ui")]
     pub struct MainWindow {
         #[template_child]
         pub entry: TemplateChild<Entry>,

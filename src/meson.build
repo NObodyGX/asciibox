@@ -11,6 +11,14 @@ configure_file(
   output: 'config.rs',
   configuration: conf
 )
+# copy output
+run_command(
+  'cp',
+  join_paths(meson.project_build_root(), 'src', 'config.rs'),
+  join_paths(meson.project_source_root(), 'src', 'config.rs'),
+  check: true
+)
+
 
 rust_sources = files(
   'main.rs',
