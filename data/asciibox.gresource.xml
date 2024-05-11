@@ -6,4 +6,10 @@
         <file compressed="true" preprocess="xml-stripblanks" alias="gtk/help-overlay.ui">ui/shortcuts.ui</file>
         <file compressed="true">themes/style.css</file>
     </gresource>
+    <gresource prefix="/com/github/nobodygx/asciibox/icons/scalable/apps/">
+        <file preprocess="xml-stripblanks" alias="logo.svg">icons/hicolor/scalable/apps/com.github.nobodygx.asciibox.svg</file>
+    </gresource>
+    <gresource prefix="/com/github/nobodygx/asciibox/icons/symbolic/apps/">
+        <file preprocess="xml-stripblanks" alias="logo-symbolic.svg">icons/hicolor/symbolic/apps/com.github.nobodygx.asciibox-symbolic.svg</file>
+    </gresource>
 </gresources>

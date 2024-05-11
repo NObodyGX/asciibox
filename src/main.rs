@@ -3,12 +3,14 @@ mod task_row;
 mod utils;
 mod window;
 mod application;
+mod config;
 
 use gtk::prelude::*;
 use gtk::{gio, glib};
 use application::AsciiboxApplication;
 
 const APP_ID: &str = "com.github.nobodygx.asciibox";
+const APP_NAME: &str = "asciibox";
 pub static PKGDATADIR: &str = "../data";
 
 // ANCHOR: main
