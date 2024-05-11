@@ -15,6 +15,7 @@ use crate::task_object::{TaskData, TaskObject};
 use crate::task_row::TaskRow;
 use crate::utils::data_path;
 use crate::APP_ID;
+use crate::application::AsciiboxApplication;
 
 glib::wrapper! {
     pub struct Window(ObjectSubclass<imp::Window>)
@@ -24,7 +25,7 @@ glib::wrapper! {
 }
 
 impl Window {
-    pub fn new(app: &adw::Application) -> Self {
+    pub fn new(app: &AsciiboxApplication) -> Self {
         // Create new window
         Object::builder().property("application", app).build()
     }
