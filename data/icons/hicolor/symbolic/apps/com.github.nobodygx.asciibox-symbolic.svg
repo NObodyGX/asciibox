@@ -8,7 +8,7 @@
    version="1.1"
    id="svg1"
    inkscape:version="1.3.2 (091e20ef0f, 2023-11-25, custom)"
-   sodipodi:docname="drawing.svg"
+   sodipodi:docname="com.github.nobodygx.asciibox-symbolic.svg"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns="http://www.w3.org/2000/svg"
@@ -23,14 +23,14 @@
      inkscape:pagecheckerboard="0"
      inkscape:deskcolor="#d1d1d1"
      inkscape:document-units="px"
-     inkscape:zoom="5.6568542"
-     inkscape:cx="26.870058"
-     inkscape:cy="23.511301"
-     inkscape:window-width="1243"
-     inkscape:window-height="679"
-     inkscape:window-x="430"
-     inkscape:window-y="236"
-     inkscape:window-maximized="0"
+     inkscape:zoom="3.9918084"
+     inkscape:cx="-22.671429"
+     inkscape:cy="54.987609"
+     inkscape:window-width="1876"
+     inkscape:window-height="1044"
+     inkscape:window-x="44"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
      inkscape:current-layer="layer1" />
   <defs
      id="defs1" />
@@ -39,31 +39,23 @@
      inkscape:groupmode="layer"
      id="layer1">
     <rect
-       style="fill:#000000;fill-opacity:0.89;stroke-width:1.48913"
-       id="bg"
-       width="48"
-       height="48"
-       x="0"
-       y="0"
-       ry="10" />
-    <rect
-       style="fill:none;fill-opacity:0.89;stroke:#ffffff;stroke-width:1.3;stroke-dasharray:none;stroke-opacity:1"
+       style="fill:none;fill-opacity:1;stroke:#2e3436;stroke-width:1.3;stroke-dasharray:none;stroke-opacity:1"
        id="box"
        width="7.4141355"
        height="7.9444656"
-       x="31.195923"
-       y="28.897825" />
+       x="32.650002"
+       y="6.6500001" />
     <text
        xml:space="preserve"
-       style="font-size:36.2058px;font-family:'Sarasa Gothic CL';-inkscape-font-specification:'Sarasa Gothic CL';fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:0.707;stroke-dasharray:none;stroke-opacity:1"
-       x="4.3474498"
-       y="35.764526"
+       style="font-size:46.513px;font-family:Alkatra;-inkscape-font-specification:Alkatra;fill:#2e3436;fill-opacity:1;stroke:none;stroke-width:0.908272;stroke-dasharray:none;stroke-opacity:1;font-weight:normal;font-style:normal;font-stretch:normal;font-variant:normal"
+       x="8.1929417"
+       y="40.445641"
        id="A"
-       transform="scale(0.95191052,1.0505189)"><tspan
+       transform="scale(0.94059635,1.0631553)"><tspan
          sodipodi:role="line"
          id="tspan3"
-         x="4.3474498"
-         y="35.764526"
-         style="fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:0.707;stroke-dasharray:none;stroke-opacity:1">A</tspan></text>
+         x="8.1929417"
+         y="40.445641"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:Alkatra;-inkscape-font-specification:Alkatra;fill:#2e3436;fill-opacity:1;stroke:none;stroke-width:0.908272;stroke-dasharray:none;stroke-opacity:1">A</tspan></text>
   </g>
 </svg>
