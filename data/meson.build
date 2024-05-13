@@ -11,6 +11,9 @@ gnome.compile_resources('asciibox',
 install_data('com.github.nobodygx.asciibox.gschema.xml',
   install_dir: join_paths(get_option('datadir'), 'glib-2.0/schemas')
 )
+# Compile schemas locally, so we can run uninstalled under a devenv
+gnome.compile_schemas()
+
 compile_schemas = find_program('glib-compile-schemas', required: false)
 if compile_schemas.found()
   test('Validate schema file', compile_schemas,

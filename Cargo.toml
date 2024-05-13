@@ -8,6 +8,4 @@ edition = "2021"
 
 [dependencies]
 gtk = { version = "0.8.2", package = "gtk4", features = ["v4_12"] }
-serde = { version = "1.0.201", features = ["derive"] }
-serde_json = "1.0.117"
 adw = { version = "0.6", package = "libadwaita", features = ["v1_5"] }

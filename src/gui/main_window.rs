@@ -15,7 +15,7 @@ mod imp {
 
     use gtk::Label;
 
-    use crate::gui::SvgbobPage;
+    use crate::gui::{AdocPage, SvgbobPage};
 
     use super::*;
 
@@ -24,17 +24,18 @@ mod imp {
     #[template(resource = "/com/github/nobodygx/asciibox/ui/main_window.ui")]
     pub struct MainWindow {
         #[template_child]
+        pub switcher_title: TemplateChild<adw::ViewSwitcher>,
+        #[template_child]
         pub main_menu_button: TemplateChild<MenuButton>,
-        #[template_child]
-        pub toast_overlay: TemplateChild<adw::ToastOverlay>,
-        #[template_child]
-        pub base_stack: TemplateChild<gtk::Stack>,
         #[template_child]
         pub stack: TemplateChild<adw::ViewStack>,
         #[template_child]
         pub label_title: TemplateChild<Label>,
         #[template_child]
-        pub discover: TemplateChild<SvgbobPage>,
+        pub svgbob: TemplateChild<SvgbobPage>,
+        #[template_child]
+        pub adoc: TemplateChild<AdocPage>,
+        
 
         pub stack_child: Arc<Mutex<LinkedList<(String, String)>>>,
         pub settings: OnceCell<Settings>,
@@ -140,42 +141,6 @@ impl MainWindow {
 
     #[template_callback]
     fn stack_visible_child_cb(&self) {
-        let imp = self.imp();
-        let stack = imp.stack.get();
-        let label = imp.label_title.get();
-        if let Some(visible_child_name) = stack.visible_child_name() {
-            let mut stack_child = LinkedList::new();
-            if let Ok(sc) = imp.stack_child.lock() {
-                stack_child = (*sc).clone();
-            }
-            if let Some(child) = stack_child.back() {
-                if visible_child_name == child.0 {
-                    return;
-                }
-            }
-            if stack_child.len() == 1 {
-                if visible_child_name == "discover"
-                    || visible_child_name == "toplist"
-                    || visible_child_name == "my"
-                {
-                    if let Ok(mut sc) = imp.stack_child.lock() {
-                        sc.pop_back();
-                        sc.push_back((visible_child_name.to_string(), "".to_owned()));
-                    }
-                } else if let Ok(mut sc) = imp.stack_child.lock() {
-                    sc.push_back((visible_child_name.to_string(), label.text().to_string()));
-                }
-            } else if visible_child_name == "discover"
-                || visible_child_name == "toplist"
-                || visible_child_name == "my"
-            {
-                if let Ok(mut sc) = imp.stack_child.lock() {
-                    sc.clear();
-                    sc.push_back((visible_child_name.to_string(), "".to_owned()));
-                }
-            } else if let Ok(mut sc) = imp.stack_child.lock() {
-                sc.push_back((visible_child_name.to_string(), label.text().to_string()));
-            }
-        }
+        
     }
 }

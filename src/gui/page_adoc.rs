@@ -1,14 +1,14 @@
 use gtk::{glib, subclass::prelude::*, CompositeTemplate};
 
 glib::wrapper! {
-    pub struct SvgbobPage(ObjectSubclass<imp::SvgbobPage>)
+    pub struct AdocPage(ObjectSubclass<imp::AdocPage>)
         @extends gtk::Widget, gtk::Box,
         @implements gtk::Accessible, gtk::Buildable,gtk::ConstraintTarget, gtk::Orientable;
 }
 
-impl SvgbobPage {
+impl AdocPage {
     pub fn new() -> Self {
-        let page: SvgbobPage = glib::Object::new();
+        let page: AdocPage = glib::Object::new();
         page
     }
 
@@ -18,7 +18,7 @@ impl SvgbobPage {
 
 }
 
-impl Default for SvgbobPage {
+impl Default for AdocPage {
     fn default() -> Self {
         Self::new()
     }
@@ -29,15 +29,15 @@ mod imp {
     use super::*;
 
     #[derive(Debug, Default, CompositeTemplate)]
-    #[template(resource = "/com/github/nobodygx/asciibox/ui/page_svgbob.ui")]
-    pub struct SvgbobPage {
+    #[template(resource = "/com/github/nobodygx/asciibox/ui/page_adoc.ui")]
+    pub struct AdocPage {
         
     }
 
     #[glib::object_subclass]
-    impl ObjectSubclass for SvgbobPage {
-        const NAME: &'static str = "SvgbobPage";
-        type Type = super::SvgbobPage;
+    impl ObjectSubclass for AdocPage {
+        const NAME: &'static str = "AdocPage";
+        type Type = super::AdocPage;
         type ParentType = gtk::Box;
 
         fn class_init(klass: &mut Self::Class) {
@@ -52,7 +52,7 @@ mod imp {
     }
 
     #[gtk::template_callbacks]
-    impl SvgbobPage {
+    impl AdocPage {
         #[template_callback]
         fn top_picks_cb(&self) {
             println!("click top picks cb");
@@ -64,13 +64,13 @@ mod imp {
         }
     }
 
-    impl ObjectImpl for SvgbobPage {
+    impl ObjectImpl for AdocPage {
         fn constructed(&self) {
             self.parent_constructed();
         }
     }
-    impl WidgetImpl for SvgbobPage {}
-    impl BoxImpl for SvgbobPage {}
+    impl WidgetImpl for AdocPage {}
+    impl BoxImpl for AdocPage {}
 }
 
 fn load_css() {

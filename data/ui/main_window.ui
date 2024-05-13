@@ -39,8 +39,10 @@
           <object class="GtkBox">
             <property name="orientation">horizontal</property>
             <child>
-              <object class="AdwViewSwitcherTitle" id="switcher_title">
+              <object class="AdwViewSwitcher" id="switcher_title">
+                <!-- <property name="title-visible">true</property> -->
                 <property name="stack">stack</property>
+                <property name="policy">wide</property>
               </object>
             </child>
             <child>
@@ -62,157 +64,36 @@
     <object class="GtkBox">
       <property name="orientation">vertical</property>
       <child>
-        <object class="AdwToastOverlay" id="toast_overlay">
-          <property name="child">
-            <object class="GtkBox" id="gbox">
-              <property name="orientation">vertical</property>
-              <child>
-                <object class="GtkStack" id="base_stack">
-                  <child>
-                    <object class="GtkStackPage">
-                      <property name="name">adw_stack_page</property>
-                      <property name="visible">True</property>
-                      <property name="child">
-                        <object class="AdwViewStack" id="stack">
-                          <signal name="notify::visible-child-name"
-                            handler="stack_visible_child_cb" swapped="true" />
-                          <child>
-                            <object class="AdwViewStackPage">
-                              <property name="name">discover</property>
-                              <property name="title" translatable="yes">Discover</property>
-                              <property name="icon-name">logo-symbolic</property>
-                              <property name="child">
-                                <object class="GtkScrolledWindow">
-                                  <child>
-                                    <object class="GtkViewport" id="discover_view">
-                                      <property name="scroll-to-focus">False</property>
-                                      <child>
-                                        <object class="SvgbobPage" id="discover" />
-                                      </child>
-                                    </object>
-                                  </child>
-                                </object>
-                              </property>
-                            </object>
-                          </child>
-                          <child>
-                            <object class="AdwViewStackPage">
-                              <property name="name">toplist</property>
-                              <property name="title" translatable="yes">Toplist</property>
-                              <property name="icon-name">view-sort-ascending-symbolic</property>
-                              <property name="child">
-                                <!-- <object class="TopListView" id="toplist" /> -->
-                                <object class="GtkLabel" id="toplist">
-                                  <property name="label">toplist</property>
-                                </object>
-                              </property>
-                            </object>
-                          </child>
-                          <child>
-                            <object class="AdwViewStackPage">
-                              <property name="name">my</property>
-                              <property name="title" translatable="yes">My</property>
-                              <property name="icon-name">folder-music-symbolic</property>
-                              <property name="child">
-                                <object class="AdwViewStack" id="my_stack">
-                                  <child>
-                                    <object class="AdwViewStackPage">
-                                      <property name="name">my_no_login</property>
-                                      <property name="child">
-                                        <object class="AdwStatusPage">
-                                          <child>
-                                            <object class="GtkGrid">
-                                              <property name="can_focus">False</property>
-                                              <property name="halign">center</property>
-                                              <property name="valign">center</property>
-                                              <property name="margin-bottom">100</property>
-                                              <property name="orientation">vertical</property>
-                                              <child>
-                                                <object class="GtkImage">
-                                                  <property name="visible">True</property>
-                                                  <property name="can_focus">False</property>
-                                                  <property name="opacity">0.36862745098039218</property>
-                                                  <property name="halign">center</property>
-                                                  <property name="pixel_size">128</property>
-                                                  <property name="icon_name">
-                                                    action-unavailable-symbolic</property>
-                                                </object>
-                                              </child>
-                                              <child>
-                                                <object class="GtkLabel">
-                                                  <property name="visible">True</property>
-                                                  <property name="can_focus">False</property>
-                                                  <property name="opacity">0.37</property>
-                                                  <property name="halign">center</property>
-                                                  <property name="label" translatable="yes">Not
-                                                    yet logged</property>
-                                                  <attributes>
-                                                    <attribute name="size" value="17000" />
-                                                  </attributes>
-                                                </object>
-                                              </child>
-                                              <child>
-                                                <object class="GtkLabel">
-                                                  <property name="visible">True</property>
-                                                  <property name="can_focus">False</property>
-                                                  <property name="opacity">0.37</property>
-                                                  <property name="halign">center</property>
-                                                  <property name="label" translatable="yes">Login
-                                                    to view and manage your private music
-                                                    collection</property>
-                                                  <attributes>
-                                                    <attribute name="size" value="12000" />
-                                                  </attributes>
-                                                </object>
-                                              </child>
-                                            </object>
-                                          </child>
-                                        </object>
-                                      </property>
-                                    </object>
-                                  </child>
-                                  <child>
-                                    <object class="AdwViewStackPage">
-                                      <property name="name">my_login</property>
-                                      <property name="child">
-                                        <!-- <object class="MyPage" id="my_page" /> -->
-                                        <object class="GtkLabel" id="my_page">
-                                          <property name="label">my_page</property>
-                                        </object>
-                                      </property>
-                                    </object>
-                                  </child>
-                                </object>
-                              </property>
-                            </object>
-                          </child>
-                          <child>
-                            <object class="AdwViewStackPage">
-                              <property name="name">search</property>
-                              <property name="visible">false</property>
-                              <property name="child">
-                                <object class="AdwStatusPage">
-                                  <property name="title">Search!</property>
-                                </object>
-                              </property>
-                            </object>
-                          </child>
-                        </object>
-                      </property>
-                    </object>
-                  </child>
-                </object>
-              </child>
-              <child>
-                <object class="AdwViewSwitcherBar">
-                  <property name="stack">stack</property>
-                  <binding name="reveal">
-                    <lookup name="title-visible">switcher_title</lookup>
-                  </binding>
-                </object>
-              </child>
+        <object class="AdwViewStack" id="stack">
+          <child>
+            <object class="AdwViewStackPage">
+              <property name="visible">true</property>"
+              <property name="name">svgbob</property>
+              <property name="title" translatable="yes">Svgbob</property>
+              <property name="icon-name">logo-symbolic</property>
+              <property name="child">
+                <object class="SvgbobPage" id="svgbob" />
+              </property>
             </object>
-          </property>
+          </child>
+          <child>
+            <object class="AdwViewStackPage">
+              <property name="name">adoc</property>
+              <property name="title" translatable="yes">Adoc</property>
+              <property name="icon-name">view-sort-ascending-symbolic</property>
+              <property name="child">
+                <object class="AdocPage" id="adoc" />
+              </property>
+            </object>
+          </child>
+        </object>
+      </child>
+      <child>
+        <object class="AdwViewSwitcherBar">
+          <property name="stack">stack</property>
+          <binding name="reveal">
+            <lookup name="visible">switcher_title</lookup>
+          </binding>
         </object>
       </child>
     </object>
