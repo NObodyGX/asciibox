@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <interface>
-    <requires lib="gtk" version="4.0" />
-    <template class="SvgbobPage" parent="GtkBox">
-        <property name="orientation">vertical</property>
-        <child>
-            <object class="GtkLabel">
-                <property name="name">AAAAA</property>
-            </object>
-        </child>
-    </template>
+  <requires lib="gtk" version="4.0" />
+  <template class="SvgbobPage" parent="GtkBox">
+    <property name="orientation">vertical</property>
+    <child>
+      <object class="GtkButton">
+        <property name="label">++++</property>
+        <property name="focus-on-click">True</property>
+      </object>                                      
+    </child>
+  </template>
 </interface>

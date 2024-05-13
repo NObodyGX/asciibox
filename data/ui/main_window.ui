@@ -40,62 +40,43 @@
             <property name="orientation">horizontal</property>
             <child>
               <object class="AdwViewSwitcher" id="switcher_title">
-                <!-- <property name="title-visible">true</property> -->
                 <property name="stack">stack</property>
                 <property name="policy">wide</property>
-              </object>
-            </child>
-            <child>
-              <object class="GtkLabel" id="label_title">
-                <property name="visible">false</property>
-                <property name="label">Hello World!</property>
-                <property name="single-line-mode">True</property>
-                <property name="ellipsize">end</property>
-                <property name="width-chars">5</property>
-                <style>
-                  <class name="title" />
-                </style>
               </object>
             </child>
           </object>
         </child>
       </object>
     </child>
-    <object class="GtkBox">
-      <property name="orientation">vertical</property>
-      <child>
-        <object class="AdwViewStack" id="stack">
-          <child>
-            <object class="AdwViewStackPage">
-              <property name="visible">true</property>"
-              <property name="name">svgbob</property>
-              <property name="title" translatable="yes">Svgbob</property>
-              <property name="icon-name">logo-symbolic</property>
-              <property name="child">
-                <object class="SvgbobPage" id="svgbob" />
-              </property>
-            </object>
-          </child>
-          <child>
-            <object class="AdwViewStackPage">
-              <property name="name">adoc</property>
-              <property name="title" translatable="yes">Adoc</property>
-              <property name="icon-name">view-sort-ascending-symbolic</property>
-              <property name="child">
-                <object class="AdocPage" id="adoc" />
-              </property>
-            </object>
-          </child>
-        </object>
-      </child>
-      <child>
-        <object class="AdwViewSwitcherBar">
-          <property name="stack">stack</property>
-          <binding name="reveal">
-            <lookup name="visible">switcher_title</lookup>
-          </binding>
-        </object>
-      </child>
-    </object>
+    <child>
+      <object class="GtkBox">
+        <property name="orientation">vertical</property>
+        <child>
+          <object class="AdwViewStack" id="stack">
+            <child>
+              <object class="AdwViewStackPage">
+                <property name="visible">true</property>
+                <property name="name">svgbob</property>
+                <property name="title" translatable="yes">Svgbob</property>
+                <property name="icon-name">logo-symbolic</property>
+                <property name="child">
+                  <object class="SvgbobPage" id="svgbob" />
+                </property>
+              </object>
+            </child>
+            <child>
+              <object class="AdwViewStackPage">
+                <property name="name">adoc</property>
+                <property name="title" translatable="yes">Adoc</property>
+                <property name="icon-name">view-sort-ascending-symbolic</property>
+                <property name="child">
+                  <object class="AdocPage" id="adoc" />
+                </property>
+              </object>
+            </child>
+          </object>
+        </child>
+      </object>
+    </child>
   </template>
 </interface>

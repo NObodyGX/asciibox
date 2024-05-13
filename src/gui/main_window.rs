@@ -30,13 +30,9 @@ mod imp {
         #[template_child]
         pub stack: TemplateChild<adw::ViewStack>,
         #[template_child]
-        pub label_title: TemplateChild<Label>,
-        #[template_child]
         pub svgbob: TemplateChild<SvgbobPage>,
         #[template_child]
         pub adoc: TemplateChild<AdocPage>,
-        
-
         pub stack_child: Arc<Mutex<LinkedList<(String, String)>>>,
         pub settings: OnceCell<Settings>,
     }
