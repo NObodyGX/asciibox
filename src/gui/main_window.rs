@@ -13,8 +13,6 @@ use crate::APP_ID;
 mod imp {
     use std::sync::{Arc, Mutex};
 
-    use gtk::Label;
-
     use crate::gui::{AdocPage, SvgbobPage};
 
     use super::*;

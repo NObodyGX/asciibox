@@ -31,7 +31,10 @@ mod imp {
     #[derive(Debug, Default, CompositeTemplate)]
     #[template(resource = "/com/github/nobodygx/asciibox/ui/page_svgbob.ui")]
     pub struct SvgbobPage {
-        
+        #[template_child]
+        pub in_view: TemplateChild<gtk::TextView>,
+        #[template_child]
+        pub out_view: TemplateChild<gtk::TextView>,
     }
 
     #[glib::object_subclass]
@@ -51,26 +54,28 @@ mod imp {
         }
     }
 
+    
+
     #[gtk::template_callbacks]
     impl SvgbobPage {
-        #[template_callback]
-        fn top_picks_cb(&self) {
-            println!("click top picks cb");
-        }
-
-        #[template_callback]
-        fn new_albums_cb(&self) {
-            println!("click new_albums_cb");
-        }
+        
     }
 
     impl ObjectImpl for SvgbobPage {
         fn constructed(&self) {
             self.parent_constructed();
+
+            let obj = self.obj();
+            obj.setup_text_view();
         }
     }
     impl WidgetImpl for SvgbobPage {}
     impl BoxImpl for SvgbobPage {}
+}
+
+impl SvgbobPage {
+    fn setup_text_view(&self) {
+    }
 }
 
 fn load_css() {
