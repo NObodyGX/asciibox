@@ -20,9 +20,13 @@ run_command(
 )
 
 
-rust_sources = files(
+rust_sources = files([
   'main.rs',
+  'application.rs',
+  ]
 )
+
+subdir('gui')
 
 sources = [cargo_sources, rust_sources]
 
