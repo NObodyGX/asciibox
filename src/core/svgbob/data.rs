@@ -30,12 +30,12 @@ pub struct GNode {
 
 impl GNode {
     #[must_use]
-    pub fn new(id: String, name: String, x:i16) -> Self {
+    pub fn new(id: String, name: String, x:i16, y:i16) -> Self {
         Self {
             id,
             name,
             x,
-            y: 0,
+            y,
             w: 0,
             h: 0,
         }
@@ -62,22 +62,22 @@ impl PartialEq for GNode {
 #[derive(Debug)]
 pub struct GArrow {
     pub direct: GDirect,
-    pub from: String,
-    pub to: String,
+    pub src: String,
+    pub dst: String,
 }
 
 impl GArrow {
     pub fn new(direct:GDirect, from: String, to: String) -> Self {
         Self {
             direct,
-            from,
-            to,
+            src: from,
+            dst: to,
         }
     }
 }
 
 impl fmt::Display for GArrow {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "GArrow({} -{:?}- {})", self.from, self.direct, self.to)
+        write!(f, "GArrow({} -{:?}- {})", self.src, self.direct, self.dst)
     }
 }

@@ -14,7 +14,12 @@ use config::PKGDATADIR;
 mod core;
 use crate::core::svgbob::GSMap;
 fn do_svgbob_main() {
-    let a = "a[asd] --> b[asjdl]";
+    // let a = "a[a1] --> b[b1]";
+    let a = concat!(
+        "a[a1]\n",
+        "b[b1]\n",
+        "a <-- b",
+    );
     let mut mmap = GSMap::new();
     let _ = mmap.load_content(a);
 }

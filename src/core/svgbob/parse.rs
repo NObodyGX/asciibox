@@ -62,7 +62,7 @@ where
 pub fn parse_node(input: &str) -> IResult<&str, &str> {
     let (remain, id) = valid_name_char_check(input)?;
     if remain.len() < 3
-    || !(remain.starts_with("[") && remain.starts_with("(") && remain.starts_with("<")) {
+    || !(remain.starts_with("[") || remain.starts_with("(") || remain.starts_with("<")) {
         return Ok((id, id));
     }
     let (_remain, name) = delimited(is_a("[(<"), valid_name_char_check, is_a("])>"))(remain)?;
