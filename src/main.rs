@@ -9,24 +9,33 @@ use application::AsciiboxApplication;
 const APP_ID: &str = "com.github.nobodygx.asciibox";
 const APP_NAME: &str = "asciibox";
 use config::PKGDATADIR;
-// only for local temp test
 
-// ANCHOR: main
-fn main() -> glib::ExitCode {
+
+mod core;
+use crate::core::svgbob::GSMap;
+fn do_svgbob_main() {
+    let a = "a[asd] --> b[asjdl]";
+    let mut mmap = GSMap::new();
+    let _ = mmap.load_content(a);
+}
+
+fn main() { // -> glib::ExitCode {
     // Register and include resources
-    let resources =
-        gio::Resource::load(PKGDATADIR.to_owned() + "/asciibox.gresource")
-            .expect("Could not load resources");
-    gio::resources_register(&resources);
+    // let resources =
+    //     gio::Resource::load(PKGDATADIR.to_owned() + "/asciibox.gresource")
+    //         .expect("Could not load resources");
+    // gio::resources_register(&resources);
 
-    // Create a new application
-    let app = AsciiboxApplication::new(APP_ID, &gio::ApplicationFlags::empty());
+    // // Create a new application
+    // let app = AsciiboxApplication::new(APP_ID, &gio::ApplicationFlags::empty());
 
-    app.connect_startup(|app| {
-        setup_shortcuts(app);
-    });
+    // app.connect_startup(|app| {
+    //     setup_shortcuts(app);
+    // });
 
-    app.run()
+    // app.run()
+
+    do_svgbob_main();
 }
 
 fn setup_shortcuts(app: &AsciiboxApplication) {
