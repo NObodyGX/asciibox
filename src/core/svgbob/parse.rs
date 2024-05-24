@@ -1,71 +1,31 @@
-use nom::bytes::complete::{is_a, take_until, take_while};
-
-use nom::error::ParseError;
-use nom::sequence::{delimited, terminated};
-use nom::{AsChar, IResult, InputTakeAtPosition};
+use nom::bytes::complete::{is_a, is_not, take_till};
+use nom::sequence::delimited;
+use nom::IResult;
 
 use super::data::GDirect;
 
-pub fn valid_node_check<T, E: ParseError<T>>(input: T) -> IResult<T, T, E>
-where
-    T: InputTakeAtPosition,
-    <T as InputTakeAtPosition>::Item: AsChar + Clone,
-{
-    input.split_at_position_complete(|item| {
-        let c = item.as_char();
-        c == '-'
-            || c == '<'
-            || c == '>'
-            || c == ';'
-            || c == '\t'
-            || c == '\r'
-            || c == '\n'
-    })
+pub fn valid_node_check(input:&str) -> IResult<&str, &str> {
+    take_till(|c| c == '-' || c == '<' || c == '>' || c == '\n')(input)
 }
 
-
-fn valid_name_char_check<T, E: ParseError<T>>(input: T) -> IResult<T, T, E>
-where
-    T: InputTakeAtPosition,
-    <T as InputTakeAtPosition>::Item: AsChar + Clone,
-{
-    input.split_at_position_complete(|item| {
-        let c = item.as_char();
-        c == '('
-            || c == '['
-            || c == '{'
-            || c == '-'
-            || c == '-'
-            || c == '<'
-            || c == '>'
-            || c == ';'
-            || c == '\t'
-            || c == '\r'
-            || c == '\n'
-    })
+fn valid_name_check(input:&str) -> IResult<&str, &str> {
+    take_till(|c|  c == '[' || c == '(')(input)
 }
 
 // <--, -->, ---, <-->,
 // ^--, --^, v--, --v
 // <^-, <v-, -^>, -v>
-pub fn valid_arrow_check<T, E: ParseError<T>>(input: T) -> IResult<T, T, E>
-where
-    T: InputTakeAtPosition,
-    <T as InputTakeAtPosition>::Item: AsChar + Clone,
-{
-    input.split_at_position_complete(|item| {
-        let c = item.as_char();
-        !(c == '-' || c == '<' || c == '>' || c == '^' || c == 'v')
-    })
+pub fn valid_arrow_check(input:&str) -> IResult<&str, &str> {
+    take_till(|c|  c != '-' && c != '<' && c != '>' && c != '^' && c != 'v')(input)
 }
 
 pub fn parse_node(input: &str) -> IResult<&str, &str> {
-    let (remain, id) = valid_name_char_check(input)?;
+    let (remain, id) = valid_name_check(input)?;
     if remain.len() < 3
-    || !(remain.starts_with("[") || remain.starts_with("(") || remain.starts_with("<")) {
+    || !(remain.starts_with("[") || remain.starts_with("(")) {
         return Ok((id, id));
     }
-    let (_remain, name) = delimited(is_a("[(<"), valid_name_char_check, is_a("])>"))(remain)?;
+    let (_remain, name) = delimited(is_a("[("), is_not("])"), is_a("])"))(remain)?;
     Ok((id, name))
 }
 

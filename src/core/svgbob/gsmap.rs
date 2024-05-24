@@ -23,7 +23,7 @@ impl GBoard {
         }
     }
 
-    pub fn get(&mut self, id:&String) -> Option<&mut GNode> {
+    pub fn get(&mut self, id: &String) -> Option<&mut GNode> {
         if self.nodes.is_empty() {
             return None;
         }
@@ -43,7 +43,7 @@ impl GBoard {
         self.nodes.sort_by(|a, b| b.x.cmp(&a.x));
     }
 
-    pub fn relocate(&mut self, spaing:i16) {
+    pub fn relocate(&mut self, spaing: i16) {
         // 主要是为了将
         self.w = 0;
         self.h = 0;
@@ -87,25 +87,22 @@ impl GBoard {
             match arrow.direct {
                 GDirect::Left => {
                     rnode.x = x;
-                    rnode.y = y+1;
-                },
+                    rnode.y = y + 1;
+                }
                 GDirect::Right => {
                     rnode.x = x;
-                    rnode.y = y-1;
-                },
+                    rnode.y = y - 1;
+                }
                 GDirect::Up => {
-                    rnode.x = x+1;
+                    rnode.x = x + 1;
                     rnode.y = y;
                 }
                 GDirect::Down => {
-                    rnode.x = x-1;
+                    rnode.x = x - 1;
                     rnode.y = y;
                 }
-                _ => {
-
-                }
+                _ => {}
             }
-
         }
         Some("")
     }
@@ -126,9 +123,10 @@ impl GSMap {
     }
 
     pub fn load_content(&mut self, content: &str) {
-        let mut lines = content.lines();
+        // let mut lines = content.lines();
+        let mut lines: Vec<&str> = content.split('\n').filter(|&s| !s.is_empty()).collect();
         let mut linenum: i16 = 0;
-        for line in &mut lines {
+        for line in lines.iter_mut() {
             match self.parse_line(line, linenum) {
                 Ok(_) => {
                     linenum += 1;
@@ -138,8 +136,8 @@ impl GSMap {
                     continue;
                 }
             }
-            println!("load content done.");
         }
+        println!("load content done.");
         self.board_rebuild();
     }
 
@@ -176,6 +174,9 @@ impl GSMap {
         }
 
         let mut node_ids: Vec<String> = Vec::new();
+        for node in self.board.nodes.iter() {
+            node_ids.push(node.id.to_string());
+        }
         for node in grid.iter() {
             if node_ids.contains(&node.id) {
                 continue;
