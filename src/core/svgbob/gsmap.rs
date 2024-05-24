@@ -1,9 +1,6 @@
-use std::borrow::BorrowMut;
-use std::ops::DerefMut;
-use std::u8::MAX;
-
 use nom::IResult;
-
+use std::borrow::BorrowMut;
+use std::cmp::max;
 use super::data::{GArrow, GDirect, GNode};
 use super::parse::{parse_arrow, parse_node, valid_arrow_check, valid_node_check};
 
@@ -35,40 +32,62 @@ impl GBoard {
         return None;
     }
 
-    pub fn add(&mut self, id: String, name: String, x: i16, y: i16) {
-        self.nodes.push(GNode::new(id, name, x, y));
-    }
-
     pub fn sort(&mut self) {
         self.nodes.sort_by(|a, b| b.x.cmp(&a.x));
     }
 
-    pub fn relocate(&mut self, spaing: i16) {
-        // 主要是为了将
-        self.w = 0;
-        self.h = 0;
-        let mut npos: Vec<String> = Vec::new();
-        self.sort();
-        for node in self.nodes.iter_mut() {
-            let key = format!("{}&{}", node.x, node.y);
-            if !npos.contains(&key) {
-                npos.push(key);
+    pub fn trim(&mut self) {
+        let mut x: i16 = 0;
+        let mut y: i16 = 0;
+        for node in self.nodes.iter() {
+            x = max(x, node.x);
+            y = max(y, node.y);
+        }
+        self.w = x;
+        self.h = y;
+        let mut vv: Vec<i16> = Vec::new();
+        for node in self.nodes.iter() {
+            if vv.contains(&node.x) {
                 continue;
             }
-            for i in (0..=100).filter(|x| x % spaing == 0) {
-                let key = format!("{}&{}", node.x, node.y);
-                if !npos.contains(&key) {
-                    continue;
+            vv.push(node.x);
+        }
+    }
+
+    pub fn relocate(&mut self, id: &String, x: i16, y: i16, mode: &GDirect) {
+        let mut sx: i16 = 0;
+        let mut sy: i16 = 0;
+        let mut flag = false;
+        for node in self.nodes.iter_mut() {
+            if !node.id.eq(id) {
+                continue;
+            }
+            if node.x == x && node.y == y {
+                return;
+            }
+            node.x = x;
+            node.y = y;
+            flag = true;
+        }
+        if !flag {
+            return;
+        }
+        for node in self.nodes.iter_mut() {
+            if node.id.eq(id) {
+                continue;
+            }
+            match mode {
+                GDirect::Left => {
+                    if node.x == x && node.y >= y {
+                        node.y += 1;
+                    }
                 }
-                node.y = i;
-                npos.push(key);
-                if node.x > self.h {
-                    self.h = node.x;
+                GDirect::Right => {
+                    if node.x == x && node.y >= y {
+                        node.y += 1;
+                    }
                 }
-                if node.y > self.w {
-                    self.w = node.y;
-                }
-                break;
+                _ => {}
             }
         }
     }
@@ -81,25 +100,11 @@ impl GBoard {
                 continue;
             }
             let lnode = self.get(src)?.clone();
-            let rnode = self.get(dst)?;
             let x = lnode.x;
             let y = lnode.y;
             match arrow.direct {
                 GDirect::Left => {
-                    rnode.x = x;
-                    rnode.y = y + 1;
-                }
-                GDirect::Right => {
-                    rnode.x = x;
-                    rnode.y = y - 1;
-                }
-                GDirect::Up => {
-                    rnode.x = x + 1;
-                    rnode.y = y;
-                }
-                GDirect::Down => {
-                    rnode.x = x - 1;
-                    rnode.y = y;
+                    self.relocate(&dst, x, y + 1, &arrow.direct);
                 }
                 _ => {}
             }
@@ -181,15 +186,15 @@ impl GSMap {
             if node_ids.contains(&node.id) {
                 continue;
             }
-            self.board
-                .add(id.to_string(), name.to_string(), node.x, node.y);
+            self.board.nodes.push(node.clone());
             node_ids.push(node.id.to_string());
         }
         Ok(("", ""))
     }
 
     fn board_rebuild(&mut self) {
-        self.board.relocate(2);
         self.board.locate_arrow(&self.arrows);
     }
+
+    fn print(&self) {}
 }

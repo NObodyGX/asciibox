@@ -32,8 +32,8 @@ impl GNode {
     #[must_use]
     pub fn new(id: String, name: String, x:i16, y:i16) -> Self {
         Self {
-            id,
-            name,
+            id: id.trim().to_string(),
+            name: name.trim().to_string(),
             x,
             y,
             w: 0,
