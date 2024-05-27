@@ -2,7 +2,7 @@ use nom::bytes::complete::{is_a, is_not, take_till};
 use nom::sequence::delimited;
 use nom::IResult;
 
-use super::data::GDirect;
+use super::node::GDirect;
 
 pub fn valid_node_check(input:&str) -> IResult<&str, &str> {
     take_till(|c| c == '-' || c == '<' || c == '>' || c == '\n')(input)

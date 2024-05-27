@@ -1,14 +1,13 @@
 use nom::IResult;
 use std::borrow::BorrowMut;
-use std::cmp::max;
-use super::data::{GArrow, GDirect, GNode};
+use super::node::{GArrow, GDirect, GNode};
 use super::parse::{parse_arrow, parse_node, valid_arrow_check, valid_node_check};
 
 #[derive(Debug, Clone)]
 pub struct GBoard {
     pub nodes: Vec<GNode>,
-    pub w: i16,
-    pub h: i16,
+    pub w: u16,
+    pub h: u16,
 }
 
 impl GBoard {
@@ -32,39 +31,37 @@ impl GBoard {
         return None;
     }
 
-    pub fn sort(&mut self) {
-        self.nodes.sort_by(|a, b| b.x.cmp(&a.x));
-    }
+    // pub fn sort(&mut self) {
+    //     self.nodes.sort_by(|a, b| b.x.cmp(&a.x));
+    // }
 
-    pub fn trim(&mut self) {
-        let mut x: i16 = 0;
-        let mut y: i16 = 0;
-        for node in self.nodes.iter() {
-            x = max(x, node.x);
-            y = max(y, node.y);
-        }
-        self.w = x;
-        self.h = y;
-        let mut vv: Vec<i16> = Vec::new();
-        for node in self.nodes.iter() {
-            if vv.contains(&node.x) {
-                continue;
-            }
-            vv.push(node.x);
-        }
-    }
+    // pub fn trim(&mut self) {
+    //     let mut x: u16 = 0;
+    //     let mut y: u16 = 0;
+    //     for node in self.nodes.iter() {
+    //         x = max(x, node.x);
+    //         y = max(y, node.y);
+    //     }
+    //     self.w = x;
+    //     self.h = y;
+    //     let mut vv: Vec<u16> = Vec::new();
+    //     for node in self.nodes.iter() {
+    //         if vv.contains(&node.x) {
+    //             continue;
+    //         }
+    //         vv.push(node.x);
+    //     }
+    // }
 
-    pub fn relocate(&mut self, id: &String, x: i16, y: i16, mode: &GDirect) {
-        let mut sx: i16 = 0;
-        let mut sy: i16 = 0;
+    pub fn relocate(&mut self, id: &String, x: u16, y: u16, mode: &GDirect) {
         let mut flag = false;
         for node in self.nodes.iter_mut() {
             if !node.id.eq(id) {
                 continue;
             }
-            if node.x == x && node.y == y {
-                return;
-            }
+            // if node.x == x && node.y == y {
+            //     return;
+            // }
             node.x = x;
             node.y = y;
             flag = true;
@@ -90,6 +87,14 @@ impl GBoard {
                 _ => {}
             }
         }
+        let mut w = 0;
+        let mut h = 0;
+        for node in self.nodes.iter() {
+            w = std::cmp::max(w, node.y + 1);
+            h = std::cmp::max(h, node.x + 1);
+        }
+        self.h = h;
+        self.w = w;
     }
 
     pub fn locate_arrow(&mut self, arrows: &Vec<GArrow>) -> Option<&str> {
@@ -104,12 +109,27 @@ impl GBoard {
             let y = lnode.y;
             match arrow.direct {
                 GDirect::Left => {
+                    self.relocate(&dst, x, y - 1, &arrow.direct);
+                }
+                GDirect::Right => {
                     self.relocate(&dst, x, y + 1, &arrow.direct);
                 }
                 _ => {}
             }
         }
         Some("")
+    }
+
+    pub fn show(&self) {
+        for i in 0..self.h {
+            let mut x = String::new();
+            for node in self.nodes.iter() {
+                if node.h != i {
+                    continue;
+                }
+                x.push_str(node.show(i).as_str());
+            }
+        }
     }
 }
 
@@ -130,7 +150,7 @@ impl GSMap {
     pub fn load_content(&mut self, content: &str) {
         // let mut lines = content.lines();
         let mut lines: Vec<&str> = content.split('\n').filter(|&s| !s.is_empty()).collect();
-        let mut linenum: i16 = 0;
+        let mut linenum: u16 = 0;
         for line in lines.iter_mut() {
             match self.parse_line(line, linenum) {
                 Ok(_) => {
@@ -144,16 +164,17 @@ impl GSMap {
         }
         println!("load content done.");
         self.board_rebuild();
+        self.show();
     }
 
-    fn parse_line<'a>(&'a mut self, line: &'a str, linenum: i16) -> IResult<&str, &str> {
+    fn parse_line<'a>(&'a mut self, line: &'a str, linenum: u16) -> IResult<&str, &str> {
         let mut text: &str;
         let mut vtext: &str;
         let mut direct: GDirect;
         let mut grid: Vec<GNode> = Vec::new();
         let mut lid: String;
         let mut rid: String;
-        let mut y: i16 = 0;
+        let mut y: u16 = 0;
 
         (text, vtext) = valid_node_check(line)?;
         let (id, name) = parse_node(vtext)?;
@@ -174,7 +195,7 @@ impl GSMap {
             grid.push(GNode::new(id.to_string(), name.to_string(), linenum, y));
             rid = id.to_string();
             self.arrows
-                .push(GArrow::new(direct, lid.clone(), rid.clone()));
+                .push(GArrow::new(direct, lid.clone().trim().to_string(), rid.clone().trim().to_string()));
             lid = rid;
         }
 
@@ -196,5 +217,7 @@ impl GSMap {
         self.board.locate_arrow(&self.arrows);
     }
 
-    fn print(&self) {}
+    fn show(&self) {
+        self.board.show();
+    }
 }
