@@ -133,21 +133,22 @@ impl GBoard {
             w_val[node.x as usize] = std::cmp::max(w_val[node.x as usize], node.ww());
             h_val[node.y as usize] = std::cmp::max(h_val[node.y as usize], node.hh());
         }
-        for y in 0..self.h {
-            let mut x = String::new();
-            for h in 0..h_val[y as usize] {
+        // 逐行打印
+        for x in 0..self.h {
+            let mut content: String = String::new();
+            for h in 0..h_val[x as usize] {
                 for node in self.nodes.iter() {
-                    if node.y != y {
+                    if node.x != x {
                         continue;
                     }
-                    x.push_str(
+                    content.push_str(
                         node.show(h as u16, h_val[node.y as usize], w_val[node.x as usize])
                             .as_str(),
                     );
                 }
-                x.push('\n');
+                content.push('\n');
             }
-            println!("{}", x);
+            println!("{}", content);
         }
     }
 }
