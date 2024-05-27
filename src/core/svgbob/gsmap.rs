@@ -1,7 +1,7 @@
-use nom::IResult;
-use std::borrow::BorrowMut;
 use super::node::{GArrow, GDirect, GNode};
 use super::parse::{parse_arrow, parse_node, valid_arrow_check, valid_node_check};
+use nom::IResult;
+use std::borrow::BorrowMut;
 
 #[derive(Debug, Clone)]
 pub struct GBoard {
@@ -121,14 +121,33 @@ impl GBoard {
     }
 
     pub fn show(&self) {
-        for i in 0..self.h {
+        // cal width and height
+
+        let mut w_val: Vec<usize> = Vec::new();
+        let mut h_val: Vec<usize> = Vec::new();
+        for _ in 0..self.nodes.len() {
+            w_val.push(0);
+            h_val.push(0);
+        }
+        for node in self.nodes.iter() {
+            w_val[node.x as usize] = std::cmp::max(w_val[node.x as usize], node.ww());
+            h_val[node.y as usize] = std::cmp::max(h_val[node.y as usize], node.hh());
+        }
+        for y in 0..self.h {
             let mut x = String::new();
-            for node in self.nodes.iter() {
-                if node.h != i {
-                    continue;
+            for h in 0..h_val[y as usize] {
+                for node in self.nodes.iter() {
+                    if node.y != y {
+                        continue;
+                    }
+                    x.push_str(
+                        node.show(h as u16, h_val[node.y as usize], w_val[node.x as usize])
+                            .as_str(),
+                    );
                 }
-                x.push_str(node.show(i).as_str());
+                x.push('\n');
             }
+            println!("{}", x);
         }
     }
 }
@@ -174,14 +193,17 @@ impl GSMap {
         let mut grid: Vec<GNode> = Vec::new();
         let mut lid: String;
         let mut rid: String;
-        let mut y: u16 = 0;
+        let mut h: u16 = 0;
+        let mut w: u16 = 0;
 
         (text, vtext) = valid_node_check(line)?;
         let (id, name) = parse_node(vtext)?;
-        grid.push(GNode::new(id.to_string(), name.to_string(), linenum, y));
+        grid.push(GNode::new(id.to_string(), name.to_string(), linenum, h));
         lid = id.to_string();
+        w = 0;
         loop {
-            y += 1;
+            h += 1;
+            w += 1;
             if text.len() < 3 {
                 break;
             }
@@ -190,15 +212,20 @@ impl GSMap {
             if text.len() <= 0 {
                 break;
             }
+            w += 1;
             (text, vtext) = valid_node_check(text)?;
             let (id, name) = parse_node(vtext)?;
-            grid.push(GNode::new(id.to_string(), name.to_string(), linenum, y));
+            grid.push(GNode::new(id.to_string(), name.to_string(), linenum, h));
             rid = id.to_string();
-            self.arrows
-                .push(GArrow::new(direct, lid.clone().trim().to_string(), rid.clone().trim().to_string()));
+            self.arrows.push(GArrow::new(
+                direct,
+                lid.clone().trim().to_string(),
+                rid.clone().trim().to_string(),
+            ));
             lid = rid;
         }
-
+        self.board.w = w;
+        self.board.h = h;
         let mut node_ids: Vec<String> = Vec::new();
         for node in self.board.nodes.iter() {
             node_ids.push(node.id.to_string());
