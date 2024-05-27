@@ -39,8 +39,9 @@ pub struct GNode {
 impl GNode {
     #[must_use]
     pub fn new(id: String, name: String, x: u16, y: u16) -> Self {
-        let nid = id.trim().to_string();
-        let pwords: Vec<&str> = name.split('\n').collect();
+        let nid: String = id.trim().to_string();
+        let nme: String = name.trim().to_string();
+        let pwords: Vec<&str> = nme.split('\n').collect();
         let mut words = Vec::new();
         let h: u16 = pwords.len() as u16;
         let mut w: u16 = 0;
@@ -51,7 +52,7 @@ impl GNode {
 
         Self {
             id: nid,
-            name: name.trim().to_string(),
+            name: nme,
             x,
             y,
             w,
