@@ -6,17 +6,36 @@ use std::borrow::BorrowMut;
 #[derive(Debug, Clone)]
 pub struct GBoard {
     pub nodes: Vec<GNode>,
+    pub board: Vec<Vec<u8>>,
     pub w: u16,
     pub h: u16,
+    idx: u8,
 }
 
 impl GBoard {
     pub fn new() -> Self {
         Self {
             nodes: Vec::new(),
+            board: Vec::new(),
             w: 0,
             h: 0,
+            idx: 1,
         }
+    }
+
+    pub fn add_node(&mut self, node: &GNode) -> bool {
+        for x in self.nodes.iter() {
+            if x.id.eq(&node.id) {
+                return false;
+            }
+        }
+        let mut a_node = node.clone();
+        a_node.idx = self.idx;
+        self.idx += 1;
+        self.h = std::cmp::max(a_node.x + 1, self.h);
+        self.w = std::cmp::max(a_node.y + 1, self.w);
+        self.nodes.push(a_node);
+        true
     }
 
     pub fn get(&mut self, id: &String) -> Option<&mut GNode> {
@@ -30,28 +49,6 @@ impl GBoard {
         }
         return None;
     }
-
-    // pub fn sort(&mut self) {
-    //     self.nodes.sort_by(|a, b| b.x.cmp(&a.x));
-    // }
-
-    // pub fn trim(&mut self) {
-    //     let mut x: u16 = 0;
-    //     let mut y: u16 = 0;
-    //     for node in self.nodes.iter() {
-    //         x = max(x, node.x);
-    //         y = max(y, node.y);
-    //     }
-    //     self.w = x;
-    //     self.h = y;
-    //     let mut vv: Vec<u16> = Vec::new();
-    //     for node in self.nodes.iter() {
-    //         if vv.contains(&node.x) {
-    //             continue;
-    //         }
-    //         vv.push(node.x);
-    //     }
-    // }
 
     pub fn relocate(&mut self, id: &String, x: u16, y: u16, mode: &GDirect) {
         let mut flag = false;
@@ -123,15 +120,15 @@ impl GBoard {
     pub fn show(&self) -> String {
         // cal width and height
         let mut content = String::new();
-        let mut w_val: Vec<usize> = Vec::new();
-        let mut h_val: Vec<usize> = Vec::new();
+        let mut w_val: Vec<usize> = Vec::new(); // 每行 cell 的宽度
+        let mut h_val: Vec<usize> = Vec::new(); // 每行的高度
         for _ in 0..self.nodes.len() {
             w_val.push(0);
             h_val.push(0);
         }
         for node in self.nodes.iter() {
-            w_val[node.x as usize] = std::cmp::max(w_val[node.x as usize], node.ww());
-            h_val[node.y as usize] = std::cmp::max(h_val[node.y as usize], node.hh());
+            w_val[node.y as usize] = std::cmp::max(w_val[node.y as usize], node.ww());
+            h_val[node.x as usize] = std::cmp::max(h_val[node.x as usize], node.hh());
         }
         // 逐行打印
         for x in 0..self.h {
@@ -142,7 +139,7 @@ impl GBoard {
                         continue;
                     }
                     linestr.push_str(
-                        node.show(h as u16, h_val[node.y as usize], w_val[node.x as usize])
+                        node.show(h as u16, h_val[x as usize], w_val[node.y as usize])
                             .as_str(),
                     );
                 }
@@ -190,56 +187,47 @@ impl GSMap {
         content
     }
 
+    // 逐行解析出现的节点，如果有多个节点，这几个节点默认是一排的
+    // 后续依据节点之间的联系会重排节点位置
     fn parse_line<'a>(&'a mut self, line: &'a str, linenum: u16) -> IResult<&str, &str> {
         let mut text: &str;
         let mut vtext: &str;
         let mut direct: GDirect;
-        let mut grid: Vec<GNode> = Vec::new();
         let mut lid: String;
         let mut rid: String;
-        let mut h: u16 = 0;
+        let mut node: GNode;
         let mut w: u16 = 0;
 
+        // 第一个 node
         (text, vtext) = valid_node_check(line)?;
         let (id, name) = parse_node(vtext)?;
-        grid.push(GNode::new(id.to_string(), name.to_string(), linenum, h));
-        lid = id.to_string();
-        w = 0;
+        node = GNode::new(id.to_string(), name.to_string(), linenum, w);
+        lid = node.id.clone();
+        self.board.add_node(&node);
         loop {
-            h += 1;
             w += 1;
             if text.len() < 3 {
                 break;
             }
+            // 再接着 arrow
             (text, vtext) = valid_arrow_check(text)?;
             direct = parse_arrow(vtext);
             if text.len() <= 0 {
                 break;
             }
             w += 1;
+            // 再接着 node
             (text, vtext) = valid_node_check(text)?;
             let (id, name) = parse_node(vtext)?;
-            grid.push(GNode::new(id.to_string(), name.to_string(), linenum, h));
-            rid = id.to_string();
+            node = GNode::new(id.to_string(), name.to_string(), linenum, w);
+            rid = node.id.clone();
+            self.board.add_node(&node);
             self.arrows.push(GArrow::new(
                 direct,
-                lid.clone().trim().to_string(),
-                rid.clone().trim().to_string(),
+                lid,
+                rid.clone(),
             ));
             lid = rid;
-        }
-        self.board.w = w;
-        self.board.h = h;
-        let mut node_ids: Vec<String> = Vec::new();
-        for node in self.board.nodes.iter() {
-            node_ids.push(node.id.to_string());
-        }
-        for node in grid.iter() {
-            if node_ids.contains(&node.id) {
-                continue;
-            }
-            self.board.nodes.push(node.clone());
-            node_ids.push(node.id.to_string());
         }
         Ok(("", ""))
     }

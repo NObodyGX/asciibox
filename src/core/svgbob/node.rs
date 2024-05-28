@@ -20,6 +20,8 @@ pub enum GDirect {
 
 #[derive(Clone, Debug, Default, Eq, Hash)]
 pub struct GNode {
+    // 节点排序用序号
+    pub idx: u8,
     // 节点 id
     pub id: String,
     // 节点展示内容原始值
@@ -61,6 +63,7 @@ impl GNode {
             h,
             words,
             arrows: Vec::new(),
+            idx: 0,
         }
     }
 
