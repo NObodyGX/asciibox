@@ -1,4 +1,5 @@
-use gtk::{glib, subclass::prelude::*, CompositeTemplate};
+use glib::{closure_local, ParamSpec, Value};
+use gtk::{glib::{self, property::PropertyGet}, prelude::*, subclass::prelude::*, CompositeTemplate, TextIter};
 
 glib::wrapper! {
     pub struct SvgbobPage(ObjectSubclass<imp::SvgbobPage>)
@@ -49,6 +50,10 @@ mod imp {
             klass.bind_template();
             klass.bind_template_callbacks();
             load_css();
+
+            klass.install_action("svgbob.do_transform", None, move |obj, _, _| {
+                obj.do_transform();
+            });
         }
 
         fn instance_init(obj: &glib::subclass::InitializingObject<Self>) {
@@ -76,7 +81,17 @@ mod imp {
 }
 
 impl SvgbobPage {
+    // 配置默认的 placeholdtext
     fn setup_text_view(&self) {
+    }
+
+    fn do_transform(&self) {
+        let text_view: gtk::TextView = self.imp().in_view.get();
+        let buffer: gtk::TextBuffer = text_view.buffer();
+
+        let (start_iter, end_iter) = buffer.bounds();
+        let content = buffer.text(&start_iter, &end_iter, false);
+        println!("{}", content);
     }
 }
 
