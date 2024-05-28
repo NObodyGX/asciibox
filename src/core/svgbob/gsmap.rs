@@ -120,9 +120,9 @@ impl GBoard {
         Some("")
     }
 
-    pub fn show(&self) {
+    pub fn show(&self) -> String {
         // cal width and height
-
+        let mut content = String::new();
         let mut w_val: Vec<usize> = Vec::new();
         let mut h_val: Vec<usize> = Vec::new();
         for _ in 0..self.nodes.len() {
@@ -135,21 +135,23 @@ impl GBoard {
         }
         // 逐行打印
         for x in 0..self.h {
-            let mut content: String = String::new();
+            let mut linestr: String = String::new();
             for h in 0..h_val[x as usize] {
                 for node in self.nodes.iter() {
                     if node.x != x {
                         continue;
                     }
-                    content.push_str(
+                    linestr.push_str(
                         node.show(h as u16, h_val[node.y as usize], w_val[node.x as usize])
                             .as_str(),
                     );
                 }
-                content.push('\n');
+                linestr.push('\n');
             }
-            println!("{}", content);
+            println!("{}", linestr);
+            content.push_str(linestr.clone().as_str());
         }
+        content
     }
 }
 
@@ -167,7 +169,7 @@ impl GSMap {
         }
     }
 
-    pub fn load_content(&mut self, content: &str) {
+    pub fn load_content(&mut self, content: &str) -> String {
         // let mut lines = content.lines();
         let mut lines: Vec<&str> = content.split('\n').filter(|&s| !s.is_empty()).collect();
         let mut linenum: u16 = 0;
@@ -184,7 +186,8 @@ impl GSMap {
         }
         println!("load content done.");
         self.board_rebuild();
-        self.show();
+        let content = self.board.show();
+        content
     }
 
     fn parse_line<'a>(&'a mut self, line: &'a str, linenum: u16) -> IResult<&str, &str> {
@@ -243,9 +246,5 @@ impl GSMap {
 
     fn board_rebuild(&mut self) {
         self.board.locate_arrow(&self.arrows);
-    }
-
-    fn show(&self) {
-        self.board.show();
     }
 }

@@ -1,6 +1,6 @@
 use std::fmt;
 
-#[derive(Debug)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum GDirect {
     None,
     Double,
@@ -34,6 +34,8 @@ pub struct GNode {
     pub h: u16,
     // 具体每行内容
     words: Vec<String>,
+    // 周围可用的箭头
+    arrows: Vec<GArrow>,
 }
 
 impl GNode {
@@ -58,6 +60,7 @@ impl GNode {
             w,
             h,
             words,
+            arrows: Vec::new(),
         }
     }
 
@@ -128,7 +131,7 @@ impl PartialEq for GNode {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct GArrow {
     pub direct: GDirect,
     pub src: String,

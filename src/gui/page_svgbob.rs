@@ -1,4 +1,5 @@
 use gtk::{glib::{self}, prelude::TextViewExt, prelude::TextBufferExt, subclass::prelude::*, CompositeTemplate};
+use crate::core::svgbob::GSMap;
 
 glib::wrapper! {
     pub struct SvgbobPage(ObjectSubclass<imp::SvgbobPage>)
@@ -90,11 +91,13 @@ impl SvgbobPage {
 
         let (istart, iend) = ibuffer.bounds();
         let content = ibuffer.text(&istart, &iend, false);
-        println!("{}", content);
+
+        let mut mmap: GSMap = GSMap::new();
+        let otext: String = mmap.load_content(content.as_str());
 
         let out_view: gtk::TextView = self.imp().out_view.get();
         let obuffer = out_view.buffer();
-        obuffer.set_text(content.as_str());
+        obuffer.set_text(otext.as_str());
     }
 }
 
