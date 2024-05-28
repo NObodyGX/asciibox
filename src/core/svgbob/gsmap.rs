@@ -5,6 +5,7 @@ use std::borrow::BorrowMut;
 
 #[derive(Debug, Clone)]
 pub struct GBoard {
+    // 记录所有 node 信息
     pub nodes: Vec<GNode>,
     pub board: Vec<Vec<u16>>,
     pub w: u16,
@@ -38,13 +39,25 @@ impl GBoard {
         true
     }
 
-    pub fn get(&mut self, id: &String) -> Option<&mut GNode> {
+    pub fn get_node(&mut self, id: &String) -> Option<&mut GNode> {
         if self.nodes.is_empty() {
             return None;
         }
         for node in self.nodes.iter_mut() {
             if node.id.eq(id) {
                 return Some(node.borrow_mut());
+            }
+        }
+        return None;
+    }
+
+    fn get_node_by_id(&self, id: &u16) -> Option<&GNode> {
+        if self.nodes.is_empty() {
+            return None;
+        }
+        for node in self.nodes.iter() {
+            if node.idx.eq(id) {
+                return Some(node);
             }
         }
         return None;
@@ -113,10 +126,9 @@ impl GBoard {
             let y = node.y;
             match self.board.get_mut(x as usize) {
                 Some(v) => {
-                    v[y as usize] = node.idx; 
+                    v[y as usize] = node.idx;
                 }
-                None => {
-                }
+                None => {}
             }
         }
     }
@@ -129,7 +141,7 @@ impl GBoard {
             if src.eq(dst) {
                 continue;
             }
-            let lnode = self.get(src)?.clone();
+            let lnode = self.get_node(src)?.clone();
             let x = lnode.x;
             let y = lnode.y;
             match arrow.direct {
@@ -140,7 +152,7 @@ impl GBoard {
                     self.relocate(&dst, x, y + 1, &arrow.direct);
                 }
                 GDirect::Up => {
-                    self.relocate(&dst, x -1, y + 1, &arrow.direct);
+                    self.relocate(&dst, x - 1, y + 1, &arrow.direct);
                 }
                 GDirect::Down => {
                     self.relocate(&dst, x + 1, y + 1, &arrow.direct);
@@ -153,35 +165,51 @@ impl GBoard {
     }
 
     pub fn show(&self) -> String {
-        // cal width and height
-        let mut content = String::new();
         let mut w_val: Vec<usize> = Vec::new(); // 每行 cell 的宽度
         let mut h_val: Vec<usize> = Vec::new(); // 每行的高度
         for _ in 0..self.nodes.len() {
             w_val.push(0);
             h_val.push(0);
         }
+        // 先计算显示的长宽
         for node in self.nodes.iter() {
             w_val[node.y as usize] = std::cmp::max(w_val[node.y as usize], node.ww());
             h_val[node.x as usize] = std::cmp::max(h_val[node.x as usize], node.hh());
         }
         // 逐行打印
-        for x in 0..self.h {
+        let mut content = String::new();
+
+        for (x, items) in self.board.iter().enumerate() {
             let mut linestr: String = String::new();
+            if x >= h_val.len() {
+                break;
+            }
             for h in 0..h_val[x as usize] {
-                for node in self.nodes.iter() {
-                    if node.x != x {
+                for (y, idx) in items.iter().enumerate() {
+                    if y >= w_val.len() {
+                        break;
+                    }
+                    if idx.eq(&0) {
+                        linestr.push_str(" ".repeat(w_val[y]).as_str());
                         continue;
                     }
-                    linestr.push_str(
-                        node.show(h as u16, h_val[x as usize], w_val[node.y as usize])
-                            .as_str(),
-                    );
+                    match self.get_node_by_id(idx) {
+                        Some(node) => {
+                            linestr.push_str(
+                                node.show(h as u16, h_val[x as usize], w_val[y as usize])
+                                    .as_str(),
+                            );
+                        }
+                        None => {
+                            linestr.push_str(" ".repeat(w_val[y]).as_str());
+                        }
+                    }
                 }
                 linestr.push('\n');
             }
-            println!("{}", linestr);
-            content.push_str(linestr.clone().as_str());
+            content.push_str(linestr.trim_end());
+            // trim_end 会清除最后的换行
+            content.push('\n');
         }
         content
     }
@@ -257,11 +285,7 @@ impl GSMap {
             node = GNode::new(id.to_string(), name.to_string(), linenum, w);
             rid = node.id.clone();
             self.board.add_node(&node);
-            self.arrows.push(GArrow::new(
-                direct,
-                lid,
-                rid.clone(),
-            ));
+            self.arrows.push(GArrow::new(direct, lid, rid.clone()));
             lid = rid;
         }
         Ok(("", ""))
