@@ -35,6 +35,8 @@ mod imp {
         pub in_view: TemplateChild<gtk::TextView>,
         #[template_child]
         pub out_view: TemplateChild<gtk::TextView>,
+        #[template_child]
+        pub run_button: TemplateChild<gtk::Button>,
     }
 
     #[glib::object_subclass]

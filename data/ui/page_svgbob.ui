@@ -52,5 +52,11 @@
 
       </object>
     </child>
+    <child>
+      <object class="GtkButton" id="run_button">
+        <property name="label">---- run ----</property>
+        <property name="focus-on-click">True</property>
+      </object>  
+    </child>
   </template>
 </interface>
