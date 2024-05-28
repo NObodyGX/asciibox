@@ -6,10 +6,10 @@ use std::borrow::BorrowMut;
 #[derive(Debug, Clone)]
 pub struct GBoard {
     pub nodes: Vec<GNode>,
-    pub board: Vec<Vec<u8>>,
+    pub board: Vec<Vec<u16>>,
     pub w: u16,
     pub h: u16,
-    idx: u8,
+    idx: u16,
 }
 
 impl GBoard {
@@ -94,7 +94,35 @@ impl GBoard {
         self.w = w;
     }
 
-    pub fn locate_arrow(&mut self, arrows: &Vec<GArrow>) -> Option<&str> {
+    fn rebuild_borad(&mut self) {
+        self.board = Vec::new();
+        let h = self.h + 9;
+        let w = self.w + 9;
+        for _ih in 0..h {
+            let mut a: Vec<u16> = Vec::new();
+            for _ in 0..w {
+                a.push(0);
+            }
+            self.board.push(a);
+        }
+    }
+
+    fn add_nodes_into_board(&mut self) {
+        for node in self.nodes.iter() {
+            let x = node.x;
+            let y = node.y;
+            match self.board.get_mut(x as usize) {
+                Some(v) => {
+                    v[y as usize] = node.idx; 
+                }
+                None => {
+                }
+            }
+        }
+    }
+
+    pub fn load_arrows(&mut self, arrows: &Vec<GArrow>) -> Option<&str> {
+        self.rebuild_borad();
         for arrow in arrows {
             let src = &arrow.src;
             let dst = &arrow.dst;
@@ -111,9 +139,16 @@ impl GBoard {
                 GDirect::Right => {
                     self.relocate(&dst, x, y + 1, &arrow.direct);
                 }
+                GDirect::Up => {
+                    self.relocate(&dst, x -1, y + 1, &arrow.direct);
+                }
+                GDirect::Down => {
+                    self.relocate(&dst, x + 1, y + 1, &arrow.direct);
+                }
                 _ => {}
             }
         }
+        self.add_nodes_into_board();
         Some("")
     }
 
@@ -182,7 +217,7 @@ impl GSMap {
             }
         }
         println!("load content done.");
-        self.board_rebuild();
+        self.board.load_arrows(&self.arrows);
         let content = self.board.show();
         content
     }
@@ -230,9 +265,5 @@ impl GSMap {
             lid = rid;
         }
         Ok(("", ""))
-    }
-
-    fn board_rebuild(&mut self) {
-        self.board.locate_arrow(&self.arrows);
     }
 }
