@@ -89,6 +89,18 @@ impl GBoard {
         }
     }
 
+    fn link_arrow_to_node(&mut self, src:&String, dst:&String, arrow: &GArrow) {
+        for node in self.nodes.iter_mut() {
+            if node.id.eq(src) {
+                node.add_arrow(arrow, true);
+                continue;
+            }
+            if node.id.eq(dst) {
+                node.add_arrow(arrow, false);
+            }
+        }
+    }
+
     fn relocate_right(&mut self, id:&String, x:u16, y:u16) {
         for node in self.nodes.iter_mut() {
             if node.id.eq(id) {
@@ -116,9 +128,11 @@ impl GBoard {
             match arrow.direct {
                 GDirect::Left => {
                     self.relocate_right(&dst, x, max(1, y) - 1);
+                    self.link_arrow_to_node(src, dst, arrow);
                 }
                 GDirect::Right => {
                     self.relocate_right(&dst, x,  y + 1);
+                    self.link_arrow_to_node(src, dst, arrow);
                 }
                 _ => {}
             }
@@ -136,8 +150,8 @@ impl GBoard {
         }
         // 先计算显示的长宽
         for node in self.nodes.iter() {
-            w_val[node.y as usize] = max(w_val[node.y as usize], node.ww());
-            h_val[node.x as usize] = max(h_val[node.x as usize], node.hh());
+            w_val[node.y as usize] = max(w_val[node.y as usize], node.total_w());
+            h_val[node.x as usize] = max(h_val[node.x as usize], node.total_h());
         }
         // 逐行打印
         let mut content = String::new();
@@ -159,7 +173,7 @@ impl GBoard {
                     match self.get_node_by_id(idx) {
                         Some(node) => {
                             linestr.push_str(
-                                node.show(h as u16, h_val[x as usize], w_val[y as usize])
+                                node.render(h as u16, h_val[x as usize], w_val[y as usize])
                                     .as_str(),
                             );
                         }
