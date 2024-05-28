@@ -1,7 +1,7 @@
 use super::node::{GArrow, GDirect, GNode};
 use super::parse::{parse_arrow, parse_node, valid_arrow_check, valid_node_check};
 use nom::IResult;
-use std::borrow::BorrowMut;
+use std::cmp::max;
 
 #[derive(Debug, Clone)]
 pub struct GBoard {
@@ -33,78 +33,34 @@ impl GBoard {
         let mut a_node = node.clone();
         a_node.idx = self.idx;
         self.idx += 1;
-        self.h = std::cmp::max(a_node.x + 1, self.h);
-        self.w = std::cmp::max(a_node.y + 1, self.w);
+        self.h = max(a_node.x + 1, self.h);
+        self.w = max(a_node.y + 1, self.w);
         self.nodes.push(a_node);
         true
     }
 
-    pub fn get_node(&mut self, id: &String) -> Option<&mut GNode> {
-        if self.nodes.is_empty() {
-            return None;
-        }
-        for node in self.nodes.iter_mut() {
-            if node.id.eq(id) {
-                return Some(node.borrow_mut());
-            }
-        }
-        return None;
-    }
-
-    fn get_node_by_id(&self, id: &u16) -> Option<&GNode> {
+    pub fn get_node(&mut self, id: &String) -> Option<&GNode> {
         if self.nodes.is_empty() {
             return None;
         }
         for node in self.nodes.iter() {
-            if node.idx.eq(id) {
+            if node.id.eq(id) {
                 return Some(node);
             }
         }
         return None;
     }
 
-    pub fn relocate(&mut self, id: &String, x: u16, y: u16, mode: &GDirect) {
-        let mut flag = false;
-        for node in self.nodes.iter_mut() {
-            if !node.id.eq(id) {
-                continue;
-            }
-            // if node.x == x && node.y == y {
-            //     return;
-            // }
-            node.x = x;
-            node.y = y;
-            flag = true;
+    fn get_node_by_id(&self, idx: &u16) -> Option<&GNode> {
+        if self.nodes.is_empty() {
+            return None;
         }
-        if !flag {
-            return;
-        }
-        for node in self.nodes.iter_mut() {
-            if node.id.eq(id) {
-                continue;
-            }
-            match mode {
-                GDirect::Left => {
-                    if node.x == x && node.y >= y {
-                        node.y += 1;
-                    }
-                }
-                GDirect::Right => {
-                    if node.x == x && node.y >= y {
-                        node.y += 1;
-                    }
-                }
-                _ => {}
-            }
-        }
-        let mut w = 0;
-        let mut h = 0;
         for node in self.nodes.iter() {
-            w = std::cmp::max(w, node.y + 1);
-            h = std::cmp::max(h, node.x + 1);
+            if node.idx.eq(idx) {
+                return Some(node);
+            }
         }
-        self.h = h;
-        self.w = w;
+        return None;
     }
 
     fn rebuild_borad(&mut self) {
@@ -133,6 +89,19 @@ impl GBoard {
         }
     }
 
+    fn relocate_right(&mut self, id:&String, x:u16, y:u16) {
+        for node in self.nodes.iter_mut() {
+            if node.id.eq(id) {
+                node.x = x;
+                node.y = y;
+                continue;
+            }
+            if node.x == x && node.y >=y {
+                node.y += 1;
+            }
+        }
+    }
+
     pub fn load_arrows(&mut self, arrows: &Vec<GArrow>) -> Option<&str> {
         self.rebuild_borad();
         for arrow in arrows {
@@ -141,21 +110,15 @@ impl GBoard {
             if src.eq(dst) {
                 continue;
             }
-            let lnode = self.get_node(src)?.clone();
+            let lnode = self.get_node(src)?;
             let x = lnode.x;
             let y = lnode.y;
             match arrow.direct {
                 GDirect::Left => {
-                    self.relocate(&dst, x, y - 1, &arrow.direct);
+                    self.relocate_right(&dst, x, max(1, y) - 1);
                 }
                 GDirect::Right => {
-                    self.relocate(&dst, x, y + 1, &arrow.direct);
-                }
-                GDirect::Up => {
-                    self.relocate(&dst, x - 1, y + 1, &arrow.direct);
-                }
-                GDirect::Down => {
-                    self.relocate(&dst, x + 1, y + 1, &arrow.direct);
+                    self.relocate_right(&dst, x,  y + 1);
                 }
                 _ => {}
             }
@@ -167,14 +130,14 @@ impl GBoard {
     pub fn show(&self) -> String {
         let mut w_val: Vec<usize> = Vec::new(); // 每行 cell 的宽度
         let mut h_val: Vec<usize> = Vec::new(); // 每行的高度
-        for _ in 0..self.nodes.len() {
+        for _ in 0..max(self.w + 9, self.h + 9) {
             w_val.push(0);
             h_val.push(0);
         }
         // 先计算显示的长宽
         for node in self.nodes.iter() {
-            w_val[node.y as usize] = std::cmp::max(w_val[node.y as usize], node.ww());
-            h_val[node.x as usize] = std::cmp::max(h_val[node.x as usize], node.hh());
+            w_val[node.y as usize] = max(w_val[node.y as usize], node.ww());
+            h_val[node.x as usize] = max(h_val[node.x as usize], node.hh());
         }
         // 逐行打印
         let mut content = String::new();
