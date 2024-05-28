@@ -1,5 +1,4 @@
-use glib::{closure_local, ParamSpec, Value};
-use gtk::{glib::{self, property::PropertyGet}, prelude::*, subclass::prelude::*, CompositeTemplate, TextIter};
+use gtk::{glib::{self}, prelude::TextViewExt, prelude::TextBufferExt, subclass::prelude::*, CompositeTemplate};
 
 glib::wrapper! {
     pub struct SvgbobPage(ObjectSubclass<imp::SvgbobPage>)
@@ -86,12 +85,16 @@ impl SvgbobPage {
     }
 
     fn do_transform(&self) {
-        let text_view: gtk::TextView = self.imp().in_view.get();
-        let buffer: gtk::TextBuffer = text_view.buffer();
+        let iview: gtk::TextView = self.imp().in_view.get();
+        let ibuffer: gtk::TextBuffer = iview.buffer();
 
-        let (start_iter, end_iter) = buffer.bounds();
-        let content = buffer.text(&start_iter, &end_iter, false);
+        let (istart, iend) = ibuffer.bounds();
+        let content = ibuffer.text(&istart, &iend, false);
         println!("{}", content);
+
+        let out_view: gtk::TextView = self.imp().out_view.get();
+        let obuffer = out_view.buffer();
+        obuffer.set_text(content.as_str());
     }
 }
 
