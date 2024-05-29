@@ -53,7 +53,7 @@ mod imp {
                 None,
                 |win, _action_name, _action_target| async move {
                     if let Err(error) = win.save_svg_file().await {
-                        println!("Error loading the GIF: {error}");
+                        println!("Error Save svg file: {error}");
                     };
                 },
             );
@@ -159,7 +159,8 @@ impl SvgbobPage {
             // .filters(&filters)
             .build();
 
-        let file: gio::File = dialog.open_future(Some(self)).await?;
+        let window = self.root().and_downcast::<gtk::Window>().unwrap();
+        let file: gio::File = dialog.open_future(Some(&window)).await?;
         let filename = file.path().expect("Couldn't get file path");
         self.write_svg(filename)?;
         Ok(())
