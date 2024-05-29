@@ -1,36 +1,15 @@
 use crate::core::svgbob::GSMap;
-use gtk::{
-    gdk, glib,
-    prelude::{TextBufferExt, TextViewExt},
-    subclass::prelude::*,
-    CompositeTemplate,
-};
+use adw::prelude::*;
+use adw::subclass::prelude::*;
+use gtk::gdk;
+use gtk::glib;
+use gtk::prelude::{TextBufferExt, TextViewExt};
+use gtk::CompositeTemplate;
 use svgbob::to_svg;
 
-glib::wrapper! {
-    pub struct SvgbobPage(ObjectSubclass<imp::SvgbobPage>)
-        @extends gtk::Widget, gtk::Box,
-        @implements gtk::Accessible, gtk::Buildable,gtk::ConstraintTarget, gtk::Orientable;
-}
-
-impl SvgbobPage {
-    pub fn new() -> Self {
-        let page: SvgbobPage = glib::Object::new();
-        page
-    }
-
-    pub fn init_page(&self) {
-        println!("init page");
-    }
-}
-
-impl Default for SvgbobPage {
-    fn default() -> Self {
-        Self::new()
-    }
-}
-
 mod imp {
+
+    use std::cell::RefCell;
 
     use super::*;
 
@@ -45,6 +24,8 @@ mod imp {
         pub out_image: TemplateChild<gtk::Image>,
         #[template_child]
         pub run_button: TemplateChild<gtk::Button>,
+
+        pub icon_str_backup: RefCell<String>,
     }
 
     #[glib::object_subclass]
@@ -68,19 +49,6 @@ mod imp {
         }
     }
 
-    #[gtk::template_callbacks]
-    impl SvgbobPage {
-        #[template_callback]
-        fn svgbob_svg_copy(&self) {
-            println!("copy svg");
-        }
-        #[template_callback]
-        fn svgbob_svg_save(&self) {
-            println!("save svg");
-        }
-
-    }
-
     impl ObjectImpl for SvgbobPage {
         fn constructed(&self) {
             self.parent_constructed();
@@ -90,7 +58,45 @@ mod imp {
         }
     }
     impl WidgetImpl for SvgbobPage {}
+    impl WindowImpl for SvgbobPage {}
+    impl AdwWindowImpl for SvgbobPage {}
     impl BoxImpl for SvgbobPage {}
+
+    #[gtk::template_callbacks]
+    impl SvgbobPage {
+        #[template_callback]
+        fn svgbob_svg_copy(&self) {
+            println!("copy svg");
+            self.obj().copy_svg_output();
+        }
+        #[template_callback]
+        fn svgbob_svg_save(&self) {
+            println!("save svg");
+        }
+    }
+}
+
+glib::wrapper! {
+    pub struct SvgbobPage(ObjectSubclass<imp::SvgbobPage>)
+        @extends gtk::Widget, gtk::Window, adw::Window, gtk::Box,
+        @implements gtk::Accessible, gtk::Buildable,gtk::ConstraintTarget, gtk::Native, gtk::Root, gtk::ShortcutManager;
+}
+
+impl Default for SvgbobPage {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+impl SvgbobPage {
+    pub fn new() -> Self {
+        let page: SvgbobPage = glib::Object::new();
+        page
+    }
+
+    pub fn init_page(&self) {
+        println!("init page");
+    }
 }
 
 impl SvgbobPage {
@@ -113,10 +119,19 @@ impl SvgbobPage {
         obuffer.set_text(otext.as_str());
 
         let oimage_str = to_svg(otext.as_str());
+
+        // svg_backup = oimage_str.clone();
         let texture: gdk::Texture =
             gdk::Texture::from_bytes(&glib::Bytes::from(oimage_str.as_bytes()))
                 .expect("load svgbob out svg error");
         oimage.set_from_paintable(Some(&texture));
+
+        self.imp().icon_str_backup.replace(oimage_str);
+    }
+
+    fn copy_svg_output(&self) {
+        let clipboard = self.clipboard();
+        clipboard.set_text(self.imp().icon_str_backup.borrow().as_str());
     }
 }
 
