@@ -18,7 +18,8 @@
           <object class="GtkScrolledWindow">
             <property name="hexpand">False</property>
             <property name="vexpand">True</property>
-            <property name="min-content-width">640</property>
+            <property name="min-content-width">360</property>
+            <property name="margin-start">12</property>
             <child>
               <object class="GtkTextView" id="in_view">
                 <property name="hscroll-policy">natural</property>
