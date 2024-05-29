@@ -1,5 +1,3 @@
-use std::fs::OpenOptions;
-use std::io::Write;
 use adw::prelude::*;
 use adw::subclass::prelude::*;
 use gtk::gdk;
@@ -7,6 +5,8 @@ use gtk::gio;
 use gtk::glib;
 use gtk::prelude::{TextBufferExt, TextViewExt};
 use gtk::CompositeTemplate;
+use std::fs::OpenOptions;
+use std::io::Write;
 use svgbob::to_svg;
 
 use crate::core::svgbob::GSMap;
@@ -129,11 +129,14 @@ impl SvgbobPage {
         let ibuffer: gtk::TextBuffer = self.imp().in_view.get().buffer();
         let content = ibuffer.text(&ibuffer.bounds().0, &ibuffer.bounds().1, false);
 
-        let mut mmap: GSMap = GSMap::new();
-        let otext: String = mmap.load_content(content.as_str());
-        
-        let obuffer= self.imp().out_view.get().buffer();
-        obuffer.set_text(otext.as_str());
+        // 当输入为 0 的时候不覆盖，这样可以编辑 svgbob 窗口并转换
+        if content.len() != 0 {
+            let mut mmap: GSMap = GSMap::new();
+            let otext: String = mmap.load_content(content.as_str());
+
+            let obuffer = self.imp().out_view.get().buffer();
+            obuffer.set_text(otext.as_str());
+        }
 
         self.do_transform_to_svg();
     }
@@ -177,7 +180,10 @@ impl SvgbobPage {
         let texture: gdk::Texture =
             gdk::Texture::from_bytes(&glib::Bytes::from(svg_content.as_bytes()))
                 .expect("load svgbob out svg error");
-        self.imp().out_image.get().set_from_paintable(Some(&texture));
+        self.imp()
+            .out_image
+            .get()
+            .set_from_paintable(Some(&texture));
 
         self.imp().icon_str_backup.replace(svg_content);
     }
