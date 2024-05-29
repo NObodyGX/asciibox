@@ -14,7 +14,7 @@
         <property name="vexpand">1</property>
         <property name="wide-handle">1</property>
         <child>
-          <object class="GtkScrolledWindow" id="in_scrolled_window">
+          <object class="GtkScrolledWindow">
             <property name="hexpand">False</property>
             <property name="vexpand">True</property>
             <property name="min-content-width">640</property>
@@ -33,18 +33,44 @@
         </child>
 
         <child>
-          <object class="GtkScrolledWindow" id="out_scrolled_window">
-            <property name="hexpand">True</property>
-            <property name="vexpand">True</property>
+          <object class="GtkPaned" id="paned2">
+            <property name="visible">True</property>
+            <property name="resize-start-child">1</property>
+            <property name="resize-end-child">1</property>
+            <property name="shrink-end-child">0</property>
+            <property name="shrink-start-child">0</property>
+            <property name="wide-handle">1</property>
+            <property name="orientation">vertical</property>
+            <property name="position">200</property>
+            <property name="position-set">True</property>
             <child>
-              <object class="GtkTextView" id="out_view">
-                <property name="hscroll-policy">natural</property>
-                <property name="vscroll-policy">natural</property>
-                <property name="pixels-below-lines">1</property>
-                <property name="editable">True</property>
-                <property name="justification">left</property>
-                <property name="left-margin">8</property>
-                <property name="accepts-tab">False</property>
+              <object class="GtkScrolledWindow">
+                <property name="hexpand">False</property>
+                <property name="vexpand">False</property>
+                <child>
+                  <object class="GtkImage" id="out_image">
+                    <property name="focusable">False</property>
+                    <property name="margin-end">1</property>
+                    <property name="margin-start">1</property>
+                  </object>
+                </child>
+              </object>
+            </child>
+            <child>
+              <object class="GtkScrolledWindow">
+                <property name="hexpand">False</property>
+                <property name="vexpand">False</property>
+                <child>
+                  <object class="GtkTextView" id="out_view">
+                    <property name="hscroll-policy">natural</property>
+                    <property name="vscroll-policy">natural</property>
+                    <property name="pixels-below-lines">1</property>
+                    <property name="editable">True</property>
+                    <property name="justification">left</property>
+                    <property name="left-margin">8</property>
+                    <property name="accepts-tab">False</property>
+                  </object>
+                </child>
               </object>
             </child>
           </object>
@@ -57,7 +83,7 @@
         <property name="label">---- run ----</property>
         <property name="focus-on-click">True</property>
         <property name="action-name">svgbob.do_transform</property>
-      </object>  
+      </object>
     </child>
   </template>
 </interface>

@@ -1,5 +1,11 @@
-use gtk::{glib::{self}, prelude::TextViewExt, prelude::TextBufferExt, subclass::prelude::*, CompositeTemplate};
 use crate::core::svgbob::GSMap;
+use gtk::{
+    gdk, glib,
+    prelude::{TextBufferExt, TextViewExt},
+    subclass::prelude::*,
+    CompositeTemplate,
+};
+use svgbob::to_svg;
 
 glib::wrapper! {
     pub struct SvgbobPage(ObjectSubclass<imp::SvgbobPage>)
@@ -14,9 +20,8 @@ impl SvgbobPage {
     }
 
     pub fn init_page(&self) {
-       println!("init page");
+        println!("init page");
     }
-
 }
 
 impl Default for SvgbobPage {
@@ -36,6 +41,8 @@ mod imp {
         pub in_view: TemplateChild<gtk::TextView>,
         #[template_child]
         pub out_view: TemplateChild<gtk::TextView>,
+        #[template_child]
+        pub out_image: TemplateChild<gtk::Image>,
         #[template_child]
         pub run_button: TemplateChild<gtk::Button>,
     }
@@ -61,12 +68,8 @@ mod imp {
         }
     }
 
-    
-
     #[gtk::template_callbacks]
-    impl SvgbobPage {
-        
-    }
+    impl SvgbobPage {}
 
     impl ObjectImpl for SvgbobPage {
         fn constructed(&self) {
@@ -82,12 +85,12 @@ mod imp {
 
 impl SvgbobPage {
     // 配置默认的 placeholdtext
-    fn setup_text_view(&self) {
-    }
+    fn setup_text_view(&self) {}
 
     fn do_transform(&self) {
         let iview: gtk::TextView = self.imp().in_view.get();
         let ibuffer: gtk::TextBuffer = iview.buffer();
+        let oimage: gtk::Image = self.imp().out_image.get();
 
         let (istart, iend) = ibuffer.bounds();
         let content = ibuffer.text(&istart, &iend, false);
@@ -98,6 +101,12 @@ impl SvgbobPage {
         let out_view: gtk::TextView = self.imp().out_view.get();
         let obuffer = out_view.buffer();
         obuffer.set_text(otext.as_str());
+
+        let oimage_str = to_svg(otext.as_str());
+        let texture: gdk::Texture =
+            gdk::Texture::from_bytes(&glib::Bytes::from(oimage_str.as_bytes()))
+                .expect("load svgbob out svg error");
+        oimage.set_from_paintable(Some(&texture));
     }
 }
 
