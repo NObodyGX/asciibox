@@ -1,7 +1,12 @@
+use std::fs::OpenOptions;
+use std::io::Write;
+use std::path::PathBuf;
+
 use crate::core::svgbob::GSMap;
 use adw::prelude::*;
 use adw::subclass::prelude::*;
 use gtk::gdk;
+use gtk::gio;
 use gtk::glib;
 use gtk::prelude::{TextBufferExt, TextViewExt};
 use gtk::CompositeTemplate;
@@ -42,6 +47,16 @@ mod imp {
             klass.install_action("svgbob.do_transform", None, move |obj, _, _| {
                 obj.do_transform();
             });
+
+            klass.install_action_async(
+                "svgbob.save_svg",
+                None,
+                |win, _action_name, _action_target| async move {
+                    if let Err(error) = win.save_svg_file().await {
+                        println!("Error loading the GIF: {error}");
+                    };
+                },
+            );
         }
 
         fn instance_init(obj: &glib::subclass::InitializingObject<Self>) {
@@ -68,10 +83,6 @@ mod imp {
         fn svgbob_svg_copy(&self) {
             println!("copy svg");
             self.obj().copy_svg_output();
-        }
-        #[template_callback]
-        fn svgbob_svg_save(&self) {
-            println!("save svg");
         }
     }
 }
@@ -132,6 +143,35 @@ impl SvgbobPage {
     fn copy_svg_output(&self) {
         let clipboard = self.clipboard();
         clipboard.set_text(self.imp().icon_str_backup.borrow().as_str());
+    }
+
+    pub async fn save_svg_file(&self) -> Result<(), Box<dyn std::error::Error>> {
+        // let svg_filter = gtk::FileFilter::new();
+        // svg_filter.add_mime_type("image/svg");
+        // svg_filter.set_name(Some("Svg Image"));
+        // let filters = gio::ListStore::new::<gtk::FileFilter>();
+        // filters.append(&svg_filter);
+
+        let dialog = gtk::FileDialog::builder()
+            .title("Open File")
+            .accept_label("Open")
+            .modal(true)
+            // .filters(&filters)
+            .build();
+
+        let file: gio::File = dialog.open_future(Some(self)).await?;
+        let filename = file.path().expect("Couldn't get file path");
+        self.write_svg(filename)?;
+        Ok(())
+    }
+
+    fn write_svg(&self, filepath:PathBuf) -> Result<(), Box<dyn std::error::Error>> {
+        let mut file2: std::fs::File = OpenOptions::new()
+            .write(true)
+            .create(true)
+            .open(filepath)?;
+        file2.write_all(self.imp().icon_str_backup.borrow().as_bytes())?;
+        Ok(())
     }
 }
 

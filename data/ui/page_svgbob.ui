@@ -85,7 +85,7 @@
                         <property name="margin_end">2</property>
                         <property name="tooltip_text" translatable="yes">Save Svg</property>
                         <property name="icon-name">folder-download-symbolic</property>
-                        <signal name="clicked" handler="svgbob_svg_save" swapped="true" />
+                        <property name="action-name">svgbob.save_svg</property>
                       </object>
                     </child>
                   </object>
