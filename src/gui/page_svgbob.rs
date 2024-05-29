@@ -47,15 +47,27 @@ mod imp {
                 obj.do_transform();
             });
 
+            klass.install_action("svgbob.do_svg_copy", None, move |obj, _, _| {
+                obj.do_copy_svg_file();
+            });
+
             klass.install_action_async(
-                "svgbob.save_svg",
+                "svgbob.do_svg_save",
                 None,
                 |win, _action_name, _action_target| async move {
-                    if let Err(error) = win.save_svg_file().await {
+                    if let Err(error) = win.do_save_svg_file().await {
                         println!("Error Save svg file: {error}");
                     };
                 },
             );
+
+            klass.install_action("svgbob.do_transform_copy", None, move |obj, _, _| {
+                obj.do_transform_copy();
+            });
+
+            klass.install_action("svgbob.do_transform_to_svg", None, move |obj, _, _| {
+                obj.do_transform_to_svg();
+            });
         }
 
         fn instance_init(obj: &glib::subclass::InitializingObject<Self>) {
@@ -81,7 +93,7 @@ mod imp {
         #[template_callback]
         fn svgbob_svg_copy(&self) {
             println!("copy svg");
-            self.obj().copy_svg_output();
+            self.obj().do_copy_svg_file();
         }
     }
 }
@@ -114,37 +126,24 @@ impl SvgbobPage {
     fn setup_text_view(&self) {}
 
     fn do_transform(&self) {
-        let iview: gtk::TextView = self.imp().in_view.get();
-        let ibuffer: gtk::TextBuffer = iview.buffer();
-        let oimage: gtk::Image = self.imp().out_image.get();
-
-        let (istart, iend) = ibuffer.bounds();
-        let content = ibuffer.text(&istart, &iend, false);
+        let ibuffer: gtk::TextBuffer = self.imp().in_view.get().buffer();
+        let content = ibuffer.text(&ibuffer.bounds().0, &ibuffer.bounds().1, false);
 
         let mut mmap: GSMap = GSMap::new();
         let otext: String = mmap.load_content(content.as_str());
-
-        let out_view: gtk::TextView = self.imp().out_view.get();
-        let obuffer = out_view.buffer();
+        
+        let obuffer= self.imp().out_view.get().buffer();
         obuffer.set_text(otext.as_str());
 
-        let oimage_str = to_svg(otext.as_str());
-
-        // svg_backup = oimage_str.clone();
-        let texture: gdk::Texture =
-            gdk::Texture::from_bytes(&glib::Bytes::from(oimage_str.as_bytes()))
-                .expect("load svgbob out svg error");
-        oimage.set_from_paintable(Some(&texture));
-
-        self.imp().icon_str_backup.replace(oimage_str);
+        self.do_transform_to_svg();
     }
 
-    fn copy_svg_output(&self) {
+    fn do_copy_svg_file(&self) {
         let clipboard = self.clipboard();
         clipboard.set_text(self.imp().icon_str_backup.borrow().as_str());
     }
 
-    pub async fn save_svg_file(&self) -> Result<(), Box<dyn std::error::Error>> {
+    pub async fn do_save_svg_file(&self) -> Result<(), Box<dyn std::error::Error>> {
         let dialog = gtk::FileDialog::builder()
             .title("Open File")
             .accept_label("Save")
@@ -161,6 +160,26 @@ impl SvgbobPage {
             OpenOptions::new().write(true).create(true).open(filename)?;
         file2.write_all(self.imp().icon_str_backup.borrow().as_bytes())?;
         Ok(())
+    }
+
+    fn do_transform_copy(&self) {
+        let clipboard = self.clipboard();
+        let buffer = self.imp().out_view.get().buffer();
+        let content = buffer.text(&buffer.bounds().0, &buffer.bounds().1, false);
+        clipboard.set_text(content.as_str());
+    }
+
+    fn do_transform_to_svg(&self) {
+        let buffer = self.imp().out_view.get().buffer();
+        let content = buffer.text(&buffer.bounds().0, &buffer.bounds().1, false);
+        let svg_content = to_svg(content.as_str());
+
+        let texture: gdk::Texture =
+            gdk::Texture::from_bytes(&glib::Bytes::from(svg_content.as_bytes()))
+                .expect("load svgbob out svg error");
+        self.imp().out_image.get().set_from_paintable(Some(&texture));
+
+        self.imp().icon_str_backup.replace(svg_content);
     }
 }
 
