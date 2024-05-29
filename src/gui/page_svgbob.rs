@@ -1,8 +1,5 @@
 use std::fs::OpenOptions;
 use std::io::Write;
-use std::path::PathBuf;
-
-use crate::core::svgbob::GSMap;
 use adw::prelude::*;
 use adw::subclass::prelude::*;
 use gtk::gdk;
@@ -11,6 +8,8 @@ use gtk::glib;
 use gtk::prelude::{TextBufferExt, TextViewExt};
 use gtk::CompositeTemplate;
 use svgbob::to_svg;
+
+use crate::core::svgbob::GSMap;
 
 mod imp {
 
@@ -146,31 +145,17 @@ impl SvgbobPage {
     }
 
     pub async fn save_svg_file(&self) -> Result<(), Box<dyn std::error::Error>> {
-        // let svg_filter = gtk::FileFilter::new();
-        // svg_filter.add_mime_type("image/svg");
-        // svg_filter.set_name(Some("Svg Image"));
-        // let filters = gio::ListStore::new::<gtk::FileFilter>();
-        // filters.append(&svg_filter);
-
         let dialog = gtk::FileDialog::builder()
             .title("Open File")
-            .accept_label("Open")
+            .accept_label("Save")
             .modal(true)
-            // .filters(&filters)
             .build();
 
         let window = self.root().and_downcast::<gtk::Window>().unwrap();
-        let file: gio::File = dialog.open_future(Some(&window)).await?;
+        let file: gio::File = dialog.save_future(Some(&window)).await?;
         let filename = file.path().expect("Couldn't get file path");
-        self.write_svg(filename)?;
-        Ok(())
-    }
-
-    fn write_svg(&self, filepath:PathBuf) -> Result<(), Box<dyn std::error::Error>> {
-        let mut file2: std::fs::File = OpenOptions::new()
-            .write(true)
-            .create(true)
-            .open(filepath)?;
+        let mut file2: std::fs::File =
+            OpenOptions::new().write(true).create(true).open(filename)?;
         file2.write_all(self.imp().icon_str_backup.borrow().as_bytes())?;
         Ok(())
     }
