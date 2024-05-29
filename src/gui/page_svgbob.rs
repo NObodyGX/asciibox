@@ -69,7 +69,17 @@ mod imp {
     }
 
     #[gtk::template_callbacks]
-    impl SvgbobPage {}
+    impl SvgbobPage {
+        #[template_callback]
+        fn svgbob_svg_copy(&self) {
+            println!("copy svg");
+        }
+        #[template_callback]
+        fn svgbob_svg_save(&self) {
+            println!("save svg");
+        }
+
+    }
 
     impl ObjectImpl for SvgbobPage {
         fn constructed(&self) {

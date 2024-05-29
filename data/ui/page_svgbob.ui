@@ -43,19 +43,56 @@
             <property name="orientation">vertical</property>
             <property name="position">200</property>
             <property name="position-set">True</property>
+            <!-- the svgbob output image paned -->
             <child>
-              <object class="GtkScrolledWindow">
-                <property name="hexpand">False</property>
-                <property name="vexpand">False</property>
+              <object class="GtkOverlay">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
                 <child>
-                  <object class="GtkImage" id="out_image">
-                    <property name="focusable">False</property>
-                    <property name="margin-end">1</property>
-                    <property name="margin-start">1</property>
+                  <object class="GtkScrolledWindow">
+                    <property name="hexpand">False</property>
+                    <property name="vexpand">True</property>
+                    <child>
+                      <object class="GtkImage" id="out_image">
+                        <property name="focusable">False</property>
+                        <property name="margin-end">1</property>
+                        <property name="margin-start">1</property>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                <!-- overlay right buttons -->
+                <child type="overlay">
+                  <object class="GtkBox">
+                    <property name="orientation">vertical</property>
+                    <property name="valign">end</property>
+                    <property name="halign">end</property>
+                    <child>
+                      <object class="GtkButton">
+                        <property name="visible">True</property>
+                        <property name="margin_bottom">2</property>
+                        <property name="margin_end">2</property>
+                        <property name="tooltip_text" translatable="yes">Copy Svg</property>
+                        <property name="icon-name">emblem-documents-symbolic</property>
+                        <signal name="clicked" handler="svgbob_svg_copy" swapped="true" />
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkButton">
+                        <property name="visible">True</property>
+                        <property name="margin_bottom">2</property>
+                        <property name="margin_end">2</property>
+                        <property name="tooltip_text" translatable="yes">Save Svg</property>
+                        <property name="icon-name">folder-download-symbolic</property>
+                        <signal name="clicked" handler="svgbob_svg_save" swapped="true" />
+                      </object>
+                    </child>
                   </object>
                 </child>
               </object>
             </child>
+
+            <!-- the svgbob source input text paned -->
             <child>
               <object class="GtkScrolledWindow">
                 <property name="hexpand">False</property>
