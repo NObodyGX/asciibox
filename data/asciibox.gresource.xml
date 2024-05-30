@@ -11,7 +11,7 @@
         <file compressed="true">themes/theme_selector.css</file>
     </gresource>
     <gresource prefix="/com/github/nobodygx/asciibox/icons/scalable/apps/">
-        <file preprocess="xml-stripblanks" alias="logo.svg">icons/hicolor/scalable/apps/com.github.nobodygx.asciibox.svg</file>
+        <file preprocess="xml-stripblanks" alias="com.github.nobodygx.asciibox.svg">icons/hicolor/scalable/apps/com.github.nobodygx.asciibox.svg</file>
     </gresource>
     <gresource prefix="/com/github/nobodygx/asciibox/icons/symbolic/apps/">
         <file preprocess="xml-stripblanks" alias="logo-symbolic.svg">icons/hicolor/symbolic/apps/com.github.nobodygx.asciibox-symbolic.svg</file>

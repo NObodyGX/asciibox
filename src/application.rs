@@ -102,7 +102,7 @@ impl AsciiboxApplication {
             .transient_for(&window)
             .modal(true)
             .program_name(crate::APP_NAME)
-            .logo_icon_name("logo")
+            .logo_icon_name(crate::APP_ID)
             .version(VERSION)
             .authors(vec!["nobodygx"])
             .website("https://github.com/nobodygx/asciibox-rs")
@@ -116,7 +116,7 @@ impl AsciiboxApplication {
 impl Default for AsciiboxApplication {
     fn default() -> Self {
         glib::Object::builder()
-            .property("application-id", "com.github.nobodygx.asciibox")
+            .property("application-id", crate::APP_ID)
             .build()
     }
 }
