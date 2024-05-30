@@ -75,7 +75,7 @@
                         <property name="margin_bottom">2</property>
                         <property name="margin_end">2</property>
                         <property name="tooltip_text" translatable="yes">Copy Svg</property>
-                        <property name="icon-name">emblem-documents-symbolic</property>
+                        <property name="icon-name">file-copy-symbolic</property>
                         <property name="action-name">svgbob.do_svg_copy</property>
                       </object>
                     </child>
@@ -85,7 +85,7 @@
                         <property name="margin_bottom">2</property>
                         <property name="margin_end">2</property>
                         <property name="tooltip_text" translatable="yes">Save Svg</property>
-                        <property name="icon-name">folder-download-symbolic</property>
+                        <property name="icon-name">file-save-symbolic</property>
                         <property name="action-name">svgbob.do_svg_save</property>
                       </object>
                     </child>
@@ -129,7 +129,7 @@
                         <property name="margin_bottom">2</property>
                         <property name="margin_end">2</property>
                         <property name="tooltip_text" translatable="yes">Copy Svgbob Text</property>
-                        <property name="icon-name">emblem-documents-symbolic</property>
+                        <property name="icon-name">file-copy-symbolic</property>
                         <property name="action-name">svgbob.do_transform_copy</property>
                       </object>
                     </child>
@@ -139,7 +139,7 @@
                         <property name="margin_bottom">2</property>
                         <property name="margin_end">2</property>
                         <property name="tooltip_text" translatable="yes">Transform Svgbob To Svg</property>
-                        <property name="icon-name">folder-download-symbolic</property>
+                        <property name="icon-name">transform-symbolic</property>
                         <property name="action-name">svgbob.do_transform_to_svg</property>
                       </object>
                     </child>
