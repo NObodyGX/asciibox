@@ -1,4 +1,4 @@
+mod table_format;
 
-pub fn beauty_adoc_table(input: &str) {
-    
-}
+pub use table_format::TableFormator;
+

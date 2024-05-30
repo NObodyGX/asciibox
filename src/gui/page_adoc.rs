@@ -1,4 +1,9 @@
-use gtk::{glib, subclass::prelude::*, CompositeTemplate};
+use adw::prelude::*;
+use adw::subclass::prelude::*;
+use gtk::glib;
+use gtk::prelude::{TextBufferExt, TextViewExt};
+use gtk::CompositeTemplate;
+use crate::core::adoc::TableFormator;
 
 glib::wrapper! {
     pub struct AdocPage(ObjectSubclass<imp::AdocPage>)
@@ -11,9 +16,25 @@ impl AdocPage {
         let page: AdocPage = glib::Object::new();
         page
     }
+    fn do_transform_copy(&self) {
+        let clipboard = self.clipboard();
+        let buffer = self.imp().out_view.get().buffer();
+        let content = buffer.text(&buffer.bounds().0, &buffer.bounds().1, false);
+        clipboard.set_text(content.as_str());
+    }
 
-    pub fn init_page(&self) {
-       println!("init page");
+    fn do_transform(&self) {
+        let ibuffer: gtk::TextBuffer = self.imp().in_view.get().buffer();
+        let content = ibuffer.text(&ibuffer.bounds().0, &ibuffer.bounds().1, false);
+
+        // 当输入为 0 的时候不覆盖，这样可以编辑 svgbob 窗口并转换
+        if content.len() != 0 {
+            let mut formator: TableFormator = TableFormator::new();
+            let otext: String = formator.do_format(content.as_str());
+
+            let obuffer = self.imp().out_view.get().buffer();
+            obuffer.set_text(otext.as_str());
+        }
     }
 
 }
@@ -31,7 +52,10 @@ mod imp {
     #[derive(Debug, Default, CompositeTemplate)]
     #[template(resource = "/com/github/nobodygx/asciibox/ui/page_adoc.ui")]
     pub struct AdocPage {
-        
+        #[template_child]
+        pub in_view: TemplateChild<gtk::TextView>,
+        #[template_child]
+        pub out_view: TemplateChild<gtk::TextView>,
     }
 
     #[glib::object_subclass]
@@ -43,7 +67,14 @@ mod imp {
         fn class_init(klass: &mut Self::Class) {
             klass.bind_template();
             klass.bind_template_callbacks();
-            load_css();
+
+            klass.install_action("adoc.do_transform_copy", None, move |obj, _, _| {
+                obj.do_transform_copy();
+            });
+
+            klass.install_action("adoc.do_transform", None, move |obj, _, _| {
+                obj.do_transform();
+            });
         }
 
         fn instance_init(obj: &glib::subclass::InitializingObject<Self>) {
@@ -71,17 +102,4 @@ mod imp {
     }
     impl WidgetImpl for AdocPage {}
     impl BoxImpl for AdocPage {}
-}
-
-fn load_css() {
-    // Load the CSS file and add it to the provider
-    // let provider = CssProvider::new();
-    // provider.load_from_resource("/com/gitee/gmg137/NeteaseCloudMusicGtk4/themes/discover.css");
-
-    // // Add the provider to the default screen
-    // style_context_add_provider_for_display(
-    //     &gdk::Display::default().expect("Could not connect to a display."),
-    //     &provider,
-    //     gtk::STYLE_PROVIDER_PRIORITY_APPLICATION,
-    // );
 }
