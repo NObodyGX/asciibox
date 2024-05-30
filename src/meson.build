@@ -27,6 +27,7 @@ rust_sources = files([
 )
 
 subdir('gui')
+subdir('core')
 
 sources = [cargo_sources, rust_sources]
 
