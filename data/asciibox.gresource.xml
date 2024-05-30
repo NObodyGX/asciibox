@@ -17,6 +17,7 @@
         <file preprocess="xml-stripblanks" alias="logo-symbolic.svg">icons/hicolor/symbolic/apps/com.github.nobodygx.asciibox-symbolic.svg</file>
         <file preprocess="xml-stripblanks" alias="file-copy-symbolic.svg">icons/hicolor/symbolic/apps/file-copy-symbolic.svg</file>
         <file preprocess="xml-stripblanks" alias="file-save-symbolic.svg">icons/hicolor/symbolic/apps/file-save-symbolic.svg</file>
+        <file preprocess="xml-stripblanks" alias="table-export-symbolic.svg">icons/hicolor/symbolic/apps/table-export-symbolic.svg</file>
         <file preprocess="xml-stripblanks" alias="transform-symbolic.svg">icons/hicolor/symbolic/apps/transform-symbolic.svg</file>
     </gresource>
 </gresources>

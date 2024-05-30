@@ -68,7 +68,7 @@
               <object class="AdwViewStackPage">
                 <property name="name">adoc</property>
                 <property name="title" translatable="yes">Adoc</property>
-                <property name="icon-name">view-sort-ascending-symbolic</property>
+                <property name="icon-name">table-export-symbolic</property>
                 <property name="child">
                   <object class="AdocPage" id="adoc" />
                 </property>
