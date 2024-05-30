@@ -16,6 +16,17 @@ pwd=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 # cp $pwd/data/com.github.nobodygx.asciibox.gschema.xml /usr/share/glib-2.0/schemas/
 # glib-compile-schemas /usr/share/glib-2.0/schemas/
 
+function sync_version {
+  local ver=$(sed -n '2p' meson.build | grep -Eo "[0-9]+\.[0-9]+\.+[0-9]")
+  local ver2=$(sed -n '3p' Cargo.toml | grep -Eo "[0-9]+\.[0-9]+\.+[0-9]")
+  if [ $ver != $ver2 ]; then
+    echo "change Cargo: $ver2 --> $ver"
+    sed -i "3s/${ver2}/${ver}/g" Cargo.toml
+  fi
+}
+
+sync_version
+
 bdir="_build"
 cd $pwd
 if [ $is_clean -eq 1 ]; then

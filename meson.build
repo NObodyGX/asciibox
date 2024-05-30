@@ -11,6 +11,7 @@ i18n = import('i18n')
 gnome = import('gnome')
 app_id = 'com.github.nobodygx.asciibox'
 app_name = 'asciibox'
+pkg_dir = join_paths(get_option('prefix'), get_option('datadir'), app_name)
 
 
 conf = configuration_data()
@@ -18,13 +19,12 @@ conf.set_quoted('APP_ID', app_id)
 conf.set_quoted('APP_NAME', app_name)
 conf.set_quoted('VERSION', meson.project_version())
 conf.set_quoted('GETTEXT_PACKAGE', app_name)
-conf.set_quoted('LOCALEDIR', join_paths(get_option('prefix'), get_option('localedir')))
+conf.set_quoted('PACKAGE_DATADIR', pkg_dir)
 conf.set_quoted('PACKAGE_WEBSITE', 'https://github.com/nobodygx/asciibox-rs')
 conf.set_quoted('PACKAGE_BUGREPORTS', 'https://github.com/nobodygx/asciibox-rs/issues')
 conf.set_quoted('PACKAGE_ICON_NAME', app_id)
-conf.set_quoted('PACKAGE_NAME', 'Asciibox')
-conf.set_quoted('PACKAGE_DATADIR', join_paths(get_option('prefix'), get_option('datadir'), 'asciibox'))
-
+conf.set_quoted('PACKAGE_NAME', app_name)
+conf.set_quoted('LOCALEDIR', join_paths(get_option('prefix'), get_option('localedir')))
 
 dependency('gtk4', version: '>= 4.0.0')
 dependency('libadwaita-1', version: '>=1.1.0')
