@@ -2,11 +2,11 @@
 <gresources>
     <gresource prefix="/com/github/nobodygx/asciibox/">
         <file compressed="true" preprocess="xml-stripblanks">ui/main_window.ui</file>
-        <file compressed="true" preprocess="xml-stripblanks">ui/theme_selector.ui</file>
-        <file compressed="true" preprocess="xml-stripblanks">ui/preferences.ui</file>
-        <file compressed="true" preprocess="xml-stripblanks">ui/page_svgbob.ui</file>
         <file compressed="true" preprocess="xml-stripblanks">ui/page_adoc.ui</file>
+        <file compressed="true" preprocess="xml-stripblanks">ui/page_svgbob.ui</file>
+        <file compressed="true" preprocess="xml-stripblanks">ui/preferences.ui</file>
         <file compressed="true" preprocess="xml-stripblanks" alias="gtk/help-overlay.ui">ui/shortcuts.ui</file>
+        <file compressed="true" preprocess="xml-stripblanks">ui/theme_selector.ui</file>
         <file compressed="true">themes/style.css</file>
         <file compressed="true">themes/theme_selector.css</file>
     </gresource>
