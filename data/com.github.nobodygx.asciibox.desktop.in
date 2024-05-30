@@ -1,14 +1,18 @@
 [Desktop Entry]
+Categories=GNOME;GTK;Utility;
+Keywords=svgbob;asciidoc;text;
+Keywords[zh_CN]=svgbob;asciidoc;文本;文本编辑辅助
+Exec=asciibox
 Name=Asciibox
 Name[zh_CN]=Asciibox
+GenericName=Asciibox
 Comment=a simple tools for svgbob/asciidoc
 Comment[zh_CN]=一个辅助 svgbob/asciidoc 生成的文本工具
-Exec=asciibox
-Icon=com.github.nobodygx.asciibox
+
+# Translators: Do NOT translate or transliterate this text (this is an icon file name)!
+Icon=@app_id@
 StartupWMClass=asciibox
 Terminal=false
 Type=Application
-Categories=GNOME;GTK;Programming;Utilities;
 StartupNotify=true
-Keywords=svgbob;asciidoc;text;
-Keywords[zh_CN]=svgbob;asciidoc;文本;文本编辑辅助
+

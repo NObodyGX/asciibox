@@ -1,16 +1,11 @@
 pkgdatadir = join_paths(get_option('prefix'), get_option('datadir'), meson.project_name())
 
-conf = configuration_data()
-conf.set_quoted('VERSION', meson.project_version())
-conf.set_quoted('GETTEXT_PACKAGE', 'asciibox')
-conf.set_quoted('LOCALEDIR', join_paths(get_option('prefix'), get_option('localedir')))
-conf.set_quoted('PKGDATADIR', pkgdatadir)
-
 configure_file(
   input: 'config.rs.in',
   output: 'config.rs',
   configuration: conf
 )
+
 # copy output
 run_command(
   'cp',

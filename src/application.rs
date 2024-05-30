@@ -4,7 +4,7 @@ use adw::prelude::*;
 use adw::subclass::prelude::*;
 use crate::gui::MainWindow;
 use crate::gui::MainPreferences;
-use crate::config::VERSION;
+use crate::config::{VERSION, APP_NAME, APP_ID, APP_URL};
 
 
 mod imp {
@@ -39,7 +39,7 @@ mod imp {
             let window = app.create_window();
             window.set_default_size(1280, 720);
             // todo: read settings
-            window.set_title(Some("Asciibox"));
+            window.set_title(Some(APP_NAME));
 
             window.present();
         }
@@ -101,11 +101,11 @@ impl AsciiboxApplication {
         let dialog = gtk::AboutDialog::builder()
             .transient_for(&window)
             .modal(true)
-            .program_name(crate::APP_NAME)
-            .logo_icon_name(crate::APP_ID)
+            .program_name(APP_NAME)
+            .logo_icon_name(APP_ID)
             .version(VERSION)
             .authors(vec!["nobodygx"])
-            .website("https://github.com/nobodygx/asciibox-rs")
+            .website(APP_URL)
             .license_type(gtk::License::MitX11)
             .build();
 
@@ -116,7 +116,7 @@ impl AsciiboxApplication {
 impl Default for AsciiboxApplication {
     fn default() -> Self {
         glib::Object::builder()
-            .property("application-id", crate::APP_ID)
+            .property("application-id", APP_ID)
             .build()
     }
 }

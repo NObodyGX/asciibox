@@ -6,9 +6,7 @@ use application::AsciiboxApplication;
 use gtk::prelude::*;
 use gtk::{gio, glib};
 
-const APP_ID: &str = "com.github.nobodygx.asciibox";
-const APP_NAME: &str = "asciibox";
-use config::PKGDATADIR;
+use config::{PKGDATADIR, APP_ID};
 
 fn main() -> glib::ExitCode {
     // Register and include resources

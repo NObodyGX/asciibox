@@ -9,6 +9,21 @@ project('asciibox', 'rust',
 
 i18n = import('i18n')
 gnome = import('gnome')
+app_id = 'com.github.nobodygx.asciibox'
+app_name = 'asciibox'
+
+
+conf = configuration_data()
+conf.set_quoted('APP_ID', app_id)
+conf.set_quoted('APP_NAME', app_name)
+conf.set_quoted('VERSION', meson.project_version())
+conf.set_quoted('GETTEXT_PACKAGE', app_name)
+conf.set_quoted('LOCALEDIR', join_paths(get_option('prefix'), get_option('localedir')))
+conf.set_quoted('PACKAGE_WEBSITE', 'https://github.com/nobodygx/asciibox-rs')
+conf.set_quoted('PACKAGE_BUGREPORTS', 'https://github.com/nobodygx/asciibox-rs/issues')
+conf.set_quoted('PACKAGE_ICON_NAME', app_id)
+conf.set_quoted('PACKAGE_NAME', 'Asciibox')
+conf.set_quoted('PACKAGE_DATADIR', join_paths(get_option('prefix'), get_option('datadir'), 'asciibox'))
 
 
 dependency('gtk4', version: '>= 4.0.0')
