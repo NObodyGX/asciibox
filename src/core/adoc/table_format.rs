@@ -35,32 +35,45 @@ impl TableFormator {
     fn prepare_content(&mut self, lines: Vec<&str>) -> Vec<Vec<String>> {
         let mut data: Vec<Vec<String>> = Vec::new();
         let mut idx: usize = lines.len();
+        // 包含标题
         if lines[0].starts_with(".") {
             self.title = lines[0].to_string();
             idx = 0;
         }
+        
         for (i, line) in lines.iter().enumerate() {
             if i == idx {
                 continue;
             }
-            let nline: &str = line.trim();
+            let nline: String = line.trim().to_string();
             if nline.len() == 0 {
                 continue;
             }
             // 如果是 asciidoc 或者 md 表格
+            let mut skip_header = false;
             if nline.starts_with("|") {
-                let nnline = nline.to_string();
-                let mut aline:Vec<String> = Vec::new();
-                let aaa: Vec<_> = nnline.split('|').collect();
-                for word in aaa{
+                skip_header = true;
+            }
+            // 如果是 asciidoc 列表
+            if nline.starts_with("* ") {
+                continue;
+            }
+            // 如果是 md 列表
+            if nline.starts_with("- ") {
+                continue;
+            }
+            let mut aline:Vec<String> = Vec::new();
+                let aaa: Vec<_> = nline.split('|').collect();
+                for (i,word) in aaa.iter().enumerate() {
+                    if skip_header && i == 0 {
+                        continue;
+                    }
                     let b = word.trim().to_string();
                     aline.push(b.clone());
                 }
                 data.push(aline);
                 continue;
-            }
-            // 如果是 asciidoc 列表
-            // 如果是 md 列表
+
         }
         data
     }
@@ -79,19 +92,18 @@ impl TableFormator {
         // 生成表格内容
         let mut content: Vec<String> = Vec::new();
         for line in data.iter() {
+            let mut xline = String::new();
             for (j, cell) in line.iter().enumerate() {
                 let symbol = if j == 0 {"| "} else {" | "};
                 let blank = " ".repeat(cell_widths[j] - cell.len());
-                let mut xline = String::new();
                 xline.push_str(symbol);
                 xline.push_str(cell);
                 xline.push_str(blank.as_str());
-                xline.push('\n');
-                content.push(xline.clone());
             }
+            content.push(xline.clone());
         }
         // 添加表头和表尾
-        let mut total_w = 0;
+        let mut total_w = cell_widths.len() * 3 - 2;
         for length in cell_widths.iter() {
             total_w += length;
         }
@@ -103,12 +115,13 @@ impl TableFormator {
 
         // 添加标题
         if self.title.len() > 0 {
-            content.insert(0, self.title.clone());
+            content.insert(0, self.title.clone()+ "\n");
         }
 
         let mut result = String::new();
         for x in content.iter() {
-            result.push_str(x.as_str());
+            result.push_str(x.trim());
+            result.push('\n');
         }
         result
     }

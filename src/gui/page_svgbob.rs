@@ -26,8 +26,6 @@ mod imp {
         pub out_view: TemplateChild<gtk::TextView>,
         #[template_child]
         pub out_image: TemplateChild<gtk::Image>,
-        #[template_child]
-        pub run_button: TemplateChild<gtk::Button>,
 
         pub icon_str_backup: RefCell<String>,
     }

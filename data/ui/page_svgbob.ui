@@ -153,7 +153,7 @@
       </object>
     </child>
     <child>
-      <object class="GtkButton" id="run_button">
+      <object class="GtkButton">
         <property name="label">---- run ----</property>
         <property name="focus-on-click">True</property>
         <property name="action-name">svgbob.do_transform</property>
