@@ -1,79 +1,79 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <interface>
-    <requires lib="gtk" version="4.0" />
-    <template class="MainPreferences" parent="AdwPreferencesWindow">
-        <property name="can-navigate-back">True</property>
-        <property name="modal">True</property>
-        <property name="title" translatable="yes">Preferences</property>
+  <requires lib="gtk" version="4.0" />
+  <template class="MainPreferences" parent="AdwPreferencesWindow">
+    <property name="can-navigate-back">True</property>
+    <property name="modal">True</property>
+    <property name="title" translatable="yes">Preferences</property>
+    <child>
+      <object class="AdwPreferencesPage">
         <child>
-            <object class="AdwPreferencesPage">
+          <object class="AdwPreferencesGroup">
+            <property name="title" translatable="yes">General</property>
+            <child>
+              <object class="AdwActionRow">
+                <property name="title" translatable="yes">Font Family</property>
+                <property name="subtitle" translatable="yes">the font family in output panel</property>
+                <property name="use_underline">True</property>
                 <child>
-                    <object class="AdwPreferencesGroup">
-                        <property name="title" translatable="yes">General</property>
-                        <child>
-                            <object class="AdwActionRow">
-                                <property name="title" translatable="yes">Font Family</property>
-                                <property name="subtitle" translatable="yes">the font family in output panel</property>
-                                <property name="use_underline">True</property>
-                                <child>
-                                    <object class="GtkEntry" id="font_family_entry">
-                                        <property name="valign">center</property>
-                                        <property name="halign">fill</property>
-                                        <property name="hexpand">true</property>
-                                    </object>
-                                </child>
-                            </object>
-                        </child>
-                        <child>
-                            <object class="AdwActionRow">
-                                <property name="title" translatable="yes">Font Size</property>
-                                <property name="subtitle" translatable="yes">the font size in output panel</property>
-                                <property name="use_underline">True</property>
-                                <child>
-                                    <object class="GtkEntry" id="font_size_entry">
-                                        <property name="valign">center</property>
-                                        <property name="halign">fill</property>
-                                        <property name="hexpand">true</property>
-                                    </object>
-                                </child>
-                            </object>
-                        </child>
-                    </object>
+                  <object class="GtkEntry" id="font_family_entry">
+                    <property name="valign">center</property>
+                    <property name="halign">fill</property>
+                    <property name="hexpand">true</property>
+                  </object>
                 </child>
+              </object>
+            </child>
+            <child>
+              <object class="AdwActionRow">
+                <property name="title" translatable="yes">Font Size</property>
+                <property name="subtitle" translatable="yes">the font size in output panel</property>
+                <property name="use_underline">True</property>
                 <child>
-                    <object class="AdwPreferencesGroup">
-                        <property name="title" translatable="yes">Svgbob</property>
-                        <child>
-                            <object class="AdwComboRow" id="syntax_mode">
-                                <property name="title" translatable="yes">Input Syntax Support</property>
-                                <property name="model">
-                                    <object class="GtkStringList">
-                                        <items>
-                                            <item>mermaid</item>
-                                            <item>mermaid-enhanced</item>
-                                            <item>custom</item>
-                                        </items>
-                                    </object>
-                                </property>
-                            </object>
-                        </child>
-                        <child>
-                            <object class="AdwActionRow">
-                                <property name="title" translatable="yes">Strict Mode</property>
-                                <property name="subtitle" translatable="yes">Requires Strict Input</property>
-                                <property name="use_underline">True</property>
-                                <property name="activatable-widget">strict_mode</property>
-                                <child>
-                                    <object class="GtkSwitch" id="strict_mode">
-                                        <property name="valign">center</property>
-                                        <property name="active">False</property>
-                                    </object>
-                                </child>
-                            </object>
-                        </child>
-                    </object>
+                  <object class="GtkEntry" id="font_size_entry">
+                    <property name="valign">center</property>
+                    <property name="halign">fill</property>
+                    <property name="hexpand">true</property>
+                  </object>
                 </child>
-            </object>
+              </object>
+            </child>
+          </object>
         </child>
-    </template>
+        <child>
+          <object class="AdwPreferencesGroup">
+            <property name="title" translatable="yes">Svgbob</property>
+            <child>
+              <object class="AdwComboRow" id="syntax_mode">
+                <property name="title" translatable="yes">Input Syntax Support</property>
+                <property name="model">
+                  <object class="GtkStringList">
+                    <items>
+                      <item>mermaid</item>
+                      <item>mermaid-enhanced</item>
+                      <item>custom</item>
+                    </items>
+                  </object>
+                </property>
+              </object>
+            </child>
+            <child>
+              <object class="AdwActionRow">
+                <property name="title" translatable="yes">Strict Mode</property>
+                <property name="subtitle" translatable="yes">Requires Strict Input</property>
+                <property name="use_underline">True</property>
+                <property name="activatable-widget">strict_mode</property>
+                <child>
+                  <object class="GtkSwitch" id="strict_mode">
+                    <property name="valign">center</property>
+                    <property name="active">False</property>
+                  </object>
+                </child>
+              </object>
+            </child>
+          </object>
+        </child>
+      </object>
+    </child>
+  </template>
 </interface>
