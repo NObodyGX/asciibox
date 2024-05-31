@@ -24,13 +24,20 @@
                 </child>
                 <child>
                   <object class="AdwActionRow">
-                    <property name="title" translatable="yes">X</property>
+                    <property name="title" translatable="yes">Font</property>
                     <property name="sensitive" bind-source="use_custom_font" bind-property="active"
                       bind-flags="sync-create" />
-                    <child type="action">
-                      <object class="GtkEntry" id="custom_font">
-                        <property name="halign">end</property>
+                    <child type="suffix">
+                      <object class="GtkBox">
+                        <property name="orientation">horizontal</property>
+                        <property name="spacing">6</property>
                         <property name="valign">center</property>
+                        <child>
+                          <object class="GtkFontDialog" id="font_dialog"></object>
+                          <object class="GtkFontDialogButton" id="font">
+                            <property name="dialog">font_dialog</property>
+                          </object>
+                        </child>
                       </object>
                     </child>
                   </object>

@@ -1,5 +1,7 @@
 #!/bin/bash
 
+
+
 is_clean=0
 while getopts "rf" opt_sg; do
   case $opt_sg in
@@ -10,6 +12,7 @@ while getopts "rf" opt_sg; do
 done
 
 pwd=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+bdir="_build"
 
 # todo, add into meson.build
 # only for test, need sudo
@@ -27,7 +30,14 @@ function sync_version {
 
 sync_version
 
-bdir="_build"
+function del_target {
+  local target="$pwd/$bdir/src/asciibox"
+  if [ -f $target ];then
+    rm -f $target
+  fi
+}
+
+
 cd $pwd
 if [ $is_clean -eq 1 ]; then
   meson setup $bdir --reconfigure
@@ -40,8 +50,18 @@ fi
 cd $pwd/$bdir
 meson compile
 
-cd $pwd/$bdir/src
-./asciibox
-cd -
+function run_target {
+  local target="$pwd/$bdir/src/asciibox"
+  if [ -f $target ];then
+    cd $pwd/$bdir/src
+    ./asciibox
+    cd -
+  else
+    echo "[error]: build failed."
+  fi
+
+}
+run_target
+
 cd -
 cd -

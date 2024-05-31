@@ -2,6 +2,7 @@ use adw::subclass::prelude::AdwWindowImpl;
 use adw::subclass::prelude::PreferencesWindowImpl;
 use gio::Settings;
 use gtk::gio::SettingsBindFlags;
+use gtk::glib::clone;
 use gtk::{glib, prelude::*, subclass::prelude::*, CompositeTemplate, *};
 use std::cell::OnceCell;
 
@@ -16,7 +17,7 @@ mod imp {
         #[template_child]
         pub use_custom_font: TemplateChild<Switch>,
         #[template_child]
-        pub custom_font: TemplateChild<Entry>,
+        pub font: TemplateChild<FontDialogButton>,
         #[template_child]
         pub syntax_mode: TemplateChild<adw::ComboRow>,
         #[template_child]
@@ -44,6 +45,7 @@ mod imp {
             self.parent_constructed();
 
             obj.setup_settings();
+            obj.setup_font();
             obj.bind_settings();
         }
     }
@@ -66,10 +68,23 @@ impl MainPreferences {
 
     fn setup_settings(&self) {
         let settings = Settings::new(crate::APP_ID);
+
         self.imp()
             .settings
             .set(settings)
             .expect("Could not set `Settings`.");
+    }
+
+    fn setup_font(&self) {
+        self.imp().font.connect_font_desc_notify(move |font| {
+            let font_desc = font.font_desc().unwrap();
+            let font_string = font_desc.to_string();
+            // println!("{}", font_string);
+            let settings = gio::Settings::new(crate::APP_ID);
+            settings
+                .set_string("custom-font", font_string.as_str())
+                .unwrap();
+        });
     }
 
     fn settings(&self) -> &Settings {
@@ -84,9 +99,9 @@ impl MainPreferences {
             .flags(SettingsBindFlags::DEFAULT)
             .build();
 
-        let custom_font = self.imp().custom_font.get();
+        let custom_font = self.imp().font.get();
         self.settings()
-            .bind("custom-font", &custom_font, "text")
+            .bind("custom-font", &custom_font, "name")
             .flags(SettingsBindFlags::DEFAULT)
             .build();
 
