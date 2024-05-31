@@ -11,28 +11,32 @@
             <property name="title" translatable="yes" context="shortcut window">General</property>
             <child>
               <object class="GtkShortcutsShortcut">
-                <property name="title" translatable="yes" context="shortcut window">Show shortcuts</property>
-                <property name="action-name">win.show-help-overlay</property>
-              </object>
-            </child>
-            <child>
-              <object class="GtkShortcutsShortcut">
                 <property name="title" translatable="yes" context="shortcut window">Quit</property>
                 <property name="action-name">app.quit</property>
               </object>
             </child>
             <child>
               <object class="GtkShortcutsShortcut">
-                <property name="title" translatable="yes" context="shortcut window">Execute current
-                  task</property>
+                <property name="title" translatable="yes" context="shortcut window">Show shortcuts</property>
+                <property name="action-name">win.show-help-overlay</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkShortcutsShortcut">
+                <property name="title" translatable="yes" context="shortcut window">Switch Tab</property>
+                <property name="action-name">win.switch_tab</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkShortcutsShortcut">
+                <property name="title" translatable="yes" context="shortcut window">Execute</property>
                 <property name="action-name">win.execute</property>
               </object>
             </child>
             <child>
               <object class="GtkShortcutsShortcut">
-                <property name="title" translatable="yes" context="shortcut window">Clear input
-                  characts</property>
-                <property name="action-name">win.clearall</property>
+                <property name="title" translatable="yes" context="shortcut window">Clear</property>
+                <property name="action-name">win.clear_all</property>
               </object>
             </child>
           </object>

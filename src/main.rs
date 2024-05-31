@@ -27,5 +27,6 @@ fn main() -> glib::ExitCode {
 fn setup_shortcuts(app: &AsciiboxApplication) {
     app.set_accels_for_action("app.quit", &["<Ctrl>q"]);
     app.set_accels_for_action("win.execute", &["<Ctrl>r"]);
-    app.set_accels_for_action("win.clearall", &["<Ctrl>l"]);
+    app.set_accels_for_action("win.clear_all", &["<Ctrl>BackSpace"]);
+    app.set_accels_for_action("win.switch_tab", &["<Ctrl>h"]);
 }

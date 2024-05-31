@@ -50,8 +50,11 @@ mod imp {
             klass.install_action("win.execute", None, |window, _, _| {
                 window.execute();
             });
-            klass.install_action("win.clearall", None, |window, _, _| {
-                window.clearall();
+            klass.install_action("win.clear_all", None, |window, _, _| {
+                window.clear_all();
+            });
+            klass.install_action("win.switch_tab", None, |window, _, _| {
+                window.switch_tab();
             });
         }
 
@@ -155,7 +158,7 @@ impl MainWindow {
         }
     }
 
-    fn clearall(&self) {
+    fn clear_all(&self) {
         let imp = self.imp();
         let s = imp.stack.visible_child_name();
         match s {
@@ -164,6 +167,31 @@ impl MainWindow {
                     let _ = imp.svgbob.activate_action("svgbob.do_clear", None);
                 } else if name.as_str() == "adoc" {
                     let _ = imp.adoc.activate_action("adoc.do_clear", None);
+                }
+            }
+            None => {}
+        }
+    }
+
+    fn switch_tab(&self) {
+        let mut names: Vec<&str> = Vec::new();
+        names.push("svgbob");
+        names.push("adoc");
+        names.push(names[0]);
+        let s = self.imp().stack.visible_child_name();
+        match s {
+            Some(target) => {
+                let mut flag = false;
+                for name in names.iter() {
+                    if flag {
+                        self.imp().stack.set_visible_child_name(name);
+                        return;
+                    }
+                    flag = if target.as_str().eq(*name) {
+                        true
+                    } else {
+                        false
+                    };
                 }
             }
             None => {}
