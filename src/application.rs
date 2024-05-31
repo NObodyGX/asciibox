@@ -38,7 +38,7 @@ mod imp {
             window.set_default_size(1280, 720);
             // todo: read settings
             window.set_title(Some(APP_NAME));
-
+            window.set_icon_name(Some(APP_ID));
             window.present();
         }
     }

@@ -5,15 +5,12 @@ use glib::Object;
 use gtk::subclass::prelude::*;
 use gtk::{gio, glib, prelude::*, CompositeTemplate, MenuButton};
 use std::cell::OnceCell;
-use std::collections::LinkedList;
 
 use crate::application::AsciiboxApplication;
+use crate::gui::{AdocPage, SvgbobPage};
 use crate::APP_ID;
 
 mod imp {
-    use std::sync::{Arc, Mutex};
-
-    use crate::gui::{AdocPage, SvgbobPage};
 
     use super::*;
 
@@ -31,7 +28,6 @@ mod imp {
         pub svgbob: TemplateChild<SvgbobPage>,
         #[template_child]
         pub adoc: TemplateChild<AdocPage>,
-        pub stack_child: Arc<Mutex<LinkedList<(String, String)>>>,
         pub settings: OnceCell<Settings>,
     }
 
@@ -51,8 +47,11 @@ mod imp {
             klass.bind_template_instance_callbacks();
 
             // Create action to remove done tasks and add to action group "win"
-            klass.install_action("win.execute_task", None, |window, _, _| {
-                window.execute_task();
+            klass.install_action("win.execute", None, |window, _, _| {
+                window.execute();
+            });
+            klass.install_action("win.clearall", None, |window, _, _| {
+                window.clearall();
             });
         }
 
@@ -127,13 +126,6 @@ impl MainWindow {
             .build();
     }
 
-    // fn settings(&self) -> &Settings {
-    //     self.imp()
-    //         .settings
-    //         .get()
-    //         .expect("`settings` should be set in `setup_settings`.")
-    // }
-
     fn setup_widget(&self) {
         let imp = self.imp();
         let popover = imp.main_menu_button.popover().unwrap();
@@ -148,8 +140,12 @@ impl MainWindow {
         self.add_action(&action_style);
     }
 
-    fn execute_task(&self) {
+    fn execute(&self) {
         println!("exec task start !!!!")
+    }
+
+    fn clearall(&self) {
+        println!("clear all input!!!!")
     }
 }
 

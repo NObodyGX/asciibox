@@ -17,13 +17,21 @@
             </child>
             <child>
               <object class="GtkShortcutsShortcut">
-                <property name="title" translatable="yes" context="shortcut window">Execute current task</property>
+                <property name="title" translatable="yes" context="shortcut window">Quit</property>
+                <property name="action-name">app.quit</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkShortcutsShortcut">
+                <property name="title" translatable="yes" context="shortcut window">Execute current
+                  task</property>
                 <property name="action-name">win.execute</property>
               </object>
             </child>
             <child>
               <object class="GtkShortcutsShortcut">
-                <property name="title" translatable="yes" context="shortcut window">Clear input characts</property>
+                <property name="title" translatable="yes" context="shortcut window">Clear input
+                  characts</property>
                 <property name="action-name">win.clearall</property>
               </object>
             </child>
