@@ -64,10 +64,8 @@ mod imp {
 }
 
 fn load_css() {
-    // Load the CSS file and add it to the provider
     let provider = CssProvider::new();
-    provider
-        .load_from_resource("/com/github/nobodygx/asciibox/themes/theme_selector.css");
+    provider.load_from_resource("/com/github/nobodygx/asciibox/themes/theme_selector.css");
 
     // Add the provider to the default screen
     style_context_add_provider_for_display(

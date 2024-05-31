@@ -20,7 +20,7 @@ impl TableFormator {
         }
         let lines: Vec<&str> = input.split('\n').filter(|&s| !s.is_empty()).collect();
         let adata = self.prepare_content(lines);
-        let result  = self.format_content(adata);
+        let result = self.format_content(adata);
         return result;
     }
 
@@ -40,7 +40,7 @@ impl TableFormator {
             self.title = lines[0].to_string();
             idx = 0;
         }
-        
+
         for (i, line) in lines.iter().enumerate() {
             if i == idx {
                 continue;
@@ -62,23 +62,22 @@ impl TableFormator {
             if nline.starts_with("- ") {
                 continue;
             }
-            let mut aline:Vec<String> = Vec::new();
-                let aaa: Vec<_> = nline.split('|').collect();
-                for (i,word) in aaa.iter().enumerate() {
-                    if skip_header && i == 0 {
-                        continue;
-                    }
-                    let b = word.trim().to_string();
-                    aline.push(b.clone());
+            let mut aline: Vec<String> = Vec::new();
+            let aaa: Vec<_> = nline.split('|').collect();
+            for (i, word) in aaa.iter().enumerate() {
+                if skip_header && i == 0 {
+                    continue;
                 }
-                data.push(aline);
-                continue;
-
+                let b = word.trim().to_string();
+                aline.push(b.clone());
+            }
+            data.push(aline);
+            continue;
         }
         data
     }
 
-    fn format_content(&self, data:Vec<Vec<String>>) -> String {
+    fn format_content(&self, data: Vec<Vec<String>>) -> String {
         // 计算每列的最大宽度，保证相同
         let mut cell_widths: Vec<usize> = Vec::new();
         for line in data.iter() {
@@ -94,7 +93,7 @@ impl TableFormator {
         for line in data.iter() {
             let mut xline = String::new();
             for (j, cell) in line.iter().enumerate() {
-                let symbol = if j == 0 {"| "} else {" | "};
+                let symbol = if j == 0 { "| " } else { " | " };
                 let blank = " ".repeat(cell_widths[j] - cell.len());
                 xline.push_str(symbol);
                 xline.push_str(cell);
@@ -115,7 +114,7 @@ impl TableFormator {
 
         // 添加标题
         if self.title.len() > 0 {
-            content.insert(0, self.title.clone()+ "\n");
+            content.insert(0, self.title.clone() + "\n");
         }
 
         let mut result = String::new();

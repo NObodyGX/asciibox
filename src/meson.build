@@ -1,5 +1,3 @@
-pkgdatadir = join_paths(get_option('prefix'), get_option('datadir'), meson.project_name())
-
 configure_file(
   input: 'config.rs.in',
   output: 'config.rs',

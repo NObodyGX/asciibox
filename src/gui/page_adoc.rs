@@ -1,9 +1,9 @@
+use crate::core::adoc::TableFormator;
 use adw::prelude::*;
 use adw::subclass::prelude::*;
 use gtk::glib;
 use gtk::prelude::{TextBufferExt, TextViewExt};
 use gtk::CompositeTemplate;
-use crate::core::adoc::TableFormator;
 
 glib::wrapper! {
     pub struct AdocPage(ObjectSubclass<imp::AdocPage>)
@@ -36,7 +36,6 @@ impl AdocPage {
             obuffer.set_text(otext.as_str());
         }
     }
-
 }
 
 impl Default for AdocPage {

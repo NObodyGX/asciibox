@@ -89,7 +89,7 @@ impl GBoard {
         }
     }
 
-    fn link_arrow_to_node(&mut self, src:&String, dst:&String, arrow: &GArrow) {
+    fn link_arrow_to_node(&mut self, src: &String, dst: &String, arrow: &GArrow) {
         for node in self.nodes.iter_mut() {
             if node.id.eq(src) {
                 node.add_arrow(arrow, true);
@@ -101,14 +101,14 @@ impl GBoard {
         }
     }
 
-    fn relocate_right(&mut self, id:&String, x:u16, y:u16) {
+    fn relocate_right(&mut self, id: &String, x: u16, y: u16) {
         for node in self.nodes.iter_mut() {
             if node.id.eq(id) {
                 node.x = x;
                 node.y = y;
                 continue;
             }
-            if node.x == x && node.y >=y {
+            if node.x == x && node.y >= y {
                 node.y += 1;
             }
         }
@@ -131,7 +131,7 @@ impl GBoard {
                     self.link_arrow_to_node(src, dst, arrow);
                 }
                 GDirect::Right => {
-                    self.relocate_right(&dst, x,  y + 1);
+                    self.relocate_right(&dst, x, y + 1);
                     self.link_arrow_to_node(src, dst, arrow);
                 }
                 _ => {}

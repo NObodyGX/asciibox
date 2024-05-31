@@ -6,11 +6,11 @@ use application::AsciiboxApplication;
 use gtk::prelude::*;
 use gtk::{gio, glib};
 
-use config::{PKGDATADIR, APP_ID};
+use config::{APP_ID, PKGDATA_DIR};
 
 fn main() -> glib::ExitCode {
     // Register and include resources
-    let resources = gio::Resource::load(PKGDATADIR.to_owned() + "/asciibox.gresource")
+    let resources = gio::Resource::load(PKGDATA_DIR.to_owned() + "/asciibox.gresource")
         .expect("Could not load resources");
     gio::resources_register(&resources);
 

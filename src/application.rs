@@ -1,15 +1,14 @@
-use gtk::{gio, glib};
-use glib::clone;
+use crate::config::{APP_ID, APP_NAME, APP_URL, VERSION};
+use crate::gui::MainPreferences;
+use crate::gui::MainWindow;
 use adw::prelude::*;
 use adw::subclass::prelude::*;
-use crate::gui::MainWindow;
-use crate::gui::MainPreferences;
-use crate::config::{VERSION, APP_NAME, APP_ID, APP_URL};
-
+use glib::clone;
+use gtk::{gio, glib};
 
 mod imp {
 
-    use super::*;    
+    use super::*;
 
     #[derive(Debug, Default)]
     pub struct AsciiboxApplication {}
@@ -28,7 +27,6 @@ mod imp {
 
             obj.setup_gactions();
         }
-
     }
     impl ApplicationImpl for AsciiboxApplication {
         fn activate(&self) {

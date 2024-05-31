@@ -1,15 +1,14 @@
 use adw::{ColorScheme, StyleManager};
 use gio::Settings;
+use glib::subclass::InitializingObject;
 use glib::Object;
 use gtk::subclass::prelude::*;
-use gtk::{gio, glib, CompositeTemplate, MenuButton, prelude::*};
-use glib::subclass::InitializingObject;
+use gtk::{gio, glib, prelude::*, CompositeTemplate, MenuButton};
 use std::cell::OnceCell;
 use std::collections::LinkedList;
 
 use crate::application::AsciiboxApplication;
 use crate::APP_ID;
-
 
 mod imp {
     use std::sync::{Arc, Mutex};
@@ -37,8 +36,7 @@ mod imp {
     }
 
     impl MainWindow {
-        pub fn clear_title(&self) {
-        }
+        pub fn clear_title(&self) {}
     }
 
     #[glib::object_subclass]
@@ -148,7 +146,6 @@ impl MainWindow {
         // 绑定设置与主题
         let action_style = self.settings().create_action("theme-style");
         self.add_action(&action_style);
-
     }
 
     fn execute_task(&self) {
@@ -158,9 +155,6 @@ impl MainWindow {
 
 #[gtk::template_callbacks]
 impl MainWindow {
-
     #[template_callback]
-    fn stack_visible_child_cb(&self) {
-        
-    }
+    fn stack_visible_child_cb(&self) {}
 }
