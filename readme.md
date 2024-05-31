@@ -7,4 +7,6 @@ a simple ascii svgbob text generator tools using mermaid syntax
 
 ## dev
 
+run `build.sh` to run program
+
 your can ignore the local config.rs in repo
