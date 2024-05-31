@@ -44,6 +44,9 @@ mod imp {
             klass.install_action("svgbob.do_transform", None, move |obj, _, _| {
                 obj.do_transform();
             });
+            klass.install_action("svgbob.do_clear", None, move |obj, _, _| {
+                obj.do_clear();
+            });
 
             klass.install_action("svgbob.do_svg_copy", None, move |obj, _, _| {
                 obj.do_copy_svg_file();
@@ -137,6 +140,11 @@ impl SvgbobPage {
         }
 
         self.do_transform_to_svg();
+    }
+
+    fn do_clear(&self) {
+        let ibuffer: gtk::TextBuffer = self.imp().in_view.get().buffer();
+        ibuffer.set_text("");
     }
 
     fn do_copy_svg_file(&self) {

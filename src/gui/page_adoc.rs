@@ -36,6 +36,11 @@ impl AdocPage {
             obuffer.set_text(otext.as_str());
         }
     }
+
+    fn do_clear(&self) {
+        let ibuffer: gtk::TextBuffer = self.imp().in_view.get().buffer();
+        ibuffer.set_text("");
+    }
 }
 
 impl Default for AdocPage {
@@ -73,6 +78,10 @@ mod imp {
 
             klass.install_action("adoc.do_transform", None, move |obj, _, _| {
                 obj.do_transform();
+            });
+
+            klass.install_action("adoc.do_clear", None, move |obj, _, _| {
+                obj.do_clear();
             });
         }
 

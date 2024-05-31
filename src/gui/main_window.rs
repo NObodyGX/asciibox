@@ -141,11 +141,33 @@ impl MainWindow {
     }
 
     fn execute(&self) {
-        println!("exec task start !!!!")
+        let imp = self.imp();
+        let s = imp.stack.visible_child_name();
+        match s {
+            Some(name) => {
+                if name.as_str() == "svgbob" {
+                    let _ = imp.svgbob.activate_action("svgbob.do_transform", None);
+                } else if name.as_str() == "adoc" {
+                    let _ = imp.adoc.activate_action("adoc.do_transform", None);
+                }
+            }
+            None => {}
+        }
     }
 
     fn clearall(&self) {
-        println!("clear all input!!!!")
+        let imp = self.imp();
+        let s = imp.stack.visible_child_name();
+        match s {
+            Some(name) => {
+                if name.as_str() == "svgbob" {
+                    let _ = imp.svgbob.activate_action("svgbob.do_clear", None);
+                } else if name.as_str() == "adoc" {
+                    let _ = imp.adoc.activate_action("adoc.do_clear", None);
+                }
+            }
+            None => {}
+        }
     }
 }
 
