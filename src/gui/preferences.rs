@@ -14,9 +14,9 @@ mod imp {
     pub struct MainPreferences {
         pub settings: OnceCell<Settings>,
         #[template_child]
-        pub font_family_entry: TemplateChild<Entry>,
+        pub use_custom_font: TemplateChild<Switch>,
         #[template_child]
-        pub font_size_entry: TemplateChild<Entry>,
+        pub custom_font: TemplateChild<Entry>,
         #[template_child]
         pub syntax_mode: TemplateChild<adw::ComboRow>,
         #[template_child]
@@ -78,15 +78,15 @@ impl MainPreferences {
 
     fn bind_settings(&self) {
         // notice: _ is not valid in schema
-        let font_family_entry = self.imp().font_family_entry.get();
+        let use_custom_font = self.imp().use_custom_font.get();
         self.settings()
-            .bind("font-family-entry", &font_family_entry, "text")
+            .bind("use-custom-font", &use_custom_font, "active")
             .flags(SettingsBindFlags::DEFAULT)
             .build();
 
-        let font_size_entry = self.imp().font_size_entry.get();
+        let custom_font = self.imp().custom_font.get();
         self.settings()
-            .bind("font-size-entry", &font_size_entry, "text")
+            .bind("custom-font", &custom_font, "text")
             .flags(SettingsBindFlags::DEFAULT)
             .build();
 
