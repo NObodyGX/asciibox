@@ -1,7 +1,7 @@
 use crate::core::adoc::TableFormator;
 use adw::prelude::*;
 use adw::subclass::prelude::*;
-use gtk::gdk::{self, Display};
+use gtk::gdk;
 use gtk::gio::Settings;
 use gtk::glib;
 use gtk::pango::Weight;
