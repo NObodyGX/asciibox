@@ -8,6 +8,10 @@ use std::cell::OnceCell;
 
 mod imp {
 
+    use std::sync::OnceLock;
+
+    use glib::subclass::Signal;
+
     use super::*;
 
     #[derive(Debug, Default, CompositeTemplate)]
@@ -48,6 +52,16 @@ mod imp {
             obj.setup_font();
             obj.bind_settings();
         }
+
+        fn signals() -> &'static [Signal] {
+            static SIGNALS: OnceLock<Vec<Signal>> = OnceLock::new();
+            SIGNALS.get_or_init(|| {
+                vec![
+                    Signal::builder("font-changed").build(),
+                    Signal::builder("theme-changed").build(),
+                ]
+            })
+        }
     }
     impl WidgetImpl for MainPreferences {}
     impl WindowImpl for MainPreferences {}
@@ -85,6 +99,7 @@ impl MainPreferences {
                 let settings = imp.settings.get().expect("Could not get settings from imp.");
                 settings.set_string("custom-font", font_string.as_str()).unwrap();
                 // println!("{}", font_string);
+                imp.obj().emit_by_name::<()>("font-changed", &[]);
             }));
     }
 
@@ -111,6 +126,17 @@ impl MainPreferences {
             .bind("strict-mode", &strict_mode, "active")
             .flags(SettingsBindFlags::DEFAULT)
             .build();
+    }
+
+    pub(crate) fn connect_font_changed<F: Fn(&Self) + 'static>(
+        &self,
+        f: F,
+    ) -> glib::SignalHandlerId {
+        self.connect_local("font-changed", true, move |values| {
+            let obj = values[0].get().unwrap();
+            f(obj);
+            None
+        })
     }
 }
 

@@ -91,6 +91,9 @@ impl AsciiboxApplication {
         let preferences = MainPreferences::new();
         preferences.set_modal(true);
         preferences.set_transient_for(Some(&window));
+        preferences.connect_font_changed(clone!(@weak window => move |_| {
+            let _ = window.activate_action("win.refresh_text_view_font", None);
+        }));
         preferences.present();
     }
 

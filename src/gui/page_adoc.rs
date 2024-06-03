@@ -43,6 +43,9 @@ mod imp {
             klass.install_action("adoc.do_clear", None, move |obj, _, _| {
                 obj.do_clear();
             });
+            klass.install_action("adoc.refresh_font", None, move |obj, _, _| {
+                obj.refresh_font();
+            });
         }
 
         fn instance_init(obj: &glib::subclass::InitializingObject<Self>) {
@@ -125,7 +128,7 @@ impl AdocPage {
         self.refresh_font();
     }
 
-    pub fn refresh_font(&self) {
+    fn refresh_font(&self) {
         // TODO: 目前会改动全局 textview 配置
         let imp = self.imp();
         // update font show

@@ -56,6 +56,9 @@ mod imp {
             klass.install_action("win.switch_tab", None, |window, _, _| {
                 window.switch_tab();
             });
+            klass.install_action("win.refresh_text_view_font", None, |window, _, _| {
+                window.refresh_text_view_font();
+            });
         }
 
         fn instance_init(obj: &InitializingObject<Self>) {
@@ -196,6 +199,13 @@ impl MainWindow {
             }
             None => {}
         }
+    }
+
+    fn refresh_text_view_font(&self) {
+        println!("refresh_text_view_font");
+        let imp = self.imp();
+        // 只需要改动一个，因为目前直接改动的是 textview 基类 css
+        let _ = imp.adoc.activate_action("adoc.refresh_font", None);
     }
 }
 
