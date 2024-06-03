@@ -3,7 +3,6 @@ use adw::subclass::prelude::PreferencesWindowImpl;
 use gio::Settings;
 use gtk::gio::SettingsBindFlags;
 use gtk::glib::clone;
-use gtk::glib::GString;
 use gtk::{glib, prelude::*, subclass::prelude::*, CompositeTemplate, *};
 use std::cell::OnceCell;
 
@@ -69,9 +68,6 @@ impl MainPreferences {
 
     fn setup_settings(&self) {
         let settings = Settings::new(crate::APP_ID);
-        let x = settings.string("custom-font");
-        println!("{}", x);
-
         self.imp()
             .settings
             .set(settings)
