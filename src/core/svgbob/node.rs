@@ -1,3 +1,4 @@
+use crate::core::utils::cn_length;
 use std::fmt;
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
@@ -67,7 +68,7 @@ impl GNode {
         let h: u16 = pwords.len() as u16;
         let mut w: u16 = 0;
         for word in pwords {
-            w = std::cmp::max(w, word.len() as u16);
+            w = std::cmp::max(w, cn_length(word) as u16);
             words.push(word.to_string());
         }
 
@@ -143,8 +144,8 @@ impl GNode {
         match self.words.get(i as usize - 1) {
             Some(cword) => {
                 let (lastr, rastr) = self.render_arrow(i);
-                let lbank = (self.w as usize + 2 - cword.len() + 1) / 2;
-                let rbank = self.w as usize + 2 - cword.len() - lbank;
+                let lbank = (self.w as usize + 2 - cn_length(cword) + 1) / 2;
+                let rbank = self.w as usize + 2 - cn_length(cword) - lbank;
                 let lstr = " ".repeat(lbank);
                 let rstr = " ".repeat(rbank);
                 return format!(
