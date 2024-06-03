@@ -3,6 +3,7 @@ use adw::subclass::prelude::PreferencesWindowImpl;
 use gio::Settings;
 use gtk::gio::SettingsBindFlags;
 use gtk::glib::clone;
+use gtk::glib::GString;
 use gtk::{glib, prelude::*, subclass::prelude::*, CompositeTemplate, *};
 use std::cell::OnceCell;
 
@@ -68,6 +69,8 @@ impl MainPreferences {
 
     fn setup_settings(&self) {
         let settings = Settings::new(crate::APP_ID);
+        let x = settings.string("custom-font");
+        println!("{}", x);
 
         self.imp()
             .settings
@@ -76,15 +79,23 @@ impl MainPreferences {
     }
 
     fn setup_font(&self) {
-        self.imp().font.connect_font_desc_notify(move |font| {
-            let font_desc = font.font_desc().unwrap();
-            let font_string = font_desc.to_string();
-            // println!("{}", font_string);
-            let settings = gio::Settings::new(crate::APP_ID);
-            settings
-                .set_string("custom-font", font_string.as_str())
-                .unwrap();
-        });
+        let imp = self.imp();
+        let settings = imp
+            .settings
+            .get()
+            .expect("Could not get settings from imp.");
+        let fdesc: GString = settings.string("custom-font");
+        imp.font
+            .set_font_desc(&gtk::pango::FontDescription::from_string(fdesc.as_str()));
+        self.imp()
+            .font
+            .connect_font_desc_notify(clone!(@weak imp => move |_| {
+                let font_desc = imp.font.font_desc().unwrap();
+                let font_string = font_desc.to_string();
+                let settings = imp.settings.get().expect("Could not get settings from imp.");
+                settings.set_string("custom-font", font_string.as_str()).unwrap();
+                println!("{}", font_string);
+            }));
     }
 
     fn settings(&self) -> &Settings {
@@ -92,16 +103,10 @@ impl MainPreferences {
     }
 
     fn bind_settings(&self) {
-        // notice: _ is not valid in schema
+        // 注意: schema 里不能使用 _ 而是需要使用 - 才符合格式
         let use_custom_font = self.imp().use_custom_font.get();
         self.settings()
             .bind("use-custom-font", &use_custom_font, "active")
-            .flags(SettingsBindFlags::DEFAULT)
-            .build();
-
-        let custom_font = self.imp().font.get();
-        self.settings()
-            .bind("custom-font", &custom_font, "name")
             .flags(SettingsBindFlags::DEFAULT)
             .build();
 
