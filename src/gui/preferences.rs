@@ -80,21 +80,15 @@ impl MainPreferences {
 
     fn setup_font(&self) {
         let imp = self.imp();
-        let settings = imp
-            .settings
-            .get()
-            .expect("Could not get settings from imp.");
-        let fdesc: GString = settings.string("custom-font");
+        let fdesc = self.settings().string("custom-font");
         imp.font
             .set_font_desc(&gtk::pango::FontDescription::from_string(fdesc.as_str()));
-        self.imp()
-            .font
+        imp.font
             .connect_font_desc_notify(clone!(@weak imp => move |_| {
-                let font_desc = imp.font.font_desc().unwrap();
-                let font_string = font_desc.to_string();
+                let font_string = imp.font.font_desc().unwrap().to_string();
                 let settings = imp.settings.get().expect("Could not get settings from imp.");
                 settings.set_string("custom-font", font_string.as_str()).unwrap();
-                println!("{}", font_string);
+                // println!("{}", font_string);
             }));
     }
 
