@@ -36,22 +36,30 @@ impl ToString for GDirect {
     }
 }
 
-#[derive(Clone, Debug, Default, Eq, PartialEq, Hash)]
+#[derive(Clone, Debug, Eq, PartialEq, Hash)]
 pub struct GNBox {
-    pub l_arrow_w: usize,
-    pub r_arrow_w: usize,
+    pub w_left: usize,
+    pub w_right: usize,
+    pub left: GDirect,
+    pub right: GDirect,
+    pub up: GDirect,
+    pub down: GDirect,
 }
 
 impl GNBox {
     pub fn new() -> Self {
         Self {
-            l_arrow_w: 0,
-            r_arrow_w: 0,
+            left: GDirect::None,
+            right: GDirect::None,
+            up: GDirect::None,
+            down: GDirect::None,
+            w_left: 0,
+            w_right: 0,
         }
     }
 }
 
-#[derive(Clone, Debug, Default, Eq, Hash)]
+#[derive(Clone, Debug, Eq, Hash)]
 pub struct GNode {
     // 节点排序用序号
     pub idx: u16,
@@ -88,6 +96,7 @@ impl GNode {
             w = std::cmp::max(w, cn_length(word) as u16);
             words.push(word.to_string());
         }
+        let mbox = GNBox::new();
 
         Self {
             id: nid,
@@ -100,22 +109,48 @@ impl GNode {
             arrows: Vec::new(),
             arrows_no_render: Vec::new(),
             idx: 0,
-            mbox: GNBox::new(),
+            mbox,
         }
     }
 
-    pub fn add_arrow(&mut self, arrow: &GArrow, enable_render: bool) {
+    /// 向 node 添加 arrow
+    /// - arrow: 要添加的 GArrow
+    /// - direct: 要添加的方向
+    /// - enable_render: 是否需要被绘制
+    pub fn add_arrow(&mut self, arrow: &GArrow, direct: GDirect, enable_render: bool) {
         if !enable_render {
             self.arrows_no_render.push(arrow.clone());
             return;
         }
         self.arrows.push(arrow.clone());
-        match arrow.direct {
+        match direct {
             GDirect::Left => {
-                self.mbox.l_arrow_w = 3;
+                self.mbox.left = arrow.direct.clone();
+                self.mbox.w_left = std::cmp::max(
+                    self.mbox.w_left,
+                    if arrow.direct == GDirect::Double {
+                        4
+                    } else {
+                        3
+                    },
+                );
             }
             GDirect::Right => {
-                self.mbox.r_arrow_w = 3;
+                self.mbox.right = arrow.direct.clone();
+                self.mbox.w_right = std::cmp::max(
+                    self.mbox.w_right,
+                    if arrow.direct == GDirect::Double {
+                        4
+                    } else {
+                        3
+                    },
+                );
+            }
+            GDirect::Up => {
+                self.mbox.up = arrow.direct.clone();
+            }
+            GDirect::Down => {
+                self.mbox.down = arrow.direct.clone();
             }
             _ => {}
         }
@@ -124,21 +159,45 @@ impl GNode {
     fn render_arrow(&self, i: u16) -> (String, String) {
         let mut lcontent = String::new();
         let mut rcontent = String::new();
-        if self.mbox.l_arrow_w > 0 {
-            if i == (self.h + 1) / 2 {
-                let v = format!("<{}", "-".repeat(self.mbox.l_arrow_w - 1));
-                lcontent.push_str(v.as_str());
+
+        if self.mbox.w_left > 0 {
+            let v = if i != (self.h + 1) / 2 {
+                " ".repeat(self.mbox.w_left)
             } else {
-                lcontent.push_str(" ".repeat(self.mbox.l_arrow_w).as_str());
-            }
+                match self.mbox.left {
+                    GDirect::Left => {
+                        format!("<{}", "-".repeat(self.mbox.w_left - 1))
+                    }
+                    GDirect::Right => {
+                        format!("{}>", "-".repeat(self.mbox.w_left - 1))
+                    }
+                    GDirect::Double => {
+                        format!("<{}>", "-".repeat(self.mbox.w_left - 2))
+                    }
+                    _ => " ".repeat(self.mbox.w_left),
+                }
+            };
+            lcontent.push_str(v.as_str());
         }
-        if self.mbox.r_arrow_w > 0 {
-            if i == (self.h + 1) / 2 {
-                let v = format!("{}>", "-".repeat(self.mbox.r_arrow_w - 1));
-                rcontent.push_str(v.as_str());
+
+        if self.mbox.w_right > 0 {
+            let v = if i != (self.h + 1) / 2 {
+                " ".repeat(self.mbox.w_right)
             } else {
-                rcontent.push_str(" ".repeat(self.mbox.r_arrow_w).as_str());
-            }
+                match self.mbox.right {
+                    GDirect::Left => {
+                        format!("<{}", "-".repeat(self.mbox.w_right - 1))
+                    }
+                    GDirect::Right => {
+                        format!("{}>", "-".repeat(self.mbox.w_right - 1))
+                    }
+                    GDirect::Double => {
+                        format!("<{}>", "-".repeat(self.mbox.w_right - 2))
+                    }
+                    _ => " ".repeat(self.mbox.w_right),
+                }
+            };
+            rcontent.push_str(v.as_str());
         }
         (lcontent, rcontent)
     }
@@ -149,8 +208,8 @@ impl GNode {
 
         if i == 0 || i == self.h + 1 {
             let spc = if i == 0 { "." } else { "'" };
-            let lstr = " ".repeat(lb + self.mbox.l_arrow_w);
-            let rstr = " ".repeat(rb + self.mbox.r_arrow_w);
+            let lstr = " ".repeat(lb + self.mbox.w_left);
+            let rstr = " ".repeat(rb + self.mbox.w_right);
             let cstr = "-".repeat(self.centent_w());
             return format!("{}{}{}{}{}", lstr, spc, cstr, spc, rstr);
         } else if i >= self.h + 2 {
@@ -188,7 +247,7 @@ impl GNode {
     }
 
     pub fn total_w(&self) -> usize {
-        return self.mbox.l_arrow_w + self.w as usize + 2 + self.mbox.r_arrow_w;
+        return self.mbox.w_left + self.w as usize + 2 + self.mbox.w_right;
     }
 
     pub fn total_h(&self) -> usize {

@@ -89,14 +89,12 @@ impl GBoard {
         }
     }
 
-    fn link_arrow_to_node(&mut self, src: &String, dst: &String, arrow: &GArrow) {
+    // 将 arrow 加到 node 上
+    fn add_arrow_to_node(&mut self, id: &String, arrow: &GArrow, direct: GDirect, render: bool) {
         for node in self.nodes.iter_mut() {
-            if node.id.eq(src) {
-                node.add_arrow(arrow, true);
-                continue;
-            }
-            if node.id.eq(dst) {
-                node.add_arrow(arrow, false);
+            if node.id.eq(id) {
+                node.add_arrow(arrow, direct, render);
+                break;
             }
         }
     }
@@ -126,13 +124,15 @@ impl GBoard {
             let x = lnode.x;
             let y = lnode.y;
             match arrow.direct {
-                GDirect::Left => {
+                GDirect::Left | GDirect::Double => {
                     self.relocate_right(&dst, x, max(1, y) - 1);
-                    self.link_arrow_to_node(src, dst, arrow);
+                    self.add_arrow_to_node(src, arrow, GDirect::Left, true);
+                    self.add_arrow_to_node(dst, arrow, GDirect::Right, false);
                 }
                 GDirect::Right => {
                     self.relocate_right(&dst, x, y + 1);
-                    self.link_arrow_to_node(src, dst, arrow);
+                    self.add_arrow_to_node(src, arrow, GDirect::Right, true);
+                    self.add_arrow_to_node(dst, arrow, GDirect::Left, false);
                 }
                 _ => {}
             }
