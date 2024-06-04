@@ -19,6 +19,23 @@ pub enum GDirect {
     // DownRight,
 }
 
+impl ToString for GDirect {
+    fn to_string(&self) -> String {
+        match self {
+            GDirect::None => String::from("none"),
+            GDirect::Double => String::from("double"),
+            GDirect::Left => String::from("left"),
+            GDirect::Right => String::from("right"),
+            GDirect::Up => String::from("up"),
+            GDirect::Down => String::from("down"),
+            GDirect::LeftUp => String::from("leftup"),
+            GDirect::LeftDown => String::from("leftdown"),
+            GDirect::RightUp => String::from("rightup"),
+            GDirect::RightDown => String::from("rightdown"),
+        }
+    }
+}
+
 #[derive(Clone, Debug, Default, Eq, PartialEq, Hash)]
 pub struct GNBox {
     pub l_arrow_w: usize,

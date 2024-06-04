@@ -29,7 +29,9 @@ pub fn parse_node(input: &str) -> IResult<&str, &str> {
 }
 
 pub fn parse_arrow(input: &str) -> GDirect {
-    if input.starts_with("<-") {
+    if input.starts_with("<-") && input.ends_with("->") {
+        return GDirect::Double;
+    } else if input.starts_with("<-") {
         return GDirect::Left;
     } else if input.ends_with("->") {
         return GDirect::Right;
@@ -45,8 +47,49 @@ pub fn parse_arrow(input: &str) -> GDirect {
         return GDirect::RightUp;
     } else if input.starts_with("-v>") {
         return GDirect::RightDown;
-    } else if input.starts_with("<") && input.ends_with(">") {
-        return GDirect::Double;
     }
     GDirect::None
+}
+
+#[cfg(test)]
+mod tests {
+
+    use super::*;
+
+    #[test]
+    fn test_node_parse() {
+        assert_eq!(parse_node("a"), Ok(("a", "a")));
+        assert_eq!(parse_node("a1(bb)"), Ok(("a1", "bb")));
+        assert_eq!(parse_node("a2[bb] c"), Ok(("a2", "bb")));
+        assert_eq!(parse_node("a3[你好]"), Ok(("a3", "你好")));
+        assert_eq!(
+            parse_node("a4[梦九天\n无应变]"),
+            Ok(("a4", "梦九天\n无应变"))
+        );
+        assert_eq!(
+            parse_node("a5[梦九天\naaa\n七重关]"),
+            Ok(("a5", "梦九天\naaa\n七重关"))
+        );
+        assert_eq!(parse_node("天下[天下神一舞]"), Ok(("天下", "天下神一舞")));
+    }
+
+    #[test]
+    fn test_arrow_parse() {
+        assert_eq!(parse_arrow("-->").to_string(), GDirect::Right.to_string());
+        assert_eq!(parse_arrow("<--").to_string(), GDirect::Left.to_string());
+        assert_eq!(parse_arrow("<-->").to_string(), GDirect::Double.to_string());
+        assert_eq!(parse_arrow("<->").to_string(), GDirect::Double.to_string());
+        assert_eq!(parse_arrow("--^").to_string(), GDirect::Up.to_string());
+        assert_eq!(parse_arrow("--v").to_string(), GDirect::Down.to_string());
+        assert_eq!(parse_arrow("-^>").to_string(), GDirect::RightUp.to_string());
+        assert_eq!(
+            parse_arrow("-v>").to_string(),
+            GDirect::RightDown.to_string()
+        );
+        assert_eq!(parse_arrow("<^-").to_string(), GDirect::LeftUp.to_string());
+        assert_eq!(
+            parse_arrow("<v-").to_string(),
+            GDirect::LeftDown.to_string()
+        );
+    }
 }
