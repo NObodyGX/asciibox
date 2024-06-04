@@ -1,6 +1,6 @@
 [package]
 name = "asciibox"
-version = "0.7.1"
+version = "0.8.1"
 authors = ["nobodygx"]
 edition = "2021"
 
