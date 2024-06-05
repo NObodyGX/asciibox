@@ -1,5 +1,5 @@
 use crate::core::utils::cn_length;
-use std::fmt;
+use std::{fmt, ops::Not};
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum GDirect {
@@ -36,10 +36,31 @@ impl ToString for GDirect {
     }
 }
 
+impl Not for GDirect {
+    type Output = Self;
+
+    fn not(self) -> Self::Output {
+        match self {
+            GDirect::None => GDirect::None,
+            GDirect::Double => GDirect::Double,
+            GDirect::Left => GDirect::Right,
+            GDirect::Right => GDirect::Left,
+            GDirect::Up => GDirect::Down,
+            GDirect::Down => GDirect::Up,
+            GDirect::LeftUp => GDirect::LeftDown,
+            GDirect::LeftDown => GDirect::LeftUp,
+            GDirect::RightUp => GDirect::RightDown,
+            GDirect::RightDown => GDirect::RightUp,
+        }
+    }
+}
+
 #[derive(Clone, Debug, Eq, PartialEq, Hash)]
 pub struct GNBox {
     pub w_left: usize,
     pub w_right: usize,
+    pub h_up: usize,
+    pub h_down: usize,
     pub left: GDirect,
     pub right: GDirect,
     pub up: GDirect,
@@ -55,6 +76,8 @@ impl GNBox {
             down: GDirect::None,
             w_left: 0,
             w_right: 0,
+            h_up: 0,
+            h_down: 0,
         }
     }
 }
@@ -148,9 +171,11 @@ impl GNode {
             }
             GDirect::Up => {
                 self.mbox.up = arrow.direct.clone();
+                self.mbox.h_up = std::cmp::max(self.mbox.h_up, 3);
             }
             GDirect::Down => {
                 self.mbox.down = arrow.direct.clone();
+                self.mbox.h_down = std::cmp::max(self.mbox.h_down, 3);
             }
             _ => {}
         }
@@ -242,6 +267,34 @@ impl GNode {
         }
     }
 
+    pub fn render_up(&self, i: u16, _maxh: usize, maxw: usize) -> String {
+        if self.mbox.h_up <= 0 {
+            return String::new();
+        }
+        let lb: usize = (maxw + 1) / 2;
+        let rb: usize = maxw - 1 - lb;
+        if i == 0 {
+            return format!("{}^{}", " ".repeat(lb), " ".repeat(rb),);
+        } else if i <= self.mbox.h_up as u16 - 1 {
+            return format!("{}|{}", " ".repeat(lb), " ".repeat(rb),);
+        }
+        return format!("{}", " ".repeat(maxw));
+    }
+
+    pub fn render_down(&self, i: u16, _maxh: usize, maxw: usize) -> String {
+        if self.mbox.h_down <= 0 {
+            return String::new();
+        }
+        let lb: usize = (maxw + 1) / 2;
+        let rb: usize = maxw - 1 - lb;
+        if i == self.mbox.h_down as u16 - 1 {
+            return format!("{}v{}", " ".repeat(lb), " ".repeat(rb),);
+        } else if i < self.mbox.h_down as u16 - 1 {
+            return format!("{}|{}", " ".repeat(lb), " ".repeat(rb),);
+        }
+        return format!("{}", " ".repeat(maxw));
+    }
+
     pub fn centent_w(&self) -> usize {
         return self.w as usize + 2;
     }
@@ -251,6 +304,18 @@ impl GNode {
     }
 
     pub fn total_h(&self) -> usize {
+        return self.mbox.h_up + self.h as usize + 2 + self.mbox.h_down;
+    }
+
+    pub fn up_h(&self) -> usize {
+        return self.mbox.h_up;
+    }
+
+    pub fn down_h(&self) -> usize {
+        return self.mbox.h_down;
+    }
+
+    pub fn content_h(&self) -> usize {
         return self.h as usize + 2;
     }
 }
