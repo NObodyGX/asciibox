@@ -85,19 +85,19 @@ impl GNBox {
 #[derive(Clone, Debug, Eq, Hash)]
 pub struct GNode {
     // 节点排序用序号
-    pub idx: u16,
+    pub idx: usize,
     // 节点 id
     pub id: String,
     // 节点展示内容原始值
     pub name: String,
     // 行坐标，依次对应 map 的每一行
-    pub x: u16,
+    pub x: usize,
     // 列坐标，依次对应每行里面的顺序
-    pub y: u16,
+    pub y: usize,
     // 内容宽度
-    pub w: u16,
+    pub w: usize,
     // 内容高度
-    pub h: u16,
+    pub h: usize,
     // 具体每行内容
     words: Vec<String>,
     // 周围可用的箭头
@@ -108,15 +108,15 @@ pub struct GNode {
 
 impl GNode {
     #[must_use]
-    pub fn new(id: String, name: String, x: u16, y: u16) -> Self {
+    pub fn new(id: String, name: String, x: usize, y: usize) -> Self {
         let nid: String = id.trim().to_string();
         let nname: String = name.trim().to_string();
         let pwords: Vec<&str> = nname.split('\n').collect();
         let mut words = Vec::new();
-        let h: u16 = pwords.len() as u16;
-        let mut w: u16 = 0;
+        let h: usize = pwords.len() as usize;
+        let mut w: usize = 0;
         for word in pwords {
-            w = std::cmp::max(w, cn_length(word) as u16);
+            w = std::cmp::max(w, cn_length(word) as usize);
             words.push(word.to_string());
         }
         let mbox = GNBox::new();
@@ -181,7 +181,7 @@ impl GNode {
         }
     }
 
-    fn render_arrow(&self, i: u16) -> (String, String) {
+    fn render_arrow(&self, i: usize) -> (String, String) {
         let mut lcontent = String::new();
         let mut rcontent = String::new();
 
@@ -227,7 +227,7 @@ impl GNode {
         (lcontent, rcontent)
     }
 
-    pub fn render(&self, i: u16, _maxh: usize, cw: usize, lw: usize, rw: usize) -> String {
+    pub fn render(&self, i: usize, _maxh: usize, cw: usize, lw: usize, rw: usize) -> String {
         let lb: usize = (cw - self.content_w() + 1) / 2;
         let rb: usize = cw - self.content_w() - lb;
 
@@ -272,32 +272,32 @@ impl GNode {
         }
     }
 
-    pub fn render_up(&self, i: u16, _maxh: usize, maxw: usize) -> String {
+    pub fn render_up(&self, i: usize, _maxh: usize, cw: usize, lw: usize, rw: usize) -> String {
         if self.mbox.h_up <= 0 {
             return String::new();
         }
-        let lb: usize = (maxw + 1) / 2;
-        let rb: usize = maxw - 1 - lb;
+        let lb: usize = (cw + 1) / 2;
+        let rb: usize = cw - 1 - lb;
         if i == 0 {
-            return format!("{}^{}", " ".repeat(lb), " ".repeat(rb),);
-        } else if i <= self.mbox.h_up as u16 - 1 {
-            return format!("{}|{}", " ".repeat(lb), " ".repeat(rb),);
+            return format!("{}^{}", " ".repeat(lb + lw), " ".repeat(rb + rw));
+        } else if i <= self.mbox.h_up - 1 {
+            return format!("{}|{}", " ".repeat(lb + lw), " ".repeat(rb + rw));
         }
-        return format!("{}", " ".repeat(maxw));
+        return format!("{}", " ".repeat(cw));
     }
 
-    pub fn render_down(&self, i: u16, _maxh: usize, maxw: usize) -> String {
+    pub fn render_down(&self, i: usize, _maxh: usize, cw: usize, lw: usize, rw: usize) -> String {
         if self.mbox.h_down <= 0 {
             return String::new();
         }
-        let lb: usize = (maxw + 1) / 2;
-        let rb: usize = maxw - 1 - lb;
-        if i == self.mbox.h_down as u16 - 1 {
-            return format!("{}v{}", " ".repeat(lb), " ".repeat(rb),);
-        } else if i < self.mbox.h_down as u16 - 1 {
-            return format!("{}|{}", " ".repeat(lb), " ".repeat(rb),);
+        let lb: usize = (cw + 1) / 2;
+        let rb: usize = cw - 1 - lb;
+        if i == self.mbox.h_down - 1 {
+            return format!("{}v{}", " ".repeat(lb + lw), " ".repeat(rb + rw));
+        } else if i < self.mbox.h_down - 1 {
+            return format!("{}|{}", " ".repeat(lb + lw), " ".repeat(rb + rw));
         }
-        return format!("{}", " ".repeat(maxw));
+        return format!("{}", " ".repeat(cw));
     }
 
     pub fn content_w(&self) -> usize {

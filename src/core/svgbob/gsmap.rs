@@ -8,10 +8,10 @@ use std::ops::Not;
 pub struct GBoard {
     // 记录所有 node 信息
     pub nodes: Vec<GNode>,
-    pub board: Vec<Vec<u16>>,
-    pub w: u16,
-    pub h: u16,
-    idx: u16,
+    pub board: Vec<Vec<usize>>,
+    pub w: usize,
+    pub h: usize,
+    idx: usize,
 }
 
 #[derive(Debug, Clone, Default, Copy)]
@@ -64,7 +64,7 @@ impl GBoard {
         return None;
     }
 
-    fn get_node_by_id(&self, idx: &u16) -> Option<&GNode> {
+    fn get_node_by_id(&self, idx: &usize) -> Option<&GNode> {
         if self.nodes.is_empty() {
             return None;
         }
@@ -81,7 +81,7 @@ impl GBoard {
         let h = self.h + 9;
         let w = self.w + 9;
         for _ih in 0..h {
-            let mut a: Vec<u16> = Vec::new();
+            let mut a: Vec<usize> = Vec::new();
             for _ in 0..w {
                 a.push(0);
             }
@@ -112,7 +112,7 @@ impl GBoard {
         }
     }
 
-    fn relocate_right(&mut self, id: &String, x: u16, y: u16) {
+    fn relocate_right(&mut self, id: &String, x: usize, y: usize) {
         for node in self.nodes.iter_mut() {
             if node.id.eq(id) {
                 node.x = x;
@@ -125,7 +125,7 @@ impl GBoard {
             }
         }
     }
-    fn relocate_down(&mut self, id: &String, x: u16, y: u16) {
+    fn relocate_down(&mut self, id: &String, x: usize, y: usize) {
         for node in self.nodes.iter_mut() {
             if node.id.eq(id) {
                 node.x = x;
@@ -196,7 +196,7 @@ impl GBoard {
                     cbox.h = max(cbox.w, node.content_h());
                     cbox.h_up = max(cbox.h_up, node.up_h());
                     cbox.h_down = max(cbox.h_down, node.down_h());
-                    cbox.h_total = max(cbox.h_down, node.total_h());
+                    cbox.h_total = max(cbox.h_total, node.total_h());
                 }
             }
         }
@@ -229,9 +229,9 @@ impl GBoard {
                         Some(node) => {
                             let v;
                             if h < hu {
-                                v = node.render_up(h as u16, maxh, maxw);
+                                v = node.render_up(h, maxh, wc, wl, wr);
                             } else if h < hu + hc {
-                                let vv = node.render(h as u16 - hu as u16, maxh, wc, wl, wr);
+                                let vv = node.render(h as usize - hu as usize, maxh, wc, wl, wr);
                                 v = format!(
                                     "{}{}{}",
                                     " ".repeat(wl - node.left_w()),
@@ -239,7 +239,7 @@ impl GBoard {
                                     " ".repeat(wr - node.right_w())
                                 );
                             } else {
-                                v = node.render_down(h as u16 - hu as u16 - hc as u16, maxh, maxw)
+                                v = node.render_down(h - hu - hc, maxh, wc, wl, wr)
                             }
                             linestr.push_str(v.as_str());
                         }
@@ -275,7 +275,7 @@ impl GSMap {
     pub fn load_content(&mut self, content: &str) -> String {
         // let mut lines = content.lines();
         let mut lines: Vec<&str> = content.split('\n').filter(|&s| !s.is_empty()).collect();
-        let mut linenum: u16 = 0;
+        let mut linenum: usize = 0;
         for line in lines.iter_mut() {
             match self.parse_line(line, linenum) {
                 Ok(_) => {
@@ -295,14 +295,14 @@ impl GSMap {
 
     // 逐行解析出现的节点，如果有多个节点，这几个节点默认是一排的
     // 后续依据节点之间的联系会重排节点位置
-    fn parse_line<'a>(&'a mut self, line: &'a str, linenum: u16) -> IResult<&str, &str> {
+    fn parse_line<'a>(&'a mut self, line: &'a str, linenum: usize) -> IResult<&str, &str> {
         let mut text: &str;
         let mut vtext: &str;
         let mut direct: GDirect;
         let mut lid: String;
         let mut rid: String;
         let mut node: GNode;
-        let mut w: u16 = 0;
+        let mut w: usize = 0;
 
         // 第一个 node
         (text, vtext) = valid_node_check(line)?;
