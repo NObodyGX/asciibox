@@ -14,6 +14,18 @@ pub struct GBoard {
     idx: u16,
 }
 
+#[derive(Debug, Clone, Default, Copy)]
+pub struct RenderBox {
+    pub w: usize,
+    pub w_left: usize,
+    pub w_right: usize,
+    pub w_total: usize,
+    pub h: usize,
+    pub h_up: usize,
+    pub h_down: usize,
+    pub h_total: usize,
+}
+
 impl GBoard {
     pub fn new() -> Self {
         Self {
@@ -167,60 +179,72 @@ impl GBoard {
     }
 
     pub fn show(&self) -> String {
-        let mut w_val: Vec<usize> = Vec::new(); // 每行 cell 的宽度
-        let mut h_val: Vec<usize> = Vec::new(); // 每行的高度
-        let mut hu_val: Vec<usize> = Vec::new(); // 每行顶端高度
-        let mut hd_val: Vec<usize> = Vec::new(); // 每行底端高度
-        let mut hc_val: Vec<usize> = Vec::new(); // 每行底端高度
-        for _ in 0..max(self.w + 9, self.h + 9) {
-            w_val.push(0);
-            h_val.push(0);
-            hu_val.push(0);
-            hd_val.push(0);
-            hc_val.push(0);
+        let mut rboxes: Vec<RenderBox> = Vec::new();
+        for _ in 0..max(self.w + 6, self.h + 6) {
+            rboxes.push(RenderBox::default());
         }
         // 先计算显示的长宽
         for node in self.nodes.iter() {
-            w_val[node.y as usize] = max(w_val[node.y as usize], node.total_w());
-            h_val[node.x as usize] = max(h_val[node.x as usize], node.total_h());
-            hu_val[node.x as usize] = max(hu_val[node.x as usize], node.up_h());
-            hd_val[node.x as usize] = max(hd_val[node.x as usize], node.down_h());
-            hc_val[node.x as usize] = max(hc_val[node.x as usize], node.content_h());
+            for (i, cbox) in rboxes.iter_mut().enumerate() {
+                if i == node.y as usize {
+                    cbox.w = max(cbox.w, node.content_w());
+                    cbox.w_left = max(cbox.w_left, node.left_w());
+                    cbox.w_right = max(cbox.w_right, node.right_w());
+                    cbox.w_total = max(cbox.w_total, node.total_w());
+                }
+                if i == node.x as usize {
+                    cbox.h = max(cbox.w, node.content_h());
+                    cbox.h_up = max(cbox.h_up, node.up_h());
+                    cbox.h_down = max(cbox.h_down, node.down_h());
+                    cbox.h_total = max(cbox.h_down, node.total_h());
+                }
+            }
         }
         // 开始逐行打印
         let mut content = String::new();
         for (x, items) in self.board.iter().enumerate() {
             let mut linestr: String = String::new();
-            if x >= h_val.len() {
+            if x >= rboxes.len() {
                 break;
             }
-            let uh = hu_val[x as usize];
-            let ch = hc_val[x as usize];
-            for h in 0..h_val[x as usize] {
+            let rbox = rboxes.get(x as usize).expect("error");
+            let hu = rbox.h_up;
+            let hc = rbox.h;
+            let maxh = rbox.h_total;
+            for h in 0..maxh {
                 for (y, idx) in items.iter().enumerate() {
-                    if y >= w_val.len() {
+                    if y >= rboxes.len() {
                         break;
                     }
+                    let rbox2 = rboxes.get(y as usize).expect("error");
+                    let wl = rbox2.w_left;
+                    let wr = rbox2.w_right;
+                    let wc = rbox2.w;
+                    let maxw = rbox2.w_total;
                     if idx.eq(&0) {
-                        linestr.push_str(" ".repeat(w_val[y]).as_str());
+                        linestr.push_str(" ".repeat(maxw).as_str());
                         continue;
                     }
                     match self.get_node_by_id(idx) {
                         Some(node) => {
-                            let maxh = h_val[x as usize];
-                            let maxw = w_val[y as usize];
                             let v;
-                            if h < uh {
+                            if h < hu {
                                 v = node.render_up(h as u16, maxh, maxw);
-                            } else if h < uh + ch {
-                                v = node.render(h as u16 - uh as u16, maxh, maxw);
+                            } else if h < hu + hc {
+                                let vv = node.render(h as u16 - hu as u16, maxh, wc, wl, wr);
+                                v = format!(
+                                    "{}{}{}",
+                                    " ".repeat(wl - node.left_w()),
+                                    vv,
+                                    " ".repeat(wr - node.right_w())
+                                );
                             } else {
-                                v = node.render_down(h as u16 - uh as u16 - ch as u16, maxh, maxw)
+                                v = node.render_down(h as u16 - hu as u16 - hc as u16, maxh, maxw)
                             }
                             linestr.push_str(v.as_str());
                         }
                         None => {
-                            linestr.push_str(" ".repeat(w_val[y]).as_str());
+                            linestr.push_str(" ".repeat(maxw).as_str());
                         }
                     }
                 }

@@ -227,19 +227,19 @@ impl GNode {
         (lcontent, rcontent)
     }
 
-    pub fn render(&self, i: u16, _maxh: usize, maxw: usize) -> String {
-        let lb: usize = (maxw - self.total_w() + 1) / 2;
-        let rb: usize = maxw - self.total_w() - lb;
+    pub fn render(&self, i: u16, _maxh: usize, cw: usize, lw: usize, rw: usize) -> String {
+        let lb: usize = (cw - self.content_w() + 1) / 2;
+        let rb: usize = cw - self.content_w() - lb;
 
         if i == 0 || i == self.h + 1 {
             let spc = if i == 0 { "." } else { "'" };
-            let lstr = " ".repeat(lb + self.mbox.w_left);
-            let rstr = " ".repeat(rb + self.mbox.w_right);
-            let cstr = "-".repeat(self.centent_w());
+            let lstr = " ".repeat(lb + lw);
+            let rstr = " ".repeat(rb + rw);
+            let cstr = "-".repeat(self.content_w());
             return format!("{}{}{}{}{}", lstr, spc, cstr, spc, rstr);
         } else if i >= self.h + 2 {
             // 超出行
-            return format!("{}", " ".repeat(maxw));
+            return format!("{}", " ".repeat(lw + cw + rw));
         }
         // 内容行
         match self.words.get(i as usize - 1) {
@@ -262,7 +262,12 @@ impl GNode {
             }
             None => {
                 let ww: usize = self.w as usize + 2;
-                return format!("{}|{}|{}", " ".repeat(lb), " ".repeat(ww), " ".repeat(rb),);
+                return format!(
+                    "{}|{}|{}",
+                    " ".repeat(lb + lw),
+                    " ".repeat(ww),
+                    " ".repeat(rb + rw),
+                );
             }
         }
     }
@@ -295,12 +300,20 @@ impl GNode {
         return format!("{}", " ".repeat(maxw));
     }
 
-    pub fn centent_w(&self) -> usize {
+    pub fn content_w(&self) -> usize {
         return self.w as usize + 2;
     }
 
     pub fn total_w(&self) -> usize {
         return self.mbox.w_left + self.w as usize + 2 + self.mbox.w_right;
+    }
+
+    pub fn left_w(&self) -> usize {
+        return self.mbox.w_left;
+    }
+
+    pub fn right_w(&self) -> usize {
+        return self.mbox.w_right;
     }
 
     pub fn total_h(&self) -> usize {
