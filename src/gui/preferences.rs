@@ -23,9 +23,7 @@ mod imp {
         #[template_child]
         pub font: TemplateChild<FontDialogButton>,
         #[template_child]
-        pub syntax_mode: TemplateChild<adw::ComboRow>,
-        #[template_child]
-        pub strict_mode: TemplateChild<Switch>,
+        pub expand_mode: TemplateChild<Switch>,
     }
 
     #[glib::object_subclass]
@@ -115,15 +113,9 @@ impl MainPreferences {
             .flags(SettingsBindFlags::DEFAULT)
             .build();
 
-        let smode = self.imp().syntax_mode.get();
+        let expand_mode = self.imp().expand_mode.get();
         self.settings()
-            .bind("syntax-mode", &smode, "selected")
-            .flags(SettingsBindFlags::DEFAULT)
-            .build();
-
-        let strict_mode = self.imp().strict_mode.get();
-        self.settings()
-            .bind("strict-mode", &strict_mode, "active")
+            .bind("expand-mode", &expand_mode, "active")
             .flags(SettingsBindFlags::DEFAULT)
             .build();
     }
