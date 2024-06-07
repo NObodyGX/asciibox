@@ -1,4 +1,4 @@
-use super::node::{GArrow, GDirect, GNode};
+use super::node::{GArrow, GDirect, GNode, GSharp};
 use super::parse::{parse_arrow, parse_node, valid_arrow_check, valid_node_check};
 use nom::IResult;
 use std::cmp::max;
@@ -307,7 +307,7 @@ impl GSMap {
         // 第一个 node
         (text, vtext) = valid_node_check(line)?;
         let (id, name) = parse_node(vtext)?;
-        node = GNode::new(id.to_string(), name.to_string(), linenum, w);
+        node = GNode::new(id.to_string(), name.to_string(), linenum, w, GSharp::Round);
         lid = node.id.clone();
         self.board.add_node(&node);
         loop {
@@ -325,7 +325,7 @@ impl GSMap {
             // 再接着 node
             (text, vtext) = valid_node_check(text)?;
             let (id, name) = parse_node(vtext)?;
-            node = GNode::new(id.to_string(), name.to_string(), linenum, w);
+            node = GNode::new(id.to_string(), name.to_string(), linenum, w, GSharp::Round);
             rid = node.id.clone();
             self.board.add_node(&node);
             self.arrows.push(GArrow::new(direct, lid, rid.clone()));

@@ -82,6 +82,12 @@ impl GNBox {
     }
 }
 
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+pub enum GSharp {
+    Round,
+    Square,
+}
+
 #[derive(Clone, Debug, Eq, Hash)]
 pub struct GNode {
     // 节点排序用序号
@@ -104,11 +110,12 @@ pub struct GNode {
     pub arrows: Vec<GArrow>,
     pub arrows_no_render: Vec<GArrow>,
     mbox: GNBox,
+    sharp: GSharp,
 }
 
 impl GNode {
     #[must_use]
-    pub fn new(id: String, name: String, x: usize, y: usize) -> Self {
+    pub fn new(id: String, name: String, x: usize, y: usize, sharp: GSharp) -> Self {
         let nid: String = id.trim().to_string();
         let nname: String = name.trim().to_string();
         let pwords: Vec<&str> = nname.split('\n').collect();
@@ -133,6 +140,7 @@ impl GNode {
             arrows_no_render: Vec::new(),
             idx: 0,
             mbox,
+            sharp,
         }
     }
 
@@ -232,7 +240,15 @@ impl GNode {
         let rb: usize = cw - self.content_w() - lb;
 
         if i == 0 || i == self.h + 1 {
-            let spc = if i == 0 { "." } else { "'" };
+            let spc = if self.sharp == GSharp::Square {
+                "+"
+            } else {
+                if i == 0 {
+                    "."
+                } else {
+                    "'"
+                }
+            };
             let lstr = " ".repeat(lb + lw);
             let rstr = " ".repeat(rb + rw);
             let cstr = "-".repeat(self.content_w());
