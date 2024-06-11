@@ -151,12 +151,12 @@ impl GBoard {
             let x = lnode.x;
             let y = lnode.y;
             match arrow.direct {
-                GDirect::Left | GDirect::Double => {
+                GDirect::Left => {
                     self.relocate_right(&dst, x, max(1, y) - 1);
                     self.add_arrow_to_node(src, arrow, GDirect::Left, true);
                     self.add_arrow_to_node(dst, arrow, GDirect::Left.not(), false);
                 }
-                GDirect::Right => {
+                GDirect::Right | GDirect::Double => {
                     self.relocate_right(&dst, x, y + 1);
                     self.add_arrow_to_node(src, arrow, GDirect::Right, true);
                     self.add_arrow_to_node(dst, arrow, GDirect::Right.not(), false);
