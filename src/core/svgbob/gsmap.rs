@@ -171,6 +171,11 @@ impl GBoard {
                     self.add_arrow_to_node(src, arrow, GDirect::Down, true);
                     self.add_arrow_to_node(dst, arrow, GDirect::Down.not(), false);
                 }
+                GDirect::LeftDown => {
+                    self.relocate_down(&dst, x + 1, max(1, y) - 1);
+                    self.add_arrow_to_node(src, arrow, GDirect::LeftDown, true);
+                    self.add_arrow_to_node(dst, arrow, GDirect::LeftDown.not(), false);
+                }
                 _ => {}
             }
         }
@@ -193,7 +198,7 @@ impl GBoard {
                     cbox.w_total = max(cbox.w_total, node.total_w());
                 }
                 if i == node.x as usize {
-                    cbox.h = max(cbox.w, node.content_h());
+                    cbox.h = max(cbox.h, node.content_h());
                     cbox.h_up = max(cbox.h_up, node.up_h());
                     cbox.h_down = max(cbox.h_down, node.down_h());
                     cbox.h_total = max(cbox.h_total, node.total_h());

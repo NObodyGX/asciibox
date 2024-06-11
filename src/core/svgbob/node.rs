@@ -47,10 +47,10 @@ impl Not for GDirect {
             GDirect::Right => GDirect::Left,
             GDirect::Up => GDirect::Down,
             GDirect::Down => GDirect::Up,
-            GDirect::LeftUp => GDirect::LeftDown,
-            GDirect::LeftDown => GDirect::LeftUp,
-            GDirect::RightUp => GDirect::RightDown,
-            GDirect::RightDown => GDirect::RightUp,
+            GDirect::LeftUp => GDirect::RightDown,
+            GDirect::LeftDown => GDirect::RightUp,
+            GDirect::RightUp => GDirect::LeftDown,
+            GDirect::RightDown => GDirect::LeftUp,
         }
     }
 }
@@ -65,6 +65,7 @@ pub struct GNBox {
     pub right: GDirect,
     pub up: GDirect,
     pub down: GDirect,
+    pub left_down: GDirect,
 }
 
 impl GNBox {
@@ -74,11 +75,25 @@ impl GNBox {
             right: GDirect::None,
             up: GDirect::None,
             down: GDirect::None,
+            left_down: GDirect::None,
             w_left: 0,
             w_right: 0,
             h_up: 0,
             h_down: 0,
         }
+    }
+
+    pub fn set_left_w(&mut self, w: usize) {
+        self.w_left = std::cmp::max(self.w_left, w);
+    }
+    pub fn set_right_w(&mut self, w: usize) {
+        self.w_right = std::cmp::max(self.w_right, w);
+    }
+    pub fn set_up_h(&mut self, w: usize) {
+        self.h_up = std::cmp::max(self.h_up, w);
+    }
+    pub fn set_down_h(&mut self, w: usize) {
+        self.h_down = std::cmp::max(self.h_down, w);
     }
 }
 
@@ -157,33 +172,32 @@ impl GNode {
         match direct {
             GDirect::Left => {
                 self.mbox.left = arrow.direct.clone();
-                self.mbox.w_left = std::cmp::max(
-                    self.mbox.w_left,
-                    if arrow.direct == GDirect::Double {
-                        4
-                    } else {
-                        3
-                    },
-                );
+                self.mbox.set_left_w(if arrow.direct == GDirect::Double {
+                    4
+                } else {
+                    3
+                });
             }
             GDirect::Right => {
                 self.mbox.right = arrow.direct.clone();
-                self.mbox.w_right = std::cmp::max(
-                    self.mbox.w_right,
-                    if arrow.direct == GDirect::Double {
-                        4
-                    } else {
-                        3
-                    },
-                );
+                self.mbox.set_right_w(if arrow.direct == GDirect::Double {
+                    4
+                } else {
+                    3
+                });
             }
             GDirect::Up => {
                 self.mbox.up = arrow.direct.clone();
-                self.mbox.h_up = std::cmp::max(self.mbox.h_up, 3);
+                self.mbox.set_up_h(2);
             }
             GDirect::Down => {
                 self.mbox.down = arrow.direct.clone();
-                self.mbox.h_down = std::cmp::max(self.mbox.h_down, 3);
+                self.mbox.set_down_h(2);
+            }
+            GDirect::LeftDown => {
+                self.mbox.left_down = arrow.direct.clone();
+                self.mbox.set_down_h(2);
+                self.mbox.set_left_w(3);
             }
             _ => {}
         }
@@ -206,6 +220,9 @@ impl GNode {
                     }
                     GDirect::Double => {
                         format!("<{}>", "-".repeat(self.mbox.w_left - 2))
+                    }
+                    GDirect::LeftDown => {
+                        format!("-{}-", "-".repeat(self.mbox.w_left - 2))
                     }
                     _ => " ".repeat(self.mbox.w_left),
                 }
