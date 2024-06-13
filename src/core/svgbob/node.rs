@@ -364,10 +364,6 @@ impl GNode {
         return self.w as usize + 2;
     }
 
-    pub fn total_w(&self) -> usize {
-        return self.mbox.w_left + self.w as usize + 2 + self.mbox.w_right;
-    }
-
     pub fn left_w(&self) -> usize {
         return self.mbox.w_left;
     }

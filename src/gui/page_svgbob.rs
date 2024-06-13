@@ -6,7 +6,6 @@ use gtk::gio::Settings;
 use gtk::glib;
 use gtk::prelude::{TextBufferExt, TextViewExt};
 use gtk::CompositeTemplate;
-use std::borrow::Borrow;
 use std::fs::OpenOptions;
 use std::io::Write;
 use svgbob::to_svg;
