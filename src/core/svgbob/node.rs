@@ -124,7 +124,11 @@ pub struct GNode {
     // 周围可用的箭头
     pub arrows: Vec<GArrow>,
     pub arrows_no_render: Vec<GArrow>,
+    // 是否浮动
+    pub floating: usize,
+    // render 用 box 解构
     mbox: GNBox,
+    // render 用形状
     sharp: GSharp,
 }
 
@@ -156,6 +160,7 @@ impl GNode {
             idx: 0,
             mbox,
             sharp,
+            floating: 0,
         }
     }
 
@@ -221,9 +226,9 @@ impl GNode {
                     GDirect::Double => {
                         format!("<{}>", "-".repeat(self.mbox.w_left - 2))
                     }
-                    GDirect::LeftDown => {
-                        format!("-{}-", "-".repeat(self.mbox.w_left - 2))
-                    }
+                    // GDirect::LeftDown => {
+                    //     format!("-{}-", "-".repeat(self.mbox.w_left - 2))
+                    // }
                     _ => " ".repeat(self.mbox.w_left),
                 }
             };
@@ -307,8 +312,9 @@ impl GNode {
 
     pub fn render_up(&self, i: usize, _maxh: usize, cw: usize, lw: usize, rw: usize) -> String {
         if self.mbox.h_up <= 0 {
-            return String::new();
+            return format!("{}", " ".repeat(lw + cw + rw));
         }
+        // 将 cw 分隔成 lb + 1 + rb
         let lb: usize = (cw + 1) / 2;
         let rb: usize = cw - 1 - lb;
         if i == 0 {
@@ -316,13 +322,14 @@ impl GNode {
         } else if i <= self.mbox.h_up - 1 {
             return format!("{}|{}", " ".repeat(lb + lw), " ".repeat(rb + rw));
         }
-        return format!("{}", " ".repeat(cw));
+        return format!("{}", " ".repeat(lw + cw + rw));
     }
 
     pub fn render_down(&self, i: usize, _maxh: usize, cw: usize, lw: usize, rw: usize) -> String {
         if self.mbox.h_down <= 0 {
-            return String::new();
+            return format!("{}", " ".repeat(lw + cw + rw));
         }
+        // 将 cw 分隔成 lb + 1 + rb
         let lb: usize = (cw + 1) / 2;
         let rb: usize = cw - 1 - lb;
         if i == self.mbox.h_down - 1 {
@@ -330,7 +337,7 @@ impl GNode {
         } else if i < self.mbox.h_down - 1 {
             return format!("{}|{}", " ".repeat(lb + lw), " ".repeat(rb + rw));
         }
-        return format!("{}", " ".repeat(cw));
+        return format!("{}", " ".repeat(lw + cw + rw));
     }
 
     pub fn content_w(&self) -> usize {

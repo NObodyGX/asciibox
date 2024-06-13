@@ -19,7 +19,6 @@ pub struct RenderBox {
     pub w: usize,
     pub w_left: usize,
     pub w_right: usize,
-    pub w_total: usize,
     pub h: usize,
     pub h_up: usize,
     pub h_down: usize,
@@ -112,19 +111,115 @@ impl GBoard {
         }
     }
 
-    fn relocate_right(&mut self, id: &String, x: usize, y: usize) {
+    fn get_node_relationship(&self, id: &String) -> Vec<String> {
+        let mut result: Vec<String> = Vec::new();
+        for node in self.nodes.iter() {
+            if !node.id.eq(id) {
+                continue;
+            }
+            for arrow in node.arrows.iter() {
+                if !result.contains(&arrow.src) {
+                    result.push(arrow.src.clone());
+                }
+                if !result.contains(&arrow.dst) {
+                    result.push(arrow.dst.clone());
+                }
+            }
+            for arrow in node.arrows_no_render.iter() {
+                if !result.contains(&arrow.src) {
+                    result.push(arrow.src.clone());
+                }
+                if !result.contains(&arrow.dst) {
+                    result.push(arrow.dst.clone());
+                }
+            }
+            break;
+        }
+        result
+    }
+
+    fn move_node_to(&mut self, id: &String, x: usize, y: usize) {
         for node in self.nodes.iter_mut() {
             if node.id.eq(id) {
                 node.x = x;
                 node.y = y;
-                continue;
-            }
-            // TODO 所有关联节点都需要被调整
-            if node.x == x && node.y >= y {
-                node.y += 1;
+                break;
             }
         }
     }
+
+    fn move_node(&mut self, id: &String, offx: usize, offy: usize) {
+        for node in self.nodes.iter_mut() {
+            if node.id.eq(id) {
+                node.x += offx;
+                node.y += offy;
+                break;
+            }
+        }
+    }
+
+    // fn bfs(root: &Node<T>) {
+    //     let mut queue = VecDeque::new();
+    //     queue.push(root);
+
+    //     while queue.len() > 0 {
+    //         let node = queue.front().unwrap();
+    //         queue.pop_front();
+
+    //         // 访问节点。
+    //         visit(node);
+
+    //         // 访问节点的所有相邻节点。
+    //         for neighbor in node.neighbors() {
+    //             queue.push(neighbor);
+    //         }
+    //     }
+    // }
+    fn search_all_relationship(&self, id: &String) -> Vec<String> {
+        let mut done_vec: Vec<String> = Vec::new();
+        let mut todo_vec: Vec<String> = Vec::new();
+        done_vec.push(id.clone());
+        todo_vec.push(id.clone());
+        while todo_vec.len() > 0 {
+            let nid = todo_vec.pop().unwrap();
+            let rnodes = self.get_node_relationship(&nid);
+            for rid in rnodes.iter() {
+                if !done_vec.contains(rid) {
+                    done_vec.push(rid.clone());
+                    todo_vec.push(rid.clone());
+                }
+            }
+        }
+        done_vec
+    }
+
+    fn relocate_right(&mut self, id: &String, x: usize, y: usize) {
+        let mut moved_ids: Vec<String> = Vec::new();
+        self.move_node_to(id, x, y);
+        moved_ids.push(id.clone());
+        let rids: Vec<String> = self.search_all_relationship(id);
+        // 暂时不调整自身的关联节点
+        // 调整所有的关联节点
+        // 1. 调整所有在当前行插入节点所在位置右侧的节点
+        // 2. 调整 1 中所有节点上下对应的节点
+        // 3. 调整 2 中所有上下对应节点的左右节点
+        for node in self.nodes.iter_mut() {
+            if moved_ids.contains(&node.id) {
+                continue;
+            }
+            if node.x == x && node.y >= y {
+                node.y += 1;
+                moved_ids.push(node.id.clone());
+            }
+        }
+        for nid in rids.iter() {
+            if moved_ids.contains(nid) {
+                continue;
+            }
+            self.move_node(nid, 0, 1);
+        }
+    }
+
     fn relocate_down(&mut self, id: &String, x: usize, y: usize) {
         for node in self.nodes.iter_mut() {
             if node.id.eq(id) {
@@ -139,18 +234,67 @@ impl GBoard {
         }
     }
 
-    pub fn load_arrows(&mut self, arrows: &Vec<GArrow>) -> Option<&str> {
+    fn check_floating(&self, src: &String, dst: &String) -> (usize, usize) {
+        let mut lindex = 0;
+        let mut rindex = 0;
+        for node in self.nodes.iter() {
+            if node.id.eq(src) {
+                lindex = node.floating;
+            }
+            if node.id.eq(dst) {
+                rindex = node.floating;
+            }
+        }
+        (lindex, rindex)
+    }
+
+    fn set_node_floating(&mut self, id: &String) {
+        for node in self.nodes.iter_mut() {
+            if node.id.eq(id) {
+                node.floating = 1;
+                continue;
+            }
+        }
+    }
+
+    pub fn load_arrows(&mut self, arrows: &Vec<GArrow>) {
         self.rebuild_borad();
         for arrow in arrows {
-            let src = &arrow.src;
-            let dst = &arrow.dst;
+            let mut src = &arrow.src;
+            let mut dst = &arrow.dst;
             if src.eq(dst) {
                 continue;
             }
-            let lnode = self.get_node(src)?;
-            let x = lnode.x;
-            let y = lnode.y;
-            match arrow.direct {
+            let mut rev: bool = false;
+            match self.check_floating(src, dst) {
+                (0, 0) => {
+                    self.set_node_floating(src);
+                    self.set_node_floating(dst);
+                }
+                (1, 0) => {
+                    self.set_node_floating(dst);
+                }
+                (0, 1) => {
+                    let tmp = src;
+                    src = dst;
+                    dst = tmp;
+                    rev = true;
+                    self.set_node_floating(dst);
+                }
+                (_, _) => {
+                    // do nothing
+                    return;
+                }
+            }
+            let ndirect = if !rev {
+                arrow.direct.clone()
+            } else {
+                arrow.direct.clone().not()
+            };
+            let node = self.get_node(src).expect("error");
+            let x = node.x;
+            let y = node.y;
+            match ndirect {
                 GDirect::Left => {
                     self.relocate_right(&dst, x, max(1, y) - 1);
                     self.add_arrow_to_node(src, arrow, GDirect::Left, true);
@@ -180,10 +324,16 @@ impl GBoard {
             }
         }
         self.add_nodes_into_board();
-        Some("")
+    }
+
+    fn show_position(&self) {
+        for node in self.nodes.iter() {
+            println!("{}: ({}, {})", node.id, node.x, node.y);
+        }
     }
 
     pub fn show(&self) -> String {
+        self.show_position();
         let mut rboxes: Vec<RenderBox> = Vec::new();
         for _ in 0..max(self.w + 6, self.h + 6) {
             rboxes.push(RenderBox::default());
@@ -195,7 +345,6 @@ impl GBoard {
                     cbox.w = max(cbox.w, node.content_w());
                     cbox.w_left = max(cbox.w_left, node.left_w());
                     cbox.w_right = max(cbox.w_right, node.right_w());
-                    cbox.w_total = max(cbox.w_total, node.total_w());
                 }
                 if i == node.x as usize {
                     cbox.h = max(cbox.h, node.content_h());
@@ -224,9 +373,10 @@ impl GBoard {
                     let rbox2 = rboxes.get(y as usize).expect("error");
                     let wl = rbox2.w_left;
                     let wr = rbox2.w_right;
-                    let wc = rbox2.w;
-                    let maxw = rbox2.w_total;
-                    if idx.eq(&0) {
+                    let wc = rbox2.w; // content, when render total, need + 2
+                    let wbc = wc + 2;
+                    let maxw = wl + wr + wbc;
+                    if *idx == 0 {
                         linestr.push_str(" ".repeat(maxw).as_str());
                         continue;
                     }
@@ -234,7 +384,7 @@ impl GBoard {
                         Some(node) => {
                             let v;
                             if h < hu {
-                                v = node.render_up(h, maxh, wc, wl, wr);
+                                v = node.render_up(h, maxh, wbc, wl, wr);
                             } else if h < hu + hc {
                                 let vv = node.render(h as usize - hu as usize, maxh, wc, wl, wr);
                                 v = format!(
@@ -244,7 +394,7 @@ impl GBoard {
                                     " ".repeat(wr - node.right_w())
                                 );
                             } else {
-                                v = node.render_down(h - hu - hc, maxh, wc, wl, wr)
+                                v = node.render_down(h - hu - hc, maxh, wc + 2, wl, wr)
                             }
                             linestr.push_str(v.as_str());
                         }
