@@ -257,7 +257,15 @@ impl GNode {
         (lcontent, rcontent)
     }
 
-    pub fn render(&self, i: usize, _maxh: usize, cw: usize, lw: usize, rw: usize) -> String {
+    pub fn render(
+        &self,
+        i: usize,
+        _maxh: usize,
+        cw: usize,
+        lw: usize,
+        rw: usize,
+        expand_mode: bool,
+    ) -> String {
         let lb: usize = (cw - self.content_w() + 1) / 2;
         let rb: usize = cw - self.content_w() - lb;
 
@@ -271,6 +279,13 @@ impl GNode {
                     "'"
                 }
             };
+
+            if expand_mode {
+                let lstr = " ".repeat(lw);
+                let rstr = " ".repeat(rw);
+                let cstr = "-".repeat(cw);
+                return format!("{}{}{}{}{}", spc, lstr, cstr, spc, rstr);
+            }
             let lstr = " ".repeat(lb + lw);
             let rstr = " ".repeat(rb + rw);
             let cstr = "-".repeat(self.content_w());
@@ -285,6 +300,11 @@ impl GNode {
                 let (lastr, rastr) = self.render_arrow(i);
                 let lbank = (self.w as usize + 2 - cn_length(cword) + 1) / 2;
                 let rbank = self.w as usize + 2 - cn_length(cword) - lbank;
+                if expand_mode {
+                    let lstr = " ".repeat(lb + lbank);
+                    let rstr = " ".repeat(rb + rbank);
+                    return format!("{}|{}{}{}|{}", lastr, lstr, cword, rstr, rastr);
+                }
                 let lstr = " ".repeat(lbank);
                 let rstr = " ".repeat(rbank);
                 return format!(

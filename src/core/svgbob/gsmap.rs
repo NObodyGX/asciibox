@@ -12,6 +12,7 @@ pub struct GBoard {
     pub w: usize,
     pub h: usize,
     idx: usize,
+    expand_mode: bool,
 }
 
 #[derive(Debug, Clone, Default, Copy)]
@@ -26,13 +27,14 @@ pub struct RenderBox {
 }
 
 impl GBoard {
-    pub fn new() -> Self {
+    pub fn new(expand_mode: bool) -> Self {
         Self {
             nodes: Vec::new(),
             board: Vec::new(),
             w: 0,
             h: 0,
             idx: 1,
+            expand_mode,
         }
     }
 
@@ -386,7 +388,14 @@ impl GBoard {
                             if h < hu {
                                 v = node.render_up(h, maxh, wbc, wl, wr);
                             } else if h < hu + hc {
-                                let vv = node.render(h as usize - hu as usize, maxh, wc, wl, wr);
+                                let vv = node.render(
+                                    h as usize - hu as usize,
+                                    maxh,
+                                    wc,
+                                    wl,
+                                    wr,
+                                    self.expand_mode,
+                                );
                                 v = format!(
                                     "{}{}{}",
                                     " ".repeat(wl - node.left_w()),
@@ -420,9 +429,9 @@ pub struct GSMap {
 }
 
 impl GSMap {
-    pub fn new() -> Self {
+    pub fn new(expand_mode: bool) -> Self {
         Self {
-            board: GBoard::new(),
+            board: GBoard::new(expand_mode),
             arrows: Vec::new(),
         }
     }

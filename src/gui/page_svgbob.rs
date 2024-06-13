@@ -2,9 +2,11 @@ use adw::prelude::*;
 use adw::subclass::prelude::*;
 use gtk::gdk;
 use gtk::gio;
+use gtk::gio::Settings;
 use gtk::glib;
 use gtk::prelude::{TextBufferExt, TextViewExt};
 use gtk::CompositeTemplate;
+use std::borrow::Borrow;
 use std::fs::OpenOptions;
 use std::io::Write;
 use svgbob::to_svg;
@@ -13,7 +15,7 @@ use crate::core::svgbob::GSMap;
 
 mod imp {
 
-    use std::cell::RefCell;
+    use std::cell::{OnceCell, RefCell};
 
     use super::*;
 
@@ -28,6 +30,7 @@ mod imp {
         pub out_image: TemplateChild<gtk::Image>,
 
         pub icon_str_backup: RefCell<String>,
+        pub settings: OnceCell<Settings>,
     }
 
     #[glib::object_subclass]
@@ -82,6 +85,7 @@ mod imp {
 
             let obj = self.obj();
             obj.setup_text_view();
+            obj.setup_settings();
         }
     }
     impl WidgetImpl for SvgbobPage {}
@@ -126,13 +130,23 @@ impl SvgbobPage {
     // 配置默认的 placeholdtext
     fn setup_text_view(&self) {}
 
+    fn setup_settings(&self) {
+        let settings = Settings::new(crate::APP_ID);
+        self.imp()
+            .settings
+            .set(settings)
+            .expect("Could not set `Settings`.");
+    }
+
     fn do_transform(&self) {
         let ibuffer: gtk::TextBuffer = self.imp().in_view.get().buffer();
         let content = ibuffer.text(&ibuffer.bounds().0, &ibuffer.bounds().1, false);
 
         // 当输入为 0 的时候不覆盖，这样可以编辑 svgbob 窗口并转换
         if content.len() != 0 {
-            let mut mmap: GSMap = GSMap::new();
+            let settings = self.imp().settings.get().expect("could not get settings");
+            let expand_mode = settings.boolean("expand-mode");
+            let mut mmap: GSMap = GSMap::new(expand_mode);
             let otext: String = mmap.load_content(content.as_str());
 
             let obuffer = self.imp().out_view.get().buffer();
