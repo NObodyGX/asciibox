@@ -367,9 +367,15 @@ impl GBoard {
             let hu = rbox.h_up;
             let hc = rbox.h;
             let maxh = rbox.h_total;
+            let mut yy = 0;
+            for (y, yid) in items.iter().enumerate() {
+                if *yid > 0 {
+                    yy = y;
+                }
+            }
             for h in 0..maxh {
                 for (y, idx) in items.iter().enumerate() {
-                    if y >= rboxes.len() {
+                    if y >= rboxes.len() || y > yy {
                         break;
                     }
                     let rbox2 = rboxes.get(y as usize).expect("error");
@@ -416,7 +422,9 @@ impl GBoard {
             }
             content.push_str(linestr.trim_end());
             // trim_end 会清除最后的换行
-            content.push('\n');
+            if linestr.trim_end().len() > 0 {
+                content.push('\n');
+            }
         }
         content
     }
@@ -436,8 +444,13 @@ impl GSMap {
         }
     }
 
+    fn clear(&mut self) {
+        self.board = GBoard::new(self.board.expand_mode);
+        self.arrows = Vec::new();
+    }
+
     pub fn load_content(&mut self, content: &str) -> String {
-        // let mut lines = content.lines();
+        self.clear();
         let mut lines: Vec<&str> = content.split('\n').filter(|&s| !s.is_empty()).collect();
         let mut linenum: usize = 0;
         for line in lines.iter_mut() {
@@ -496,5 +509,70 @@ impl GSMap {
             lid = rid;
         }
         Ok(("", ""))
+    }
+}
+
+#[cfg(test)]
+mod tests {
+
+    use super::*;
+
+    #[test]
+    fn test_map_render() {
+        let mut gmap = GSMap::new(true);
+        let m1code = "a";
+        let mut result = String::new();
+        result.push_str(".---.\n");
+        result.push_str("| a |\n");
+        result.push_str("'---'\n");
+        assert_eq!(gmap.load_content(m1code), result);
+
+        let m2code = "a[123]";
+        result = String::new();
+        result.push_str(".-----.\n");
+        result.push_str("| 123 |\n");
+        result.push_str("'-----'\n");
+        assert_eq!(gmap.load_content(m2code), result);
+
+        let m3ode = "aaa ---> b";
+        result = String::new();
+        result.push_str(".-----.   .---.\n");
+        result.push_str("| aaa |-->| b |\n");
+        result.push_str("'-----'   '---'\n");
+        assert_eq!(gmap.load_content(m3ode), result);
+
+        let m4ode = "aaa <--- b";
+        result = String::new();
+        result.push_str(".-----.   .---.\n");
+        result.push_str("| aaa |<--| b |\n");
+        result.push_str("'-----'   '---'\n");
+        assert_eq!(gmap.load_content(m4ode), result);
+        result = String::new();
+
+        assert_eq!(gmap.load_content(m4ode), result);
+
+        let m5ode = "aaa ---v b";
+        result = String::new();
+        result.push_str(".-----.\n");
+        result.push_str("| aaa |\n");
+        result.push_str("'-----'\n");
+        result.push_str("   |\n");
+        result.push_str("   V\n");
+        result.push_str(".-----.\n");
+        result.push_str("|  b  |\n");
+        result.push_str("'-----'\n");
+        assert_eq!(gmap.load_content(m5ode), result);
+
+        let m6ode = "aaa ---^ b";
+        result = String::new();
+        result.push_str(".-----.\n");
+        result.push_str("| aaa |\n");
+        result.push_str("'-----'\n");
+        result.push_str("   ^\n");
+        result.push_str("   |\n");
+        result.push_str(".-----.\n");
+        result.push_str("|  b  |\n");
+        result.push_str("'-----'\n");
+        assert_eq!(gmap.load_content(m6ode), result);
     }
 }
