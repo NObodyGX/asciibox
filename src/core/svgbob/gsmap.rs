@@ -209,6 +209,7 @@ impl GBoard {
             if moved_ids.contains(&node.id) {
                 continue;
             }
+            // 这里调整的节点可能和 id 没有联系
             if node.x == x && node.y >= y {
                 node.y += 1;
                 moved_ids.push(node.id.clone());
@@ -223,16 +224,31 @@ impl GBoard {
     }
 
     fn relocate_down(&mut self, id: &String, x: usize, y: usize) {
+        let mut moved_ids: Vec<String> = Vec::new();
+        self.move_node_to(id, x, y);
+        moved_ids.push(id.clone());
+        let rids: Vec<String> = self.search_all_relationship(id);
         for node in self.nodes.iter_mut() {
-            if node.id.eq(id) {
-                node.x = x;
-                node.y = y;
+            if moved_ids.contains(&node.id) {
                 continue;
             }
-            // TODO 所有关联节点都需要被调整
-            if node.x >= x && node.y >= y {
-                node.x += 1;
+            // 这里调整的节点可能和 id 没有联系
+            if node.x >= x && node.y == y {
+                node.y += 1;
+                moved_ids.push(node.id.clone());
             }
+        }
+        for nid in rids.iter() {
+            if moved_ids.contains(nid) {
+                continue;
+            }
+            self.move_node(nid, 1, 0);
+        }
+    }
+
+    fn move_nodes_up(&mut self) {
+        for node in self.nodes.iter_mut() {
+            node.x += 1;
         }
     }
 
@@ -311,7 +327,12 @@ impl GBoard {
                 }
                 GDirect::Up => {
                     // src --^ dst
-                    self.relocate_down(&dst, max(x, 1) - 1, y);
+                    if x == 0 {
+                        self.move_nodes_up();
+                        self.move_node_to(&dst, x, y);
+                    } else {
+                        self.relocate_down(&dst, x - 1, y);
+                    }
                     self.add_arrow_to_node(src, arrow, GDirect::Up, true);
                     self.add_arrow_to_node(dst, arrow, GDirect::Up.not(), false);
                 }

@@ -58,4 +58,29 @@ mod tests {
         result.push_str("'-----'\n");
         assert_eq!(gmap.load_content(m6ode), result);
     }
+
+    #[test]
+    fn test_map_group_render() {
+        let mut gmap = GSMap::new(true);
+        let mut result = String::new();
+        let code = "b <-- a --> c\n a --^ u\n a --v d";
+        result.push_str(
+            "
+        .---.
+        | u |
+        '---'
+          ^
+          |
+.---.   .---.   .---.
+| b |<--| a |-->| c |
+'---'   '---'   '---'
+          |
+          v
+        .---.
+        | d |
+        '---'
+",
+        );
+        assert_eq!(gmap.load_content(code), result[1..]);
+    }
 }
