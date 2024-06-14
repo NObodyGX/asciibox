@@ -22,10 +22,10 @@ pub fn valid_arrow_check(input: &str) -> IResult<&str, &str> {
 pub fn parse_node(input: &str) -> IResult<&str, &str> {
     let (remain, id) = valid_name_check(input)?;
     if remain.len() < 3 || !(remain.starts_with("[") || remain.starts_with("(")) {
-        return Ok((id, id));
+        return Ok((id.trim(), id.trim()));
     }
     let (_remain, name) = delimited(is_a("[("), is_not("])"), is_a("])"))(remain)?;
-    Ok((id, name))
+    Ok((id.trim(), name.trim()))
 }
 
 pub fn parse_arrow(input: &str) -> GDirect {
@@ -60,7 +60,7 @@ mod tests {
     fn test_node_parse() {
         assert_eq!(parse_node("a"), Ok(("a", "a")));
         assert_eq!(parse_node("a1(bb)"), Ok(("a1", "bb")));
-        assert_eq!(parse_node("a2[bb] c"), Ok(("a2", "bb")));
+        assert_eq!(parse_node("a2[bb ] c"), Ok(("a2", "bb")));
         assert_eq!(parse_node("a3[你好]"), Ok(("a3", "你好")));
         assert_eq!(
             parse_node("a4[梦九天\n无应变]"),
