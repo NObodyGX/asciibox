@@ -298,21 +298,25 @@ impl GBoard {
             let y = node.y;
             match ndirect {
                 GDirect::Left => {
-                    self.relocate_right(&dst, x, max(1, y) - 1);
-                    self.add_arrow_to_node(src, arrow, GDirect::Left, true);
-                    self.add_arrow_to_node(dst, arrow, GDirect::Left.not(), false);
+                    // src <-- dst
+                    self.relocate_right(&dst, x, y + 1);
+                    self.add_arrow_to_node(src, arrow, GDirect::Right, true);
+                    self.add_arrow_to_node(dst, arrow, GDirect::Right.not(), false);
                 }
                 GDirect::Right | GDirect::Double => {
+                    // src --> dst
                     self.relocate_right(&dst, x, y + 1);
                     self.add_arrow_to_node(src, arrow, GDirect::Right, true);
                     self.add_arrow_to_node(dst, arrow, GDirect::Right.not(), false);
                 }
                 GDirect::Up => {
+                    // src --^ dst
                     self.relocate_down(&dst, max(x, 1) - 1, y);
                     self.add_arrow_to_node(src, arrow, GDirect::Up, true);
                     self.add_arrow_to_node(dst, arrow, GDirect::Up.not(), false);
                 }
                 GDirect::Down => {
+                    // src --v dst
                     self.relocate_down(&dst, x + 1, y);
                     self.add_arrow_to_node(src, arrow, GDirect::Down, true);
                     self.add_arrow_to_node(dst, arrow, GDirect::Down.not(), false);
@@ -418,6 +422,7 @@ impl GBoard {
                         }
                     }
                 }
+                linestr = linestr.trim_end().to_string();
                 linestr.push('\n');
             }
             content.push_str(linestr.trim_end());
