@@ -1,0 +1,11 @@
+# ChangeLog
+
+## v0.8.2
+
+Finally the first version has been released!!!
+And while it's still pretty weak, it's ready to be used on a basic level
+
+New features:
+
+- support basic svgbob generate
+- support beautify asciidoc table
