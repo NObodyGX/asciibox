@@ -335,7 +335,7 @@ impl GNode {
             return format!("{}", " ".repeat(lw + cw + rw));
         }
         // 将 cw 分隔成 lb + 1 + rb
-        let lb: usize = (cw + 1) / 2;
+        let lb: usize = (cw - 1) / 2;
         let rb: usize = cw - 1 - lb;
         if i == 0 {
             return format!("{}^{}", " ".repeat(lb + lw), " ".repeat(rb + rw));

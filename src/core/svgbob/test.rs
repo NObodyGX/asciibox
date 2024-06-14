@@ -27,35 +27,35 @@ mod tests {
         result.push_str("'-----'   '---'\n");
         assert_eq!(gmap.load_content(m3ode), result);
 
-        // let m4ode = "aaa <--- b";
-        // result = String::new();
-        // result.push_str(".-----.   .---.\n");
-        // result.push_str("| aaa |<--| b |\n");
-        // result.push_str("'-----'   '---'\n");
-        // assert_eq!(gmap.load_content(m4ode), result);
+        let m4ode = "aaa <--- b";
+        result = String::new();
+        result.push_str(".-----.   .---.\n");
+        result.push_str("| aaa |<--| b |\n");
+        result.push_str("'-----'   '---'\n");
+        assert_eq!(gmap.load_content(m4ode), result);
 
         let m5ode = "aaa ---v b";
         result = String::new();
         result.push_str(".-----.\n");
         result.push_str("| aaa |\n");
         result.push_str("'-----'\n");
-        result.push_str("    |  \n");
-        result.push_str("    v\n");
+        result.push_str("   |\n");
+        result.push_str("   v\n");
         result.push_str(".-----.\n");
         result.push_str("|  b  |\n");
         result.push_str("'-----'\n");
         assert_eq!(gmap.load_content(m5ode), result);
 
-        // let m6ode = "aaa ---^ b";
-        // result = String::new();
-        // result.push_str(".-----.\n");
-        // result.push_str("| aaa |\n");
-        // result.push_str("'-----'\n");
-        // result.push_str("   ^\n");
-        // result.push_str("   |\n");
-        // result.push_str(".-----.\n");
-        // result.push_str("|  b  |\n");
-        // result.push_str("'-----'\n");
-        // assert_eq!(gmap.load_content(m6ode), result);
+        let m6ode = "aaa ---^ b";
+        result = String::new();
+        result.push_str(".-----.\n");
+        result.push_str("|  b  |\n");
+        result.push_str("'-----'\n");
+        result.push_str("   ^\n");
+        result.push_str("   |\n");
+        result.push_str(".-----.\n");
+        result.push_str("| aaa |\n");
+        result.push_str("'-----'\n");
+        assert_eq!(gmap.load_content(m6ode), result);
     }
 }
