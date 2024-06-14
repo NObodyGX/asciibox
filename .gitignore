@@ -17,4 +17,5 @@ Cargo.lock
 _build
 
 test/pkg_build/
+asciibox
 
