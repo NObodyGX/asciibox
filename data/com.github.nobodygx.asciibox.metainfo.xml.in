@@ -7,7 +7,8 @@
   <metadata_license>CC0</metadata_license>
   <project_license>MIT</project_license>
   <description>
-    <p>A simple text tool to help generate svgbob ascii text and image easily, also can used to formating asciidoc table.</p>
+    <p>A simple text tool to help generate svgbob ascii text and image easily</p>
+    <p>Also can used to formating asciidoc table.</p>
     <p>Build by rust with gtk4.</p>
   </description>
   <developer>
@@ -15,12 +16,12 @@
   </developer>
   <screenshots>
     <screenshot type="default">
-      <image>https://github.com/nobodygx/asciibox-rs/raw/master/data/screenshots/screenshot.png</image>
+      <image>https://github.com/nobodygx/asciibox/raw/master/data/screenshots/screenshot.png</image>
       <caption>Main window</caption>
     </screenshot>
   </screenshots>
-  <url type="homepage">https://github.com/nobodygx/asciibox-rs</url>
-  <url type="bugtracker">https://github.com/nobodygx/asciibox-rs/issues</url>
+  <url type="homepage">https://github.com/nobodygx/asciibox</url>
+  <url type="bugtracker">https://github.com/nobodygx/asciibox/issues</url>
   <content_rating type="oars-1.1" />
   <releases>
     <release version="0.7.1" date="2024-05-30" />

@@ -16,6 +16,7 @@ run_command(
 rust_sources = files([
   'main.rs',
   'application.rs',
+  'config.rs'
   ]
 )
 
