@@ -15,7 +15,7 @@ updpkgsums
 
 makepkg --printsrcinfo > .SRCINFO
 
-makepkg
+makepkg -f
 
 cd -
 
