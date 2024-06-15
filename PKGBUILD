@@ -18,8 +18,8 @@ prepare() {
 
 build() {
     CFLAGS+=" -ffat-lto-objects"
-	arch-meson --buildtype release "$pkgname-$pkgver" build
-	meson compile -C build
+    arch-meson --buildtype release "$pkgname-$pkgver" build
+    meson compile -C build
 }
 
 package() {
