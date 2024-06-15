@@ -17,6 +17,8 @@ makepkg --printsrcinfo > .SRCINFO
 
 makepkg -f
 
+cp ${tdir}/PKGBUILD ${pwd}/../PKGBUILD
+
 cd -
 
 
