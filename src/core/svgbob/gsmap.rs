@@ -9,6 +9,8 @@ use std::ops::Not;
 pub struct GSMap {
     // 记录所有 node 信息
     nodes: HashMap<String, GNode>,
+    // 记录所有 id --> node.id 信息
+    node_ids: HashMap<usize, String>,
     // 记录所有 arrow 信息
     arrows: Vec<GArrow>,
     // 以 grid 的形式来记录相应的 node 位置，用于 render
@@ -17,7 +19,7 @@ pub struct GSMap {
     w: usize,
     // max h
     h: usize,
-    // cur h
+    // node 的序号生成起始值
     idx: usize,
     // 是否扩展 box 保证相同
     expand_mode: bool,
@@ -38,6 +40,7 @@ impl GSMap {
     pub fn new(expand_mode: bool) -> Self {
         Self {
             nodes: HashMap::new(),
+            node_ids: HashMap::new(),
             arrows: Vec::new(),
             canvas: Vec::new(),
             w: 0,
@@ -68,9 +71,13 @@ impl GSMap {
         content
     }
 
-    pub fn clear(&mut self) {
+    fn clear(&mut self) {
         self.arrows = Vec::new();
         self.nodes = HashMap::new();
+        self.node_ids = HashMap::new();
+        self.w = 0;
+        self.h = 0;
+        self.idx = 1;
     }
 
     // 逐行解析出现的节点，如果有多个节点，这几个节点默认是一排的
@@ -123,27 +130,17 @@ impl GSMap {
         self.idx += 1;
         self.h = max(n_node.x + 1, self.h);
         self.w = max(n_node.y + 1, self.w);
+        self.node_ids.insert(n_node.idx.clone(), n_node.id.clone());
         self.nodes.insert(n_node.id.clone(), n_node);
         true
     }
 
-    pub fn get_node(&mut self, id: &String) -> Option<&GNode> {
-        self.nodes.get(id)
+    fn get_node_by_index(&self, idx: &usize) -> &GNode {
+        let id = self.node_ids.get(idx).unwrap();
+        self.nodes.get(id).unwrap()
     }
 
-    fn get_node_by_index(&self, idx: &usize) -> Option<&GNode> {
-        if self.nodes.is_empty() {
-            return None;
-        }
-        for (_id, node) in self.nodes.iter() {
-            if node.idx.eq(idx) {
-                return Some(node);
-            }
-        }
-        return None;
-    }
-
-    fn rebuild_borad(&mut self) {
+    fn clear_canvas(&mut self) {
         self.canvas = Vec::new();
         let h = self.h + 9;
         let w = self.w + 9;
@@ -305,7 +302,7 @@ impl GSMap {
     }
 
     pub fn load_arrows(&mut self) {
-        self.rebuild_borad();
+        self.clear_canvas();
         for arrow in self.arrows.clone().iter() {
             let mut src = &arrow.src;
             let mut dst = &arrow.dst;
@@ -329,7 +326,7 @@ impl GSMap {
                     self.set_node_floating(dst);
                 }
                 (_, _) => {
-                    // do nothing
+                    // TODO
                     return;
                 }
             }
@@ -338,7 +335,7 @@ impl GSMap {
             } else {
                 arrow.direct.clone().not()
             };
-            let node = self.get_node(src).expect("error");
+            let node = self.nodes.get(src).unwrap();
             let x = node.x;
             let y = node.y;
             match ndirect {
@@ -382,20 +379,24 @@ impl GSMap {
         self.add_nodes_into_board();
     }
 
-    fn show_position(&self) {
+    fn debug_show_position(&self) {
         for (id, node) in self.nodes.iter() {
             println!("{}: ({}, {})", id, node.x, node.y);
         }
     }
 
     fn show(&self) -> String {
-        self.show_position();
+        self.debug_show_position();
         let mut rboxes: Vec<RenderBox> = Vec::new();
         for _ in 0..max(self.w + 6, self.h + 6) {
             rboxes.push(RenderBox::default());
         }
+        let mut rw: usize = 0;
+        let mut rh: usize = 0;
         // 先计算显示的长宽
         for (_id, node) in self.nodes.iter() {
+            rw = max(rw, node.y + 1);
+            rh = max(rh, node.x + 1);
             for (i, cbox) in rboxes.iter_mut().enumerate() {
                 if i == node.y as usize {
                     cbox.w = max(cbox.w, node.content_w());
@@ -414,22 +415,18 @@ impl GSMap {
         let mut content = String::new();
         for (x, items) in self.canvas.iter().enumerate() {
             let mut linestr: String = String::new();
-            if x >= rboxes.len() {
+            if x > rh {
                 break;
             }
             let rbox = rboxes.get(x as usize).expect("error");
             let hu = rbox.h_up;
             let hc = rbox.h;
             let maxh = rbox.h_total;
-            let mut yy = 0;
-            for (y, yid) in items.iter().enumerate() {
-                if *yid > 0 {
-                    yy = y;
-                }
-            }
+            // 每行里按高度逐行计算
             for h in 0..maxh {
+                // 开始逐列取 node 开始渲染
                 for (y, idx) in items.iter().enumerate() {
-                    if y >= rboxes.len() || y > yy {
+                    if y >= rboxes.len() || y > rh {
                         break;
                     }
                     let rbox2 = rboxes.get(y as usize).expect("error");
@@ -442,35 +439,29 @@ impl GSMap {
                         linestr.push_str(" ".repeat(maxw).as_str());
                         continue;
                     }
-                    match self.get_node_by_index(idx) {
-                        Some(node) => {
-                            let v;
-                            if h < hu {
-                                v = node.render_up(h, maxh, wbc, wl, wr);
-                            } else if h < hu + hc {
-                                let vv = node.render(
-                                    h as usize - hu as usize,
-                                    maxh,
-                                    wc,
-                                    wl,
-                                    wr,
-                                    self.expand_mode,
-                                );
-                                v = format!(
-                                    "{}{}{}",
-                                    " ".repeat(wl - node.left_w()),
-                                    vv,
-                                    " ".repeat(wr - node.right_w())
-                                );
-                            } else {
-                                v = node.render_down(h - hu - hc, maxh, wc + 2, wl, wr)
-                            }
-                            linestr.push_str(v.as_str());
-                        }
-                        None => {
-                            linestr.push_str(" ".repeat(maxw).as_str());
-                        }
+                    let node = self.get_node_by_index(idx);
+                    let v;
+                    if h < hu {
+                        v = node.render_up(h, maxh, wbc, wl, wr);
+                    } else if h < hu + hc {
+                        let vv = node.render(
+                            h as usize - hu as usize,
+                            maxh,
+                            wc,
+                            wl,
+                            wr,
+                            self.expand_mode,
+                        );
+                        v = format!(
+                            "{}{}{}",
+                            " ".repeat(wl - node.left_w()),
+                            vv,
+                            " ".repeat(wr - node.right_w())
+                        );
+                    } else {
+                        v = node.render_down(h - hu - hc, maxh, wc + 2, wl, wr)
                     }
+                    linestr.push_str(v.as_str());
                 }
                 linestr = linestr.trim_end().to_string();
                 linestr.push('\n');
