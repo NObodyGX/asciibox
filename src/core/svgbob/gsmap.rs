@@ -1,16 +1,21 @@
 use super::node::{GArrow, GDirect, GNode, GSharp};
 use super::parse::{parse_arrow, parse_node, valid_arrow_check, valid_node_check};
 use nom::IResult;
+use std::borrow::Borrow;
+use std::cell::RefCell;
 use std::cmp::max;
+use std::collections::HashMap;
+use std::hash::Hash;
 use std::ops::Not;
 
 #[derive(Debug, Clone)]
-pub struct GBoard {
+pub struct GSMap {
     // 记录所有 node 信息
-    pub nodes: Vec<GNode>,
-    pub board: Vec<Vec<usize>>,
-    pub w: usize,
-    pub h: usize,
+    nodes: Vec<GNode>,
+    arrows: Vec<GArrow>,
+    board: Vec<Vec<usize>>,
+    w: usize,
+    h: usize,
     idx: usize,
     expand_mode: bool,
 }
@@ -26,16 +31,84 @@ pub struct RenderBox {
     pub h_total: usize,
 }
 
-impl GBoard {
+impl GSMap {
     pub fn new(expand_mode: bool) -> Self {
         Self {
             nodes: Vec::new(),
+            arrows: Vec::new(),
             board: Vec::new(),
             w: 0,
             h: 0,
             idx: 1,
             expand_mode,
         }
+    }
+
+    pub fn load_content(&mut self, content: &str) -> String {
+        self.clear();
+        let mut lines: Vec<&str> = content.split('\n').filter(|&s| !s.is_empty()).collect();
+        let mut linenum: usize = 0;
+        for line in lines.iter_mut() {
+            match self.parse_line(line, linenum) {
+                Ok(_) => {
+                    linenum += 1;
+                }
+                Err(e) => {
+                    println!("{:?}", e);
+                    continue;
+                }
+            }
+        }
+        println!("load content done.");
+        self.load_arrows();
+        let content = self.show();
+        content
+    }
+
+    fn clear(&mut self) {
+        self.arrows = Vec::new();
+        self.nodes = Vec::new();
+    }
+
+    // 逐行解析出现的节点，如果有多个节点，这几个节点默认是一排的
+    // 后续依据节点之间的联系会重排节点位置
+    fn parse_line<'a>(&'a mut self, line: &'a str, linenum: usize) -> IResult<&str, &str> {
+        let mut text: &str;
+        let mut vtext: &str;
+        let mut direct: GDirect;
+        let mut lid: String;
+        let mut rid: String;
+        let mut node: GNode;
+        let mut w: usize = 0;
+
+        // 第一个 node
+        (text, vtext) = valid_node_check(line)?;
+        let (id, name) = parse_node(vtext)?;
+        node = GNode::new(id.to_string(), name.to_string(), linenum, w, GSharp::Round);
+        lid = node.id.clone();
+        self.add_node(&node);
+        loop {
+            w += 1;
+            if text.len() < 3 {
+                break;
+            }
+            // 再接着 arrow
+            (text, vtext) = valid_arrow_check(text)?;
+            direct = parse_arrow(vtext);
+            if text.len() <= 0 {
+                break;
+            }
+            w += 1;
+            // 再接着 node
+            (text, vtext) = valid_node_check(text)?;
+            let (id, name) = parse_node(vtext)?;
+            node = GNode::new(id.to_string(), name.to_string(), linenum, w, GSharp::Round);
+            rid = node.id.clone();
+            self.add_node(&node);
+            self.arrows.push(GArrow::new(direct, lid, rid.clone()));
+            lid = rid;
+        }
+        Ok(("", ""))
     }
 
     pub fn add_node(&mut self, node: &GNode) -> bool {
@@ -275,9 +348,9 @@ impl GBoard {
         }
     }
 
-    pub fn load_arrows(&mut self, arrows: &Vec<GArrow>) {
+    pub fn load_arrows(&mut self) {
         self.rebuild_borad();
-        for arrow in arrows {
+        for arrow in self.arrows.clone().iter() {
             let mut src = &arrow.src;
             let mut dst = &arrow.dst;
             if src.eq(dst) {
@@ -453,87 +526,5 @@ impl GBoard {
             }
         }
         content
-    }
-}
-
-#[derive(Debug)]
-pub struct GSMap {
-    board: GBoard,
-    arrows: Vec<GArrow>,
-}
-
-impl GSMap {
-    pub fn new(expand_mode: bool) -> Self {
-        Self {
-            board: GBoard::new(expand_mode),
-            arrows: Vec::new(),
-        }
-    }
-
-    fn clear(&mut self) {
-        self.board = GBoard::new(self.board.expand_mode);
-        self.arrows = Vec::new();
-    }
-
-    pub fn load_content(&mut self, content: &str) -> String {
-        self.clear();
-        let mut lines: Vec<&str> = content.split('\n').filter(|&s| !s.is_empty()).collect();
-        let mut linenum: usize = 0;
-        for line in lines.iter_mut() {
-            match self.parse_line(line, linenum) {
-                Ok(_) => {
-                    linenum += 1;
-                }
-                Err(e) => {
-                    println!("{:?}", e);
-                    continue;
-                }
-            }
-        }
-        println!("load content done.");
-        self.board.load_arrows(&self.arrows);
-        let content = self.board.show();
-        content
-    }
-
-    // 逐行解析出现的节点，如果有多个节点，这几个节点默认是一排的
-    // 后续依据节点之间的联系会重排节点位置
-    fn parse_line<'a>(&'a mut self, line: &'a str, linenum: usize) -> IResult<&str, &str> {
-        let mut text: &str;
-        let mut vtext: &str;
-        let mut direct: GDirect;
-        let mut lid: String;
-        let mut rid: String;
-        let mut node: GNode;
-        let mut w: usize = 0;
-
-        // 第一个 node
-        (text, vtext) = valid_node_check(line)?;
-        let (id, name) = parse_node(vtext)?;
-        node = GNode::new(id.to_string(), name.to_string(), linenum, w, GSharp::Round);
-        lid = node.id.clone();
-        self.board.add_node(&node);
-        loop {
-            w += 1;
-            if text.len() < 3 {
-                break;
-            }
-            // 再接着 arrow
-            (text, vtext) = valid_arrow_check(text)?;
-            direct = parse_arrow(vtext);
-            if text.len() <= 0 {
-                break;
-            }
-            w += 1;
-            // 再接着 node
-            (text, vtext) = valid_node_check(text)?;
-            let (id, name) = parse_node(vtext)?;
-            node = GNode::new(id.to_string(), name.to_string(), linenum, w, GSharp::Round);
-            rid = node.id.clone();
-            self.board.add_node(&node);
-            self.arrows.push(GArrow::new(direct, lid, rid.clone()));
-            lid = rid;
-        }
-        Ok(("", ""))
     }
 }
