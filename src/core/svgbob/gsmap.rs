@@ -1,22 +1,25 @@
 use super::node::{GArrow, GDirect, GNode, GSharp};
 use super::parse::{parse_arrow, parse_node, valid_arrow_check, valid_node_check};
 use nom::IResult;
-use std::borrow::Borrow;
-use std::cell::RefCell;
 use std::cmp::max;
 use std::collections::HashMap;
-use std::hash::Hash;
 use std::ops::Not;
 
 #[derive(Debug, Clone)]
 pub struct GSMap {
     // 记录所有 node 信息
-    nodes: Vec<GNode>,
+    nodes: HashMap<String, GNode>,
+    // 记录所有 arrow 信息
     arrows: Vec<GArrow>,
-    board: Vec<Vec<usize>>,
+    // 以 grid 的形式来记录相应的 node 位置，用于 render
+    canvas: Vec<Vec<usize>>,
+    // max w
     w: usize,
+    // max h
     h: usize,
+    // cur h
     idx: usize,
+    // 是否扩展 box 保证相同
     expand_mode: bool,
 }
 
@@ -34,9 +37,9 @@ pub struct RenderBox {
 impl GSMap {
     pub fn new(expand_mode: bool) -> Self {
         Self {
-            nodes: Vec::new(),
+            nodes: HashMap::new(),
             arrows: Vec::new(),
-            board: Vec::new(),
+            canvas: Vec::new(),
             w: 0,
             h: 0,
             idx: 1,
@@ -65,9 +68,9 @@ impl GSMap {
         content
     }
 
-    fn clear(&mut self) {
+    pub fn clear(&mut self) {
         self.arrows = Vec::new();
-        self.nodes = Vec::new();
+        self.nodes = HashMap::new();
     }
 
     // 逐行解析出现的节点，如果有多个节点，这几个节点默认是一排的
@@ -112,37 +115,27 @@ impl GSMap {
     }
 
     pub fn add_node(&mut self, node: &GNode) -> bool {
-        for x in self.nodes.iter() {
-            if x.id.eq(&node.id) {
-                return false;
-            }
+        if self.nodes.contains_key(&node.id) {
+            return false;
         }
-        let mut a_node = node.clone();
-        a_node.idx = self.idx;
+        let mut n_node = node.clone();
+        n_node.idx = self.idx;
         self.idx += 1;
-        self.h = max(a_node.x + 1, self.h);
-        self.w = max(a_node.y + 1, self.w);
-        self.nodes.push(a_node);
+        self.h = max(n_node.x + 1, self.h);
+        self.w = max(n_node.y + 1, self.w);
+        self.nodes.insert(n_node.id.clone(), n_node);
         true
     }
 
     pub fn get_node(&mut self, id: &String) -> Option<&GNode> {
-        if self.nodes.is_empty() {
-            return None;
-        }
-        for node in self.nodes.iter() {
-            if node.id.eq(id) {
-                return Some(node);
-            }
-        }
-        return None;
+        self.nodes.get(id)
     }
 
-    fn get_node_by_id(&self, idx: &usize) -> Option<&GNode> {
+    fn get_node_by_index(&self, idx: &usize) -> Option<&GNode> {
         if self.nodes.is_empty() {
             return None;
         }
-        for node in self.nodes.iter() {
+        for (_id, node) in self.nodes.iter() {
             if node.idx.eq(idx) {
                 return Some(node);
             }
@@ -151,7 +144,7 @@ impl GSMap {
     }
 
     fn rebuild_borad(&mut self) {
-        self.board = Vec::new();
+        self.canvas = Vec::new();
         let h = self.h + 9;
         let w = self.w + 9;
         for _ih in 0..h {
@@ -159,15 +152,16 @@ impl GSMap {
             for _ in 0..w {
                 a.push(0);
             }
-            self.board.push(a);
+            self.canvas.push(a);
         }
     }
 
+    // 将所有的 nodes 加入到里
     fn add_nodes_into_board(&mut self) {
-        for node in self.nodes.iter() {
+        for (_id, node) in self.nodes.iter() {
             let x = node.x;
             let y = node.y;
-            match self.board.get_mut(x as usize) {
+            match self.canvas.get_mut(x as usize) {
                 Some(v) => {
                     v[y as usize] = node.idx;
                 }
@@ -178,79 +172,45 @@ impl GSMap {
 
     // 将 arrow 加到 node 上
     fn add_arrow_to_node(&mut self, id: &String, arrow: &GArrow, pos: GDirect, render: bool) {
-        for node in self.nodes.iter_mut() {
-            if node.id.eq(id) {
-                node.add_arrow(arrow, pos, render);
-                break;
-            }
-        }
+        let node = self.nodes.get_mut(id).unwrap();
+        node.add_arrow(arrow, pos, render);
     }
 
     fn get_node_relationship(&self, id: &String) -> Vec<String> {
         let mut result: Vec<String> = Vec::new();
-        for node in self.nodes.iter() {
-            if !node.id.eq(id) {
-                continue;
+        let node = self.nodes.get(id).unwrap();
+        for arrow in node.arrows.iter() {
+            if !result.contains(&arrow.src) {
+                result.push(arrow.src.clone());
             }
-            for arrow in node.arrows.iter() {
-                if !result.contains(&arrow.src) {
-                    result.push(arrow.src.clone());
-                }
-                if !result.contains(&arrow.dst) {
-                    result.push(arrow.dst.clone());
-                }
+            if !result.contains(&arrow.dst) {
+                result.push(arrow.dst.clone());
             }
-            for arrow in node.arrows_no_render.iter() {
-                if !result.contains(&arrow.src) {
-                    result.push(arrow.src.clone());
-                }
-                if !result.contains(&arrow.dst) {
-                    result.push(arrow.dst.clone());
-                }
+        }
+        for arrow in node.arrows_no_render.iter() {
+            if !result.contains(&arrow.src) {
+                result.push(arrow.src.clone());
             }
-            break;
+            if !result.contains(&arrow.dst) {
+                result.push(arrow.dst.clone());
+            }
         }
         result
     }
 
     fn move_node_to(&mut self, id: &String, x: usize, y: usize) {
-        for node in self.nodes.iter_mut() {
-            if node.id.eq(id) {
-                node.x = x;
-                node.y = y;
-                break;
-            }
-        }
+        let node = self.nodes.get_mut(id).unwrap();
+        node.x = x;
+        node.y = y;
     }
 
     fn move_node(&mut self, id: &String, offx: usize, offy: usize) {
-        for node in self.nodes.iter_mut() {
-            if node.id.eq(id) {
-                node.x += offx;
-                node.y += offy;
-                break;
-            }
-        }
+        let node = self.nodes.get_mut(id).unwrap();
+        node.x += offx;
+        node.y += offy;
     }
 
-    // fn bfs(root: &Node<T>) {
-    //     let mut queue = VecDeque::new();
-    //     queue.push(root);
-
-    //     while queue.len() > 0 {
-    //         let node = queue.front().unwrap();
-    //         queue.pop_front();
-
-    //         // 访问节点。
-    //         visit(node);
-
-    //         // 访问节点的所有相邻节点。
-    //         for neighbor in node.neighbors() {
-    //             queue.push(neighbor);
-    //         }
-    //     }
-    // }
-    fn search_all_relationship(&self, id: &String) -> Vec<String> {
+    fn search_node_relationship(&self, id: &String) -> Vec<String> {
         let mut done_vec: Vec<String> = Vec::new();
         let mut todo_vec: Vec<String> = Vec::new();
         done_vec.push(id.clone());
@@ -272,13 +232,13 @@ impl GSMap {
         let mut moved_ids: Vec<String> = Vec::new();
         self.move_node_to(id, x, y);
         moved_ids.push(id.clone());
-        let rids: Vec<String> = self.search_all_relationship(id);
+        let rids: Vec<String> = self.search_node_relationship(id);
         // 暂时不调整自身的关联节点
         // 调整所有的关联节点
         // 1. 调整所有在当前行插入节点所在位置右侧的节点
         // 2. 调整 1 中所有节点上下对应的节点
         // 3. 调整 2 中所有上下对应节点的左右节点
-        for node in self.nodes.iter_mut() {
+        for (_id, node) in self.nodes.iter_mut() {
             if moved_ids.contains(&node.id) {
                 continue;
             }
@@ -300,8 +260,8 @@ impl GSMap {
         let mut moved_ids: Vec<String> = Vec::new();
         self.move_node_to(id, x, y);
         moved_ids.push(id.clone());
-        let rids: Vec<String> = self.search_all_relationship(id);
-        for node in self.nodes.iter_mut() {
+        let rids: Vec<String> = self.search_node_relationship(id);
+        for (_id, node) in self.nodes.iter_mut() {
             if moved_ids.contains(&node.id) {
                 continue;
             }
@@ -320,7 +280,7 @@ impl GSMap {
     }
 
     fn move_nodes_up(&mut self) {
-        for node in self.nodes.iter_mut() {
+        for (_id, node) in self.nodes.iter_mut() {
             node.x += 1;
         }
     }
@@ -328,7 +288,7 @@ impl GSMap {
     fn check_floating(&self, src: &String, dst: &String) -> (usize, usize) {
         let mut lindex = 0;
         let mut rindex = 0;
-        for node in self.nodes.iter() {
+        for (_id, node) in self.nodes.iter() {
             if node.id.eq(src) {
                 lindex = node.floating;
             }
@@ -340,12 +300,8 @@ impl GSMap {
     }
 
     fn set_node_floating(&mut self, id: &String) {
-        for node in self.nodes.iter_mut() {
-            if node.id.eq(id) {
-                node.floating = 1;
-                continue;
-            }
-        }
+        let node = self.nodes.get_mut(id).unwrap();
+        node.floating = 1;
     }
 
     pub fn load_arrows(&mut self) {
@@ -427,19 +383,19 @@ impl GSMap {
     }
 
     fn show_position(&self) {
-        for node in self.nodes.iter() {
-            println!("{}: ({}, {})", node.id, node.x, node.y);
+        for (id, node) in self.nodes.iter() {
+            println!("{}: ({}, {})", id, node.x, node.y);
         }
     }
 
-    pub fn show(&self) -> String {
+    fn show(&self) -> String {
         self.show_position();
         let mut rboxes: Vec<RenderBox> = Vec::new();
         for _ in 0..max(self.w + 6, self.h + 6) {
             rboxes.push(RenderBox::default());
         }
         // 先计算显示的长宽
-        for node in self.nodes.iter() {
+        for (_id, node) in self.nodes.iter() {
             for (i, cbox) in rboxes.iter_mut().enumerate() {
                 if i == node.y as usize {
                     cbox.w = max(cbox.w, node.content_w());
@@ -456,7 +412,7 @@ impl GSMap {
         }
         // 开始逐行打印
         let mut content = String::new();
-        for (x, items) in self.board.iter().enumerate() {
+        for (x, items) in self.canvas.iter().enumerate() {
             let mut linestr: String = String::new();
             if x >= rboxes.len() {
                 break;
@@ -486,7 +442,7 @@ impl GSMap {
                         linestr.push_str(" ".repeat(maxw).as_str());
                         continue;
                     }
-                    match self.get_node_by_id(idx) {
+                    match self.get_node_by_index(idx) {
                         Some(node) => {
                             let v;
                             if h < hu {
