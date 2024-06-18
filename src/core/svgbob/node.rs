@@ -111,9 +111,9 @@ pub struct GNode {
     pub id: String,
     // 节点展示内容原始值
     pub name: String,
-    // 行坐标，依次对应 map 的每一行
+    // 横坐标，对应水平行上的位置
     pub x: usize,
-    // 列坐标，依次对应每行里面的顺序
+    // 纵坐标，对应垂直列上的位置
     pub y: usize,
     // 内容宽度
     pub w: usize,

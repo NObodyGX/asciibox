@@ -13,7 +13,7 @@ pub struct GSMap {
     node_ids: HashMap<usize, String>,
     // 记录所有 arrow 信息
     arrows: Vec<GArrow>,
-    // 以 grid 的形式来记录相应的 node 位置，用于 render
+    // 以 (x,y) 的形式来记录相应的 node 位置，用于 render
     canvas: Vec<Vec<usize>>,
     // max w
     w: usize,
@@ -53,11 +53,11 @@ impl GSMap {
     pub fn load_content(&mut self, content: &str) -> String {
         self.clear();
         let mut lines: Vec<&str> = content.split('\n').filter(|&s| !s.is_empty()).collect();
-        let mut linenum: usize = 0;
+        let mut y: usize = 0;
         for line in lines.iter_mut() {
-            match self.parse_line(line, linenum) {
+            match self.parse_line(line, y) {
                 Ok(_) => {
-                    linenum += 1;
+                    y += 1;
                 }
                 Err(e) => {
                     println!("{:?}", e);
@@ -82,23 +82,23 @@ impl GSMap {
 
     // 逐行解析出现的节点，如果有多个节点，这几个节点默认是一排的
     // 后续依据节点之间的联系会重排节点位置
-    fn parse_line<'a>(&'a mut self, line: &'a str, linenum: usize) -> IResult<&str, &str> {
+    fn parse_line<'a>(&'a mut self, line: &'a str, y: usize) -> IResult<&str, &str> {
         let mut text: &str;
         let mut vtext: &str;
         let mut direct: GDirect;
         let mut lid: String;
         let mut rid: String;
         let mut node: GNode;
-        let mut w: usize = 0;
+        let mut x: usize = 0;
 
         // 第一个 node
         (text, vtext) = valid_node_check(line)?;
         let (id, name) = parse_node(vtext)?;
-        node = GNode::new(id.to_string(), name.to_string(), linenum, w, GSharp::Round);
+        node = GNode::new(id.to_string(), name.to_string(), x, y, GSharp::Round);
         lid = node.id.clone();
         self.add_node(&node);
         loop {
-            w += 1;
+            x += 1;
             if text.len() < 3 {
                 break;
             }
@@ -108,11 +108,10 @@ impl GSMap {
             if text.len() <= 0 {
                 break;
             }
-            w += 1;
             // 再接着 node
             (text, vtext) = valid_node_check(text)?;
             let (id, name) = parse_node(vtext)?;
-            node = GNode::new(id.to_string(), name.to_string(), linenum, w, GSharp::Round);
+            node = GNode::new(id.to_string(), name.to_string(), x, y, GSharp::Round);
             rid = node.id.clone();
             self.add_node(&node);
             self.arrows.push(GArrow::new(direct, lid, rid.clone()));
@@ -141,11 +140,11 @@ impl GSMap {
     }
 
     fn clear_canvas(&mut self) {
-        self.canvas = Vec::new();
-        let h = self.h + 9;
-        let w = self.w + 9;
+        let w = self.w + 1;
+        let h = self.h + 1;
+        self.canvas = Vec::with_capacity(h);
         for _ih in 0..h {
-            let mut a: Vec<usize> = Vec::new();
+            let mut a: Vec<usize> = Vec::with_capacity(w);
             for _ in 0..w {
                 a.push(0);
             }
@@ -154,13 +153,14 @@ impl GSMap {
     }
 
     // 将所有的 nodes 加入到里
-    fn add_nodes_into_board(&mut self) {
+    fn rebuild_canvas(&mut self) {
+        self.clear_canvas();
         for (_id, node) in self.nodes.iter() {
             let x = node.x;
             let y = node.y;
-            match self.canvas.get_mut(x as usize) {
+            match self.canvas.get_mut(y) {
                 Some(v) => {
-                    v[y as usize] = node.idx;
+                    v[x] = node.idx;
                 }
                 None => {}
             }
@@ -240,31 +240,8 @@ impl GSMap {
                 continue;
             }
             // 这里调整的节点可能和 id 没有联系
-            if node.x == x && node.y >= y {
-                node.y += 1;
-                moved_ids.push(node.id.clone());
-            }
-        }
-        for nid in rids.iter() {
-            if moved_ids.contains(nid) {
-                continue;
-            }
-            self.move_node(nid, 0, 1);
-        }
-    }
-
-    fn relocate_down(&mut self, id: &String, x: usize, y: usize) {
-        let mut moved_ids: Vec<String> = Vec::new();
-        self.move_node_to(id, x, y);
-        moved_ids.push(id.clone());
-        let rids: Vec<String> = self.search_node_relationship(id);
-        for (_id, node) in self.nodes.iter_mut() {
-            if moved_ids.contains(&node.id) {
-                continue;
-            }
-            // 这里调整的节点可能和 id 没有联系
-            if node.x >= x && node.y == y {
-                node.y += 1;
+            if node.y == y && node.x >= x {
+                node.x += 1;
                 moved_ids.push(node.id.clone());
             }
         }
@@ -276,9 +253,34 @@ impl GSMap {
         }
     }
 
+    fn relocate_down(&mut self, id: &String, x: usize, y: usize) {
+        let mut moved_ids: Vec<String> = Vec::new();
+        self.move_node_to(id, x, y);
+        moved_ids.push(id.clone());
+        // 找到所有需要调整位置的节点
+        let rids: Vec<String> = self.search_node_relationship(id);
+        for (_id, node) in self.nodes.iter_mut() {
+            if moved_ids.contains(&node.id) {
+                continue;
+            }
+            // 这里调整的节点可能和 id 没有联系
+            if node.x == x && node.y >= y {
+                node.y += 1;
+                moved_ids.push(node.id.clone());
+            }
+        }
+        // 开始实际变动
+        for nid in rids.iter() {
+            if moved_ids.contains(nid) {
+                continue;
+            }
+            self.move_node(nid, 0, 1);
+        }
+    }
+
     fn move_nodes_up(&mut self) {
         for (_id, node) in self.nodes.iter_mut() {
-            node.x += 1;
+            node.y += 1;
         }
     }
 
@@ -302,7 +304,6 @@ impl GSMap {
     }
 
     pub fn load_arrows(&mut self) {
-        self.clear_canvas();
         for arrow in self.arrows.clone().iter() {
             let mut src = &arrow.src;
             let mut dst = &arrow.dst;
@@ -341,42 +342,38 @@ impl GSMap {
             match ndirect {
                 GDirect::Left => {
                     // src <-- dst
-                    self.relocate_right(&dst, x, y + 1);
+                    self.relocate_right(&dst, x + 1, y);
                     self.add_arrow_to_node(src, arrow, GDirect::Right, true);
                     self.add_arrow_to_node(dst, arrow, GDirect::Right.not(), false);
                 }
                 GDirect::Right | GDirect::Double => {
                     // src --> dst
-                    self.relocate_right(&dst, x, y + 1);
+                    self.relocate_right(&dst, x + 1, y);
                     self.add_arrow_to_node(src, arrow, GDirect::Right, true);
                     self.add_arrow_to_node(dst, arrow, GDirect::Right.not(), false);
                 }
                 GDirect::Up => {
                     // src --^ dst
-                    if x == 0 {
+                    if y == 0 {
                         self.move_nodes_up();
                         self.move_node_to(&dst, x, y);
                     } else {
-                        self.relocate_down(&dst, x - 1, y);
+                        self.relocate_down(&dst, x, y - 1);
                     }
                     self.add_arrow_to_node(src, arrow, GDirect::Up, true);
                     self.add_arrow_to_node(dst, arrow, GDirect::Up.not(), false);
                 }
                 GDirect::Down => {
                     // src --v dst
-                    self.relocate_down(&dst, x + 1, y);
+                    self.relocate_down(&dst, x, y + 1);
                     self.add_arrow_to_node(src, arrow, GDirect::Down, true);
                     self.add_arrow_to_node(dst, arrow, GDirect::Down.not(), false);
                 }
-                GDirect::LeftDown => {
-                    self.relocate_down(&dst, x + 1, max(1, y) - 1);
-                    self.add_arrow_to_node(src, arrow, GDirect::LeftDown, true);
-                    self.add_arrow_to_node(dst, arrow, GDirect::LeftDown.not(), false);
-                }
+                GDirect::LeftDown => {}
                 _ => {}
             }
         }
-        self.add_nodes_into_board();
+        self.rebuild_canvas();
     }
 
     fn debug_show_position(&self) {
@@ -395,15 +392,15 @@ impl GSMap {
         let mut rh: usize = 0;
         // 先计算显示的长宽
         for (_id, node) in self.nodes.iter() {
-            rw = max(rw, node.y + 1);
-            rh = max(rh, node.x + 1);
+            rw = max(rw, node.x + 1);
+            rh = max(rh, node.y + 1);
             for (i, cbox) in rboxes.iter_mut().enumerate() {
-                if i == node.y as usize {
+                if i == node.x as usize {
                     cbox.w = max(cbox.w, node.content_w());
                     cbox.w_left = max(cbox.w_left, node.left_w());
                     cbox.w_right = max(cbox.w_right, node.right_w());
                 }
-                if i == node.x as usize {
+                if i == node.y as usize {
                     cbox.h = max(cbox.h, node.content_h());
                     cbox.h_up = max(cbox.h_up, node.up_h());
                     cbox.h_down = max(cbox.h_down, node.down_h());
@@ -413,23 +410,23 @@ impl GSMap {
         }
         // 开始逐行打印
         let mut content = String::new();
-        for (x, items) in self.canvas.iter().enumerate() {
+        for (y, items) in self.canvas.iter().enumerate() {
             let mut linestr: String = String::new();
-            if x > rh {
+            if y > rh {
                 break;
             }
-            let rbox = rboxes.get(x as usize).expect("error");
+            let rbox = rboxes.get(y as usize).expect("error");
             let hu = rbox.h_up;
             let hc = rbox.h;
             let maxh = rbox.h_total;
             // 每行里按高度逐行计算
             for h in 0..maxh {
                 // 开始逐列取 node 开始渲染
-                for (y, idx) in items.iter().enumerate() {
-                    if y >= rboxes.len() || y > rh {
+                for (x, idx) in items.iter().enumerate() {
+                    if x >= rboxes.len() || x > rw {
                         break;
                     }
-                    let rbox2 = rboxes.get(y as usize).expect("error");
+                    let rbox2 = rboxes.get(x as usize).expect("error");
                     let wl = rbox2.w_left;
                     let wr = rbox2.w_right;
                     let wc = rbox2.w; // content, when render total, need + 2
