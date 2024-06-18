@@ -101,6 +101,7 @@ impl GNBox {
 pub enum GSharp {
     Round,
     Square,
+    Circle,
 }
 
 #[derive(Clone, Debug, Eq, Hash)]
@@ -406,14 +407,16 @@ pub struct GArrow {
     pub direct: GDirect,
     pub src: String,
     pub dst: String,
+    pub text: String,
 }
 
 impl GArrow {
-    pub fn new(direct: GDirect, from: String, to: String) -> Self {
+    pub fn new(direct: GDirect, from: String, to: String, text: String) -> Self {
         Self {
             direct,
             src: from,
             dst: to,
+            text,
         }
     }
 }

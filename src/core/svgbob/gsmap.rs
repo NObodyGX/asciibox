@@ -1,6 +1,5 @@
 use super::node::{GArrow, GDirect, GNode, GSharp};
-use super::parse::{parse_arrow, parse_node, valid_arrow_check, valid_node_check};
-use nom::IResult;
+use crate::core::svgbob::parse::{parse_arrow, parse_node};
 use std::cmp::max;
 use std::collections::HashMap;
 use std::ops::Not;
@@ -50,27 +49,6 @@ impl GSMap {
         }
     }
 
-    pub fn load_content(&mut self, content: &str) -> String {
-        self.clear();
-        let mut lines: Vec<&str> = content.split('\n').filter(|&s| !s.is_empty()).collect();
-        let mut y: usize = 0;
-        for line in lines.iter_mut() {
-            match self.parse_line(line, y) {
-                Ok(_) => {
-                    y += 1;
-                }
-                Err(e) => {
-                    println!("{:?}", e);
-                    continue;
-                }
-            }
-        }
-        println!("load content done.");
-        self.load_arrows();
-        let content = self.show();
-        content
-    }
-
     fn clear(&mut self) {
         self.arrows = Vec::new();
         self.nodes = HashMap::new();
@@ -82,42 +60,44 @@ impl GSMap {
 
     // 逐行解析出现的节点，如果有多个节点，这几个节点默认是一排的
     // 后续依据节点之间的联系会重排节点位置
-    fn parse_line<'a>(&'a mut self, line: &'a str, y: usize) -> IResult<&str, &str> {
+    fn parse_line<'a>(&'a mut self, line: &'a str, y: usize) -> bool {
         let mut text: &str;
-        let mut vtext: &str;
+        let mut vtext: String;
         let mut direct: GDirect;
         let mut lid: String;
         let mut rid: String;
         let mut node: GNode;
         let mut x: usize = 0;
+        let mut id: &str;
+        let mut name: &str;
+        let mut sharp: GSharp;
+        let mut a_text: String;
 
         // 第一个 node
-        (text, vtext) = valid_node_check(line)?;
-        let (id, name) = parse_node(vtext)?;
-        node = GNode::new(id.to_string(), name.to_string(), x, y, GSharp::Round);
+        (id, name, sharp, text) = parse_node(line);
+        node = GNode::new(id.to_string(), name.to_string(), x, y, sharp);
         lid = node.id.clone();
         self.add_node(&node);
         loop {
-            x += 1;
             if text.len() < 3 {
                 break;
             }
-            // 再接着 arrow
-            (text, vtext) = valid_arrow_check(text)?;
-            direct = parse_arrow(vtext);
-            if text.len() <= 0 {
+            x += 1;
+            // arrow
+            (direct, a_text, vtext) = parse_arrow(text);
+            // node
+            if vtext.len() <= 0 {
                 break;
             }
-            // 再接着 node
-            (text, vtext) = valid_node_check(text)?;
-            let (id, name) = parse_node(vtext)?;
-            node = GNode::new(id.to_string(), name.to_string(), x, y, GSharp::Round);
+            (id, name, sharp, text) = parse_node(vtext.as_str());
+            node = GNode::new(id.to_string(), name.to_string(), x, y, sharp);
             rid = node.id.clone();
             self.add_node(&node);
-            self.arrows.push(GArrow::new(direct, lid, rid.clone()));
+            self.arrows
+                .push(GArrow::new(direct, lid, rid.clone(), a_text));
             lid = rid;
         }
-        Ok(("", ""))
+        true
     }
 
     pub fn add_node(&mut self, node: &GNode) -> bool {
@@ -152,7 +132,7 @@ impl GSMap {
         }
     }
 
-    // 将所有的 nodes 加入到里
+    // 将所有的 nodes 加入
     fn rebuild_canvas(&mut self) {
         self.clear_canvas();
         for (_id, node) in self.nodes.iter() {
@@ -469,6 +449,21 @@ impl GSMap {
                 content.push('\n');
             }
         }
+        content
+    }
+
+    pub fn load_content(&mut self, content: &str) -> String {
+        self.clear();
+        let mut lines: Vec<&str> = content.split('\n').filter(|&s| !s.is_empty()).collect();
+        let mut y: usize = 0;
+        for line in lines.iter_mut() {
+            if self.parse_line(line, y) {
+                y += 1;
+            }
+        }
+        println!("load content done.");
+        self.load_arrows();
+        let content = self.show();
         content
     }
 }

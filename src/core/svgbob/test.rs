@@ -15,9 +15,9 @@ mod tests {
 
         let m2code = "a[123]";
         result = String::new();
-        result.push_str(".-----.\n");
+        result.push_str("+-----+\n");
         result.push_str("| 123 |\n");
-        result.push_str("'-----'\n");
+        result.push_str("+-----+\n");
         assert_eq!(gmap.load_content(m2code), result);
 
         let m3ode = "aa ---> b";
