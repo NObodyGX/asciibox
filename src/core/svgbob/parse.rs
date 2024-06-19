@@ -46,7 +46,21 @@ pub fn parse_node(input: &str) -> (&str, &str, GSharp, &str) {
         Some(v) => return v,
         None => {}
     }
-    (input, input, GSharp::Round, "")
+    let mut left: usize = 0;
+    for (i, c) in input.chars().enumerate() {
+        if c == '-' || c == '<' || c == '>' || c == '^' {
+            break;
+        }
+        left = i;
+    }
+
+    let (id, remain) = if left + 1 != input.len() {
+        input.split_at(left + 1)
+    } else {
+        (input, "")
+    };
+
+    (id, id, GSharp::Round, remain)
 }
 
 pub fn get_arrow(input: &str) -> GDirect {
@@ -116,7 +130,7 @@ pub fn parse_arrow(input: &str) -> (GDirect, String, String) {
             .to_string()
     };
     // TODO, parse arrow text
-    let arrow = get_arrow(arrow);
+    let arrow = get_arrow(arrow.trim());
     return (arrow, a_text, remain.to_string());
 }
 

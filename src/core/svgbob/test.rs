@@ -13,28 +13,35 @@ mod tests {
         result.push_str("'---'\n");
         assert_eq!(gmap.load_content(m1code), result);
 
-        let m2code = "a[123]";
+        let mcode = "a[123]";
         result = String::new();
         result.push_str("+-----+\n");
         result.push_str("| 123 |\n");
         result.push_str("+-----+\n");
-        assert_eq!(gmap.load_content(m2code), result);
+        assert_eq!(gmap.load_content(mcode), result);
 
-        let m3ode = "aa ---> b";
+        let mcode = "aa ---> b";
         result = String::new();
         result.push_str(".----.   .---.\n");
         result.push_str("| aa |-->| b |\n");
         result.push_str("'----'   '---'\n");
-        assert_eq!(gmap.load_content(m3ode), result);
+        assert_eq!(gmap.load_content(mcode), result);
 
-        let m4ode = "aaa <--- b";
+        let mcode = "a-->b-->c --> d";
+        result = String::new();
+        result.push_str(".---.   .---.   .---.   .---.\n");
+        result.push_str("| a |-->| b |-->| c |-->| d |\n");
+        result.push_str("'---'   '---'   '---'   '---'\n");
+        assert_eq!(gmap.load_content(mcode), result);
+
+        let mcode = "aaa <--- b";
         result = String::new();
         result.push_str(".-----.   .---.\n");
         result.push_str("| aaa |<--| b |\n");
         result.push_str("'-----'   '---'\n");
-        assert_eq!(gmap.load_content(m4ode), result);
+        assert_eq!(gmap.load_content(mcode), result);
 
-        let m5ode = "aba ---v b";
+        let mcode = "aba ---v b";
         result = String::new();
         result.push_str(".-----.\n");
         result.push_str("| aba |\n");
@@ -44,9 +51,9 @@ mod tests {
         result.push_str(".-----.\n");
         result.push_str("|  b  |\n");
         result.push_str("'-----'\n");
-        assert_eq!(gmap.load_content(m5ode), result);
+        assert_eq!(gmap.load_content(mcode), result);
 
-        let m6ode = "aca ---^ b";
+        let mcode = "aca ---^ b";
         result = String::new();
         result.push_str(".-----.\n");
         result.push_str("|  b  |\n");
@@ -56,7 +63,7 @@ mod tests {
         result.push_str(".-----.\n");
         result.push_str("| aca |\n");
         result.push_str("'-----'\n");
-        assert_eq!(gmap.load_content(m6ode), result);
+        assert_eq!(gmap.load_content(mcode), result);
     }
 
     #[test]

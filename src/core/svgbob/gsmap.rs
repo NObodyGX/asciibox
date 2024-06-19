@@ -107,8 +107,8 @@ impl GSMap {
         let mut n_node = node.clone();
         n_node.idx = self.idx;
         self.idx += 1;
-        self.h = max(n_node.x + 1, self.h);
-        self.w = max(n_node.y + 1, self.w);
+        self.w = max(n_node.x + 1, self.w);
+        self.h = max(n_node.y + 1, self.h);
         self.node_ids.insert(n_node.idx.clone(), n_node.id.clone());
         self.nodes.insert(n_node.id.clone(), n_node);
         true
@@ -461,8 +461,8 @@ impl GSMap {
                 y += 1;
             }
         }
-        println!("load content done.");
         self.load_arrows();
+        println!("load content done.");
         let content = self.show();
         content
     }
