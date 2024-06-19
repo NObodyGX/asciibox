@@ -1,5 +1,10 @@
 # ChangeLog
 
+## v0.8.3
+
+Remove nom dependency
+Fixed some render bug
+
 ## v0.8.2
 
 Finally the first version has been released!!!

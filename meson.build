@@ -1,5 +1,5 @@
 project('asciibox', 'rust',
-          version: '0.8.2',
+          version: '0.8.3',
     meson_version: '>= 0.59.0',
   default_options: [ 'warning_level=2',
                      'werror=false',
