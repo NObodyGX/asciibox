@@ -144,8 +144,6 @@ impl AdocPage {
             css.push_str(format!("font-family: {};", family).as_str());
             // // todo: add font scale
             let size = fontdesc.size() / gtk::pango::SCALE;
-            println!("font-family: {};", family);
-            println!("font-size: {}px;", size);
             css.push_str(format!("font-size: {}px;", size).as_str());
             let weight = fontdesc.weight();
             match weight {
