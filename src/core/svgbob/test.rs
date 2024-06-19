@@ -1,11 +1,11 @@
 #[cfg(test)]
 mod tests {
 
-    use crate::core::svgbob::GSMap;
+    use crate::core::svgbob::AMap;
 
     #[test]
     fn test_map_render() {
-        let mut gmap = GSMap::new(true);
+        let mut gmap = AMap::new(true);
         let m1code = "a";
         let mut result = String::new();
         result.push_str(".---.\n");
@@ -68,7 +68,7 @@ mod tests {
 
     #[test]
     fn test_map_group_render() {
-        let mut gmap = GSMap::new(true);
+        let mut gmap = AMap::new(true);
         let mut result = String::new();
         let code = "b <-- a --> c\n a --^ u\n a --v d";
         result.push_str(

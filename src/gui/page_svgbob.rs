@@ -10,7 +10,7 @@ use std::fs::OpenOptions;
 use std::io::Write;
 use svgbob::to_svg;
 
-use crate::core::svgbob::GSMap;
+use crate::core::svgbob::AMap;
 
 mod imp {
 
@@ -145,7 +145,7 @@ impl SvgbobPage {
         if content.len() != 0 {
             let settings = self.imp().settings.get().expect("could not get settings");
             let expand_mode = settings.boolean("expand-mode");
-            let mut mmap: GSMap = GSMap::new(expand_mode);
+            let mut mmap: AMap = AMap::new(expand_mode);
             let otext: String = mmap.load_content(content.as_str());
 
             let obuffer = self.imp().out_view.get().buffer();

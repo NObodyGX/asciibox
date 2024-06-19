@@ -1,27 +1,193 @@
-use super::node::{GArrow, GDirect, GNode, GSharp};
-use crate::core::svgbob::parse::{parse_arrow, parse_node};
-use std::cmp::max;
+use super::node::{AEdge, ANode, ASharp, GDirect};
+use crate::core::svgbob::parse::{parse_edge, parse_node};
+use std::cmp::{max, min};
 use std::collections::HashMap;
-use std::ops::Not;
 
 #[derive(Debug, Clone)]
-pub struct GSMap {
-    // 记录所有 node 信息
-    nodes: HashMap<String, GNode>,
-    // 记录所有 id --> node.id 信息
-    node_ids: HashMap<usize, String>,
-    // 记录所有 arrow 信息
-    arrows: Vec<GArrow>,
-    // 以 (x,y) 的形式来记录相应的 node 位置，用于 render
-    canvas: Vec<Vec<usize>>,
-    // max w
-    w: usize,
-    // max h
-    h: usize,
-    // node 的序号生成起始值
-    idx: usize,
-    // 是否扩展 box 保证相同
-    expand_mode: bool,
+struct AGraph {
+    members: Vec<String>,
+    edges: Vec<AEdge>,
+    nodes: HashMap<String, ANode>,
+}
+
+impl AGraph {
+    pub fn new() -> Self {
+        Self {
+            members: Vec::new(),
+            edges: Vec::new(),
+            nodes: HashMap::new(),
+        }
+    }
+
+    pub fn check_member(&self, id: &String) -> bool {
+        if self.members.contains(id) {
+            return true;
+        }
+        return false;
+    }
+
+    pub fn add_member(&mut self, id: &String) {
+        if self.members.contains(id) {
+            return;
+        }
+        self.members.push(id.clone());
+    }
+
+    pub fn add_edge(&mut self, edge: &AEdge) {
+        if self.edges.contains(edge) {
+            return;
+        }
+        self.edges.push(edge.clone());
+    }
+
+    pub fn merge(&mut self, graph: &AGraph) {
+        for id in graph.members.iter() {
+            if !self.members.contains(id) {
+                self.members.push(id.clone());
+            }
+        }
+        for edge in graph.edges.iter() {
+            if !self.edges.contains(edge) {
+                self.edges.push(edge.clone());
+            }
+        }
+    }
+
+    fn is_node_exist(&self, x: usize, y: usize) -> bool {
+        for (_id, node) in self.nodes.iter() {
+            if node.x == x && node.y == y {
+                return true;
+            }
+        }
+        false
+    }
+
+    fn node_move(&mut self, id: &String, x: usize, y: usize) {
+        let node = self.nodes.get_mut(id).unwrap();
+        node.x = x;
+        node.y = y;
+    }
+
+    fn is_node_located(&self, id: &String) -> bool {
+        let node = self.nodes.get(id).unwrap();
+        node.x != self.nodes.len()
+    }
+    fn is_unlocated(&self) -> bool {
+        for (_name, node) in self.nodes.iter() {
+            if node.x == self.nodes.len() {
+                return true;
+            }
+        }
+        false
+    }
+
+    fn nodes_down(&mut self) {
+        let l = self.nodes.len();
+        for (_id, node) in self.nodes.iter_mut() {
+            if node.y != l {
+                node.y += 1;
+            }
+        }
+    }
+
+    fn nodes_right(&mut self) {
+        let l = self.nodes.len();
+        for (_id, node) in self.nodes.iter_mut() {
+            if node.x != l {
+                node.x += 1;
+            }
+        }
+    }
+
+    fn align_node(&mut self, src: &String, dst: &String, direct: GDirect) {
+        let l1 = self.is_node_located(src);
+        let l2 = self.is_node_located(dst);
+        if !l1 && !l2 {
+            return;
+        }
+        if l1 {
+            let x = self.nodes.get(src).unwrap().x;
+            let y = self.nodes.get(src).unwrap().y;
+            match direct {
+                GDirect::Left | GDirect::Right => {
+                    // src <-- dst
+                    if !self.is_node_exist(x + 1, y) {
+                        self.node_move(dst, x + 1, y)
+                    }
+                }
+                GDirect::Up => {
+                    // src --^ dst
+                    if x == 0 {
+                        self.nodes_down();
+                    }
+                    if !self.is_node_exist(max(x, 1) - 1, y) {
+                        self.node_move(dst, max(x, 1) - 1, y)
+                    }
+                }
+                GDirect::Down => {
+                    // src --v dst
+                    if !self.is_node_exist(x, y + 1) {
+                        self.node_move(dst, x, y + 1);
+                    }
+                }
+                _ => {}
+            }
+        } else {
+            let x = self.nodes.get(dst).unwrap().x;
+            let y = self.nodes.get(dst).unwrap().y;
+            match direct {
+                GDirect::Left | GDirect::Right => {
+                    // src <-- dst
+                    if x == 0 {
+                        self.nodes_right();
+                    }
+                    if !self.is_node_exist(max(x, 1) - 1, y) {
+                        self.node_move(src, max(x, 1) - 1, y)
+                    }
+                }
+                GDirect::Up => {
+                    // src --^ dst
+                    if !self.is_node_exist(x, y + 1) {
+                        self.node_move(src, x, y + 1);
+                    }
+                }
+                GDirect::Down => {
+                    // src --v dst
+                    if x == 0 {
+                        self.nodes_down();
+                    }
+                    if !self.is_node_exist(max(x, 1) - 1, y) {
+                        self.node_move(src, max(x, 1) - 1, y)
+                    }
+                }
+                _ => {}
+            }
+        }
+    }
+
+    pub fn align(&mut self) {
+        let l = self.members.len();
+        for id in self.members.iter() {
+            self.nodes.insert(
+                id.clone(),
+                ANode::new(id.clone(), id.clone(), l, l, ASharp::Round),
+            );
+        }
+        for cnt in 0..self.edges.len() {
+            if !self.is_unlocated() {
+                break;
+            }
+            for (i, edge) in self.edges.clone().iter().enumerate() {
+                let src = &edge.src;
+                let dst = &edge.dst;
+                let dir = edge.direct.clone();
+                if i == 0 && cnt == 0 {
+                    self.node_move(src, 0, 0);
+                }
+                self.align_node(src, dst, dir);
+            }
+        }
+    }
 }
 
 #[derive(Debug, Clone, Default, Copy)]
@@ -35,13 +201,36 @@ pub struct RenderBox {
     pub h_total: usize,
 }
 
-impl GSMap {
+#[derive(Debug, Clone)]
+pub struct AMap {
+    // 记录所有 node 信息
+    nodes: HashMap<String, ANode>,
+    // 记录所有 id --> node.id 信息
+    node_ids: HashMap<usize, String>,
+    // 记录所有 edge 信息
+    edges: Vec<AEdge>,
+    // 以 (x,y) 的形式来记录相应的 node 位置，用于 render
+    canvas: Vec<Vec<usize>>,
+    // 以列表的形式来判断组
+    graphs: Vec<AGraph>,
+    // max w
+    w: usize,
+    // max h
+    h: usize,
+    // node 的序号生成起始值
+    idx: usize,
+    // 是否扩展 box 保证相同
+    expand_mode: bool,
+}
+
+impl AMap {
     pub fn new(expand_mode: bool) -> Self {
         Self {
             nodes: HashMap::new(),
             node_ids: HashMap::new(),
-            arrows: Vec::new(),
+            edges: Vec::new(),
             canvas: Vec::new(),
+            graphs: Vec::new(),
             w: 0,
             h: 0,
             idx: 1,
@@ -50,9 +239,10 @@ impl GSMap {
     }
 
     fn clear(&mut self) {
-        self.arrows = Vec::new();
+        self.edges = Vec::new();
         self.nodes = HashMap::new();
         self.node_ids = HashMap::new();
+        self.graphs = Vec::new();
         self.w = 0;
         self.h = 0;
         self.idx = 1;
@@ -66,16 +256,16 @@ impl GSMap {
         let mut direct: GDirect;
         let mut lid: String;
         let mut rid: String;
-        let mut node: GNode;
+        let mut node: ANode;
         let mut x: usize = 0;
         let mut id: &str;
         let mut name: &str;
-        let mut sharp: GSharp;
+        let mut sharp: ASharp;
         let mut a_text: String;
 
         // 第一个 node
         (id, name, sharp, text) = parse_node(line);
-        node = GNode::new(id.to_string(), name.to_string(), x, y, sharp);
+        node = ANode::new(id.to_string(), name.to_string(), x, y, sharp);
         lid = node.id.clone();
         self.add_node(&node);
         loop {
@@ -83,24 +273,24 @@ impl GSMap {
                 break;
             }
             x += 1;
-            // arrow
-            (direct, a_text, vtext) = parse_arrow(text);
+            // edge
+            (direct, a_text, vtext) = parse_edge(text);
             // node
             if vtext.len() <= 0 {
                 break;
             }
             (id, name, sharp, text) = parse_node(vtext.as_str());
-            node = GNode::new(id.to_string(), name.to_string(), x, y, sharp);
+            node = ANode::new(id.to_string(), name.to_string(), x, y, sharp);
             rid = node.id.clone();
             self.add_node(&node);
-            self.arrows
-                .push(GArrow::new(direct, lid, rid.clone(), a_text));
+            self.edges
+                .push(AEdge::new(direct, lid, rid.clone(), a_text));
             lid = rid;
         }
         true
     }
 
-    pub fn add_node(&mut self, node: &GNode) -> bool {
+    fn add_node(&mut self, node: &ANode) -> bool {
         if self.nodes.contains_key(&node.id) {
             return false;
         }
@@ -114,7 +304,7 @@ impl GSMap {
         true
     }
 
-    fn get_node_by_index(&self, idx: &usize) -> &GNode {
+    fn get_node_by_index(&self, idx: &usize) -> &ANode {
         let id = self.node_ids.get(idx).unwrap();
         self.nodes.get(id).unwrap()
     }
@@ -133,7 +323,7 @@ impl GSMap {
     }
 
     // 将所有的 nodes 加入
-    fn rebuild_canvas(&mut self) {
+    fn build_canvas(&mut self) {
         self.clear_canvas();
         for (_id, node) in self.nodes.iter() {
             let x = node.x;
@@ -147,213 +337,65 @@ impl GSMap {
         }
     }
 
-    // 将 arrow 加到 node 上
-    fn add_arrow_to_node(&mut self, id: &String, arrow: &GArrow, pos: GDirect, render: bool) {
-        let node = self.nodes.get_mut(id).unwrap();
-        node.add_arrow(arrow, pos, render);
-    }
-
-    fn get_node_relationship(&self, id: &String) -> Vec<String> {
-        let mut result: Vec<String> = Vec::new();
-        let node = self.nodes.get(id).unwrap();
-        for arrow in node.arrows.iter() {
-            if !result.contains(&arrow.src) {
-                result.push(arrow.src.clone());
-            }
-            if !result.contains(&arrow.dst) {
-                result.push(arrow.dst.clone());
+    fn search_is_member(&self, id: &String) -> usize {
+        for (i, graph) in self.graphs.iter().enumerate() {
+            if graph.check_member(id) {
+                return i;
             }
         }
-        for arrow in node.arrows_no_render.iter() {
-            if !result.contains(&arrow.src) {
-                result.push(arrow.src.clone());
-            }
-            if !result.contains(&arrow.dst) {
-                result.push(arrow.dst.clone());
-            }
-        }
-        result
+        self.graphs.len()
     }
 
-    fn move_node_to(&mut self, id: &String, x: usize, y: usize) {
-        let node = self.nodes.get_mut(id).unwrap();
-        node.x = x;
-        node.y = y;
-    }
-
-    fn move_node(&mut self, id: &String, offx: usize, offy: usize) {
-        let node = self.nodes.get_mut(id).unwrap();
-        node.x += offx;
-        node.y += offy;
-    }
-
-    fn search_node_relationship(&self, id: &String) -> Vec<String> {
-        let mut done_vec: Vec<String> = Vec::new();
-        let mut todo_vec: Vec<String> = Vec::new();
-        done_vec.push(id.clone());
-        todo_vec.push(id.clone());
-        while todo_vec.len() > 0 {
-            let nid = todo_vec.pop().unwrap();
-            let rnodes = self.get_node_relationship(&nid);
-            for rid in rnodes.iter() {
-                if !done_vec.contains(rid) {
-                    done_vec.push(rid.clone());
-                    todo_vec.push(rid.clone());
-                }
-            }
-        }
-        done_vec
-    }
-
-    fn relocate_right(&mut self, id: &String, x: usize, y: usize) {
-        let mut moved_ids: Vec<String> = Vec::new();
-        self.move_node_to(id, x, y);
-        moved_ids.push(id.clone());
-        let rids: Vec<String> = self.search_node_relationship(id);
-        // 暂时不调整自身的关联节点
-        // 调整所有的关联节点
-        // 1. 调整所有在当前行插入节点所在位置右侧的节点
-        // 2. 调整 1 中所有节点上下对应的节点
-        // 3. 调整 2 中所有上下对应节点的左右节点
-        for (_id, node) in self.nodes.iter_mut() {
-            if moved_ids.contains(&node.id) {
-                continue;
-            }
-            // 这里调整的节点可能和 id 没有联系
-            if node.y == y && node.x >= x {
-                node.x += 1;
-                moved_ids.push(node.id.clone());
-            }
-        }
-        for nid in rids.iter() {
-            if moved_ids.contains(nid) {
-                continue;
-            }
-            self.move_node(nid, 1, 0);
+    fn add_into_graph(&mut self, mid1: &String, mid2: &String, edge: &AEdge) {
+        let l = self.graphs.len();
+        let lock1: usize = self.search_is_member(mid1);
+        let lock2: usize = self.search_is_member(mid2);
+        if lock1 == l && lock2 == l {
+            let mut graph = AGraph::new();
+            graph.add_member(mid1);
+            graph.add_member(mid2);
+            graph.add_edge(edge);
+            self.graphs.push(graph);
+            return;
+        } else if lock1 == l {
+            let graph = self.graphs.get_mut(lock2).unwrap();
+            graph.add_member(mid1);
+            graph.add_edge(edge);
+        } else if lock2 == l {
+            let graph = self.graphs.get_mut(lock1).unwrap();
+            graph.add_member(mid2);
+            graph.add_edge(edge);
+        } else {
+            let g1 = self.graphs.get(max(lock1, lock2)).unwrap().clone();
+            let g2 = self.graphs.get_mut(min(lock1, lock2)).unwrap();
+            g2.merge(&g1);
+            g2.add_edge(edge);
+            self.graphs.remove(max(lock1, lock2));
         }
     }
 
-    fn relocate_down(&mut self, id: &String, x: usize, y: usize) {
-        let mut moved_ids: Vec<String> = Vec::new();
-        self.move_node_to(id, x, y);
-        moved_ids.push(id.clone());
-        // 找到所有需要调整位置的节点
-        let rids: Vec<String> = self.search_node_relationship(id);
-        for (_id, node) in self.nodes.iter_mut() {
-            if moved_ids.contains(&node.id) {
-                continue;
-            }
-            // 这里调整的节点可能和 id 没有联系
-            if node.x == x && node.y >= y {
-                node.y += 1;
-                moved_ids.push(node.id.clone());
+    fn build_board(&mut self) {
+        let length = self.nodes.len();
+        self.graphs = Vec::with_capacity(length);
+        for edge in self.edges.clone().iter() {
+            let src = &edge.src;
+            let dst = &edge.dst;
+            self.add_into_graph(src, dst, edge);
+        }
+        for graph in self.graphs.iter_mut() {
+            graph.align()
+        }
+        self.w = 0;
+        self.h = 0;
+        for graph in self.graphs.iter() {
+            for (id, node) in graph.nodes.iter() {
+                let nnode = self.nodes.get_mut(id).unwrap();
+                nnode.x = node.x;
+                nnode.y = node.y;
+                self.w = max(self.w, node.x + 1);
+                self.h = max(self.h, node.y + 1);
             }
         }
-        // 开始实际变动
-        for nid in rids.iter() {
-            if moved_ids.contains(nid) {
-                continue;
-            }
-            self.move_node(nid, 0, 1);
-        }
-    }
-
-    fn move_nodes_up(&mut self) {
-        for (_id, node) in self.nodes.iter_mut() {
-            node.y += 1;
-        }
-    }
-
-    fn check_floating(&self, src: &String, dst: &String) -> (usize, usize) {
-        let mut lindex = 0;
-        let mut rindex = 0;
-        for (_id, node) in self.nodes.iter() {
-            if node.id.eq(src) {
-                lindex = node.floating;
-            }
-            if node.id.eq(dst) {
-                rindex = node.floating;
-            }
-        }
-        (lindex, rindex)
-    }
-
-    fn set_node_floating(&mut self, id: &String) {
-        let node = self.nodes.get_mut(id).unwrap();
-        node.floating = 1;
-    }
-
-    pub fn load_arrows(&mut self) {
-        for arrow in self.arrows.clone().iter() {
-            let mut src = &arrow.src;
-            let mut dst = &arrow.dst;
-            if src.eq(dst) {
-                continue;
-            }
-            let mut rev: bool = false;
-            match self.check_floating(src, dst) {
-                (0, 0) => {
-                    self.set_node_floating(src);
-                    self.set_node_floating(dst);
-                }
-                (1, 0) => {
-                    self.set_node_floating(dst);
-                }
-                (0, 1) => {
-                    let tmp = src;
-                    src = dst;
-                    dst = tmp;
-                    rev = true;
-                    self.set_node_floating(dst);
-                }
-                (_, _) => {
-                    // TODO
-                    return;
-                }
-            }
-            let ndirect = if !rev {
-                arrow.direct.clone()
-            } else {
-                arrow.direct.clone().not()
-            };
-            let node = self.nodes.get(src).unwrap();
-            let x = node.x;
-            let y = node.y;
-            match ndirect {
-                GDirect::Left => {
-                    // src <-- dst
-                    self.relocate_right(&dst, x + 1, y);
-                    self.add_arrow_to_node(src, arrow, GDirect::Right, true);
-                    self.add_arrow_to_node(dst, arrow, GDirect::Right.not(), false);
-                }
-                GDirect::Right | GDirect::Double => {
-                    // src --> dst
-                    self.relocate_right(&dst, x + 1, y);
-                    self.add_arrow_to_node(src, arrow, GDirect::Right, true);
-                    self.add_arrow_to_node(dst, arrow, GDirect::Right.not(), false);
-                }
-                GDirect::Up => {
-                    // src --^ dst
-                    if y == 0 {
-                        self.move_nodes_up();
-                        self.move_node_to(&dst, x, y);
-                    } else {
-                        self.relocate_down(&dst, x, y - 1);
-                    }
-                    self.add_arrow_to_node(src, arrow, GDirect::Up, true);
-                    self.add_arrow_to_node(dst, arrow, GDirect::Up.not(), false);
-                }
-                GDirect::Down => {
-                    // src --v dst
-                    self.relocate_down(&dst, x, y + 1);
-                    self.add_arrow_to_node(src, arrow, GDirect::Down, true);
-                    self.add_arrow_to_node(dst, arrow, GDirect::Down.not(), false);
-                }
-                GDirect::LeftDown => {}
-                _ => {}
-            }
-        }
-        self.rebuild_canvas();
     }
 
     fn debug_show_position(&self) {
@@ -365,7 +407,7 @@ impl GSMap {
     fn show(&self) -> String {
         self.debug_show_position();
         let mut rboxes: Vec<RenderBox> = Vec::new();
-        for _ in 0..max(self.w + 6, self.h + 6) {
+        for _ in 0..max(self.w + 1, self.h + 1) {
             rboxes.push(RenderBox::default());
         }
         let mut rw: usize = 0;
@@ -461,7 +503,8 @@ impl GSMap {
                 y += 1;
             }
         }
-        self.load_arrows();
+        self.build_board();
+        self.build_canvas();
         println!("load content done.");
         let content = self.show();
         content

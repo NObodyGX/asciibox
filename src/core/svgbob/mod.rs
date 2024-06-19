@@ -3,4 +3,4 @@ mod node;
 mod parse;
 mod test;
 
-pub use gsmap::GSMap;
+pub use gsmap::AMap;

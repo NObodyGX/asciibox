@@ -98,14 +98,14 @@ impl GNBox {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
-pub enum GSharp {
+pub enum ASharp {
     Round,
     Square,
     Circle,
 }
 
 #[derive(Clone, Debug, Eq, Hash)]
-pub struct GNode {
+pub struct ANode {
     // 节点排序用序号
     pub idx: usize,
     // 节点 id
@@ -123,19 +123,19 @@ pub struct GNode {
     // 具体每行内容
     words: Vec<String>,
     // 周围可用的箭头
-    pub arrows: Vec<GArrow>,
-    pub arrows_no_render: Vec<GArrow>,
+    pub arrows: Vec<AEdge>,
+    pub arrows_no_render: Vec<AEdge>,
     // 是否浮动
     pub floating: usize,
     // render 用 box 解构
     mbox: GNBox,
     // render 用形状
-    sharp: GSharp,
+    sharp: ASharp,
 }
 
-impl GNode {
+impl ANode {
     #[must_use]
-    pub fn new(id: String, name: String, x: usize, y: usize, sharp: GSharp) -> Self {
+    pub fn new(id: String, name: String, x: usize, y: usize, sharp: ASharp) -> Self {
         let nid: String = id.trim().to_string();
         let nname: String = name.trim().to_string();
         let pwords: Vec<&str> = nname.split('\n').collect();
@@ -169,7 +169,7 @@ impl GNode {
     /// - arrow: 要添加的 GArrow
     /// - direct: 要添加的方向
     /// - enable_render: 是否需要被绘制
-    pub fn add_arrow(&mut self, arrow: &GArrow, direct: GDirect, enable_render: bool) {
+    pub fn add_arrow(&mut self, arrow: &AEdge, direct: GDirect, enable_render: bool) {
         if !enable_render {
             self.arrows_no_render.push(arrow.clone());
             return;
@@ -271,7 +271,7 @@ impl GNode {
         let rb: usize = cw - self.content_w() - lb;
 
         if i == 0 || i == self.h + 1 {
-            let spc = if self.sharp == GSharp::Square {
+            let spc = if self.sharp == ASharp::Square {
                 "+"
             } else {
                 if i == 0 {
@@ -390,27 +390,27 @@ impl GNode {
     }
 }
 
-impl fmt::Display for GNode {
+impl fmt::Display for ANode {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "GNode({})", self.id)
     }
 }
 
-impl PartialEq for GNode {
+impl PartialEq for ANode {
     fn eq(&self, other: &Self) -> bool {
         self.id == other.id && self.name == other.name
     }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
-pub struct GArrow {
+pub struct AEdge {
     pub direct: GDirect,
     pub src: String,
     pub dst: String,
     pub text: String,
 }
 
-impl GArrow {
+impl AEdge {
     pub fn new(direct: GDirect, from: String, to: String, text: String) -> Self {
         Self {
             direct,
@@ -421,7 +421,7 @@ impl GArrow {
     }
 }
 
-impl fmt::Display for GArrow {
+impl fmt::Display for AEdge {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "GArrow({} -{:?}- {})", self.src, self.direct, self.dst)
     }

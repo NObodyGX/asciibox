@@ -1,15 +1,15 @@
-use super::node::{GDirect, GSharp};
+use super::node::{ASharp, GDirect};
 
 fn split_node_char<'a>(
     input: &'a str,
     l: char,
     r: char,
-) -> Option<(&'a str, &'a str, GSharp, &'a str)> {
+) -> Option<(&'a str, &'a str, ASharp, &'a str)> {
     let sharp = match l {
-        '(' => GSharp::Round,
-        '[' => GSharp::Square,
-        '{' => GSharp::Circle,
-        _ => GSharp::Round,
+        '(' => ASharp::Round,
+        '[' => ASharp::Square,
+        '{' => ASharp::Circle,
+        _ => ASharp::Round,
     };
 
     match input.find(l) {
@@ -33,7 +33,7 @@ fn split_node_char<'a>(
     }
 }
 
-pub fn parse_node(input: &str) -> (&str, &str, GSharp, &str) {
+pub fn parse_node(input: &str) -> (&str, &str, ASharp, &str) {
     match split_node_char(input, '(', ')') {
         Some(v) => return v,
         None => {}
@@ -60,7 +60,7 @@ pub fn parse_node(input: &str) -> (&str, &str, GSharp, &str) {
         (input, "")
     };
 
-    (id, id, GSharp::Round, remain)
+    (id, id, ASharp::Round, remain)
 }
 
 pub fn get_arrow(input: &str) -> GDirect {
@@ -86,7 +86,7 @@ pub fn get_arrow(input: &str) -> GDirect {
     GDirect::None
 }
 
-pub fn parse_arrow(input: &str) -> (GDirect, String, String) {
+pub fn parse_edge(input: &str) -> (GDirect, String, String) {
     let arrow: &str;
     let remain: &str;
 
@@ -141,17 +141,17 @@ mod tests {
 
     #[test]
     fn test_node_parse() {
-        assert_eq!(parse_node("a"), ("a", "a", GSharp::Round, ""));
-        assert_eq!(parse_node("a1(bb)"), ("a1", "bb", GSharp::Round, ""));
-        assert_eq!(parse_node("a2[bb ]"), ("a2", "bb", GSharp::Square, ""));
-        assert_eq!(parse_node("a3[你好]"), ("a3", "你好", GSharp::Square, ""));
+        assert_eq!(parse_node("a"), ("a", "a", ASharp::Round, ""));
+        assert_eq!(parse_node("a1(bb)"), ("a1", "bb", ASharp::Round, ""));
+        assert_eq!(parse_node("a2[bb ]"), ("a2", "bb", ASharp::Square, ""));
+        assert_eq!(parse_node("a3[你好]"), ("a3", "你好", ASharp::Square, ""));
         assert_eq!(
             parse_node("a4[你好] cc"),
-            ("a4", "你好", GSharp::Square, "cc")
+            ("a4", "你好", ASharp::Square, "cc")
         );
         assert_eq!(
             parse_node("天下[天下神一舞]"),
-            ("天下", "天下神一舞", GSharp::Square, "")
+            ("天下", "天下神一舞", ASharp::Square, "")
         );
     }
 
@@ -164,19 +164,19 @@ mod tests {
         // "--|aa|-->"
         // "--^> --v>"
 
-        assert_eq!(parse_arrow("-->").0, GDirect::Right);
+        assert_eq!(parse_edge("-->").0, GDirect::Right);
         assert_eq!(
-            parse_arrow("--|aaa|-->bb"),
+            parse_edge("--|aaa|-->bb"),
             (GDirect::Right, String::from("aaa"), String::from("bb"))
         );
-        assert_eq!(parse_arrow("<--").0, GDirect::Left);
-        assert_eq!(parse_arrow("<-->").0, GDirect::Double);
-        assert_eq!(parse_arrow("<-->").0, GDirect::Double);
-        assert_eq!(parse_arrow("--^").0, GDirect::Up);
-        assert_eq!(parse_arrow("--v").0, GDirect::Down);
-        assert_eq!(parse_arrow("-^>").0, GDirect::RightUp);
-        assert_eq!(parse_arrow("-v>").0, GDirect::RightDown);
-        assert_eq!(parse_arrow("<^-").0, GDirect::LeftUp);
-        assert_eq!(parse_arrow("<v-").0, GDirect::LeftDown);
+        assert_eq!(parse_edge("<--").0, GDirect::Left);
+        assert_eq!(parse_edge("<-->").0, GDirect::Double);
+        assert_eq!(parse_edge("<-->").0, GDirect::Double);
+        assert_eq!(parse_edge("--^").0, GDirect::Up);
+        assert_eq!(parse_edge("--v").0, GDirect::Down);
+        assert_eq!(parse_edge("-^>").0, GDirect::RightUp);
+        assert_eq!(parse_edge("-v>").0, GDirect::RightDown);
+        assert_eq!(parse_edge("<^-").0, GDirect::LeftUp);
+        assert_eq!(parse_edge("<v-").0, GDirect::LeftDown);
     }
 }
