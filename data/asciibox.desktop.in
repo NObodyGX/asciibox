@@ -10,7 +10,7 @@ Comment=a simple tools for svgbob/asciidoc
 Comment[zh_CN]=一个辅助 svgbob/asciidoc 生成的文本工具
 
 # Translators: Do NOT translate or transliterate this text (this is an icon file name)!
-Icon=com.github.nobodygx.asciibox
+Icon=asciibox
 StartupWMClass=asciibox
 Terminal=false
 Type=Application

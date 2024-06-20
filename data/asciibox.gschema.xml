@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <schemalist>
-    <schema id="com.github.nobodygx.asciibox" path="/com/github/nobodygx/asciibox/">
+    <schema id="asciibox" path="asciibox/">
         <key name="theme-style" type="s">
             <choices>
                 <choice value='system' />

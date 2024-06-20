@@ -16,7 +16,7 @@ bdir="_build"
 
 # todo, add into meson.build
 # only for test, need sudo
-# cp $pwd/data/com.github.nobodygx.asciibox.gschema.xml /usr/share/glib-2.0/schemas/
+# cp $pwd/data/asciibox.gschema.xml /usr/share/glib-2.0/schemas/
 # glib-compile-schemas /usr/share/glib-2.0/schemas/
 
 function sync_version {

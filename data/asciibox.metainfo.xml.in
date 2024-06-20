@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- NObodyGX 2024 <nobodygx@163.com> -->
 <component type="desktop-application">
-  <id>com.github.nobodygx.asciibox</id>
+  <id>asciibox</id>
   <name>Asciibox</name>
   <summary>A simple tools for svgbob/asciidoc</summary>
   <metadata_license>CC0</metadata_license>
@@ -27,5 +27,5 @@
     <release version="0.7.1" date="2024-05-30" />
   </releases>
   <update_contact>nobodygx@163.com</update_contact>
-  <launchable type="desktop-id">com.github.nobodygx.asciibox.desktop</launchable>
+  <launchable type="desktop-id">asciibox.desktop</launchable>
 </component>
