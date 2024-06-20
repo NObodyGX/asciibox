@@ -257,6 +257,46 @@ impl AMap {
         }
     }
 
+    fn render_node_up(&self, id: &String) {}
+
+    fn render_new(&self) -> String {
+        self.debug_show_position();
+        let mut content = String::new();
+        for y in 0..self.w + 1 {
+            let canvas = self.canvas.get(y).unwrap();
+            let up_h: usize = 0;
+            let down_h: usize = 0;
+            let content_h: usize = 0;
+            let mut words = String::new();
+            for x in 0..self.h + 1 {
+                let rid = canvas.get(x).unwrap();
+                let mut letters = String::new();
+                if rid == &0 {
+                    // render blank
+                    letters.push(' ');
+                    continue;
+                }
+                for _line in 0..up_h {
+                    // render up/up_left/up_right/passby arrow
+                    // render text
+                }
+                for _line in 0..content_h {
+                    // render left/right/passby arrow
+                    // render node
+                }
+                for _line in 0..down_h {
+                    //render down/down_left/down_right/passby arrow
+                    //render text
+                }
+                words.push_str(letters.trim_end());
+                words.push('\n');
+            }
+            content.push_str(words.trim_end());
+            content.push('\n');
+        }
+        content
+    }
+
     fn render(&self) -> String {
         self.debug_show_position();
         let mut rboxes: Vec<RenderNode> = Vec::new();
@@ -266,20 +306,16 @@ impl AMap {
         let mut rw: usize = 0;
         let mut rh: usize = 0;
         // 先计算显示的长宽
+        // TODO
         for (_id, node) in self.nodes.iter() {
             rw = max(rw, node.x + 1);
             rh = max(rh, node.y + 1);
             for (i, cbox) in rboxes.iter_mut().enumerate() {
                 if i == node.x as usize {
                     cbox.w = max(cbox.w, node.content_w());
-                    cbox.w_left = max(cbox.w_left, node.left_w());
-                    cbox.w_right = max(cbox.w_right, node.right_w());
                 }
                 if i == node.y as usize {
                     cbox.h = max(cbox.h, node.content_h());
-                    cbox.h_up = max(cbox.h_up, node.up_h());
-                    cbox.h_down = max(cbox.h_down, node.down_h());
-                    cbox.h_total = max(cbox.h_total, node.total_h());
                 }
             }
         }
@@ -313,26 +349,10 @@ impl AMap {
                     }
                     let node = self.get_node_by_index(idx);
                     let v;
-                    if h < hu {
-                        v = node.render_up(h, maxh, wbc, wl, wr);
-                    } else if h < hu + hc {
-                        let vv = node.render(
-                            h as usize - hu as usize,
-                            maxh,
-                            wc,
-                            wl,
-                            wr,
-                            self.expand_mode,
-                        );
-                        v = format!(
-                            "{}{}{}",
-                            " ".repeat(wl - node.left_w()),
-                            vv,
-                            " ".repeat(wr - node.right_w())
-                        );
-                    } else {
-                        v = node.render_down(h - hu - hc, maxh, wc + 2, wl, wr)
-                    }
+
+                    let vv =
+                        node.render(h as usize - hu as usize, maxh, wc, wl, wr, self.expand_mode);
+                    v = format!("{}{}{}", " ".repeat(wl), vv, " ".repeat(wr));
                     linestr.push_str(v.as_str());
                 }
                 linestr = linestr.trim_end().to_string();
@@ -353,7 +373,8 @@ impl AMap {
         self.build_board();
         self.build_canvas();
         println!("load content done.");
-        let content = self.render();
+        let _ = self.render();
+        let content = self.render_new();
         content
     }
 }

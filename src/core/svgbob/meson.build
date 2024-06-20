@@ -1,5 +1,6 @@
 rust_sources += files([
-  'gsmap.rs',
+  'graph.rs',
+  'maps.rs',
   'mod.rs',
   'node.rs',
   'parse.rs',

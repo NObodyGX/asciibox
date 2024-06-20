@@ -68,35 +68,6 @@ pub struct RBox {
     pub left_down: ADirect,
 }
 
-impl RBox {
-    pub fn new() -> Self {
-        Self {
-            left: ADirect::None,
-            right: ADirect::None,
-            up: ADirect::None,
-            down: ADirect::None,
-            left_down: ADirect::None,
-            w_left: 0,
-            w_right: 0,
-            h_up: 0,
-            h_down: 0,
-        }
-    }
-
-    pub fn set_left_w(&mut self, w: usize) {
-        self.w_left = std::cmp::max(self.w_left, w);
-    }
-    pub fn set_right_w(&mut self, w: usize) {
-        self.w_right = std::cmp::max(self.w_right, w);
-    }
-    pub fn set_up_h(&mut self, w: usize) {
-        self.h_up = std::cmp::max(self.h_up, w);
-    }
-    pub fn set_down_h(&mut self, w: usize) {
-        self.h_down = std::cmp::max(self.h_down, w);
-    }
-}
-
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum ASharp {
     Round,
@@ -125,8 +96,6 @@ pub struct ANode {
     // 周围可用的箭头
     pub arrows: Vec<AEdge>,
     pub arrows_no_render: Vec<AEdge>,
-    // render 用 box 解构
-    rbox: RBox,
     // render 用形状
     sharp: ASharp,
 }
@@ -144,8 +113,6 @@ impl ANode {
             w = std::cmp::max(w, cn_length(word) as usize);
             words.push(word.to_string());
         }
-        let mbox = RBox::new();
-
         Self {
             id: nid,
             name: nname,
@@ -157,7 +124,6 @@ impl ANode {
             arrows: Vec::new(),
             arrows_no_render: Vec::new(),
             idx: 0,
-            rbox: mbox,
             sharp: ASharp::Round,
         }
     }
@@ -166,103 +132,10 @@ impl ANode {
         self.sharp = sharp;
     }
 
-    /// 向 node 添加 arrow
-    /// - arrow: 要添加的 GArrow
-    /// - direct: 要添加的方向
-    /// - enable_render: 是否需要被绘制
-    pub fn add_arrow(&mut self, arrow: &AEdge, direct: ADirect, enable_render: bool) {
-        if !enable_render {
-            self.arrows_no_render.push(arrow.clone());
-            return;
-        }
-        self.arrows.push(arrow.clone());
-        match direct {
-            ADirect::Left => {
-                self.rbox.left = arrow.direct.clone();
-                self.rbox.set_left_w(if arrow.direct == ADirect::Double {
-                    4
-                } else {
-                    3
-                });
-            }
-            ADirect::Right => {
-                self.rbox.right = arrow.direct.clone();
-                self.rbox.set_right_w(if arrow.direct == ADirect::Double {
-                    4
-                } else {
-                    3
-                });
-            }
-            ADirect::Up => {
-                self.rbox.up = arrow.direct.clone();
-                self.rbox.set_up_h(2);
-            }
-            ADirect::Down => {
-                self.rbox.down = arrow.direct.clone();
-                self.rbox.set_down_h(2);
-            }
-            ADirect::LeftDown => {
-                self.rbox.left_down = arrow.direct.clone();
-                self.rbox.set_down_h(2);
-                self.rbox.set_left_w(3);
-            }
-            _ => {}
-        }
-    }
-
-    fn render_arrow(&self, i: usize) -> (String, String) {
-        let mut lcontent = String::new();
-        let mut rcontent = String::new();
-
-        if self.rbox.w_left > 0 {
-            let v = if i != (self.h + 1) / 2 {
-                " ".repeat(self.rbox.w_left)
-            } else {
-                match self.rbox.left {
-                    ADirect::Left => {
-                        format!("<{}", "-".repeat(self.rbox.w_left - 1))
-                    }
-                    ADirect::Right => {
-                        format!("{}>", "-".repeat(self.rbox.w_left - 1))
-                    }
-                    ADirect::Double => {
-                        format!("<{}>", "-".repeat(self.rbox.w_left - 2))
-                    }
-                    // GDirect::LeftDown => {
-                    //     format!("-{}-", "-".repeat(self.mbox.w_left - 2))
-                    // }
-                    _ => " ".repeat(self.rbox.w_left),
-                }
-            };
-            lcontent.push_str(v.as_str());
-        }
-
-        if self.rbox.w_right > 0 {
-            let v = if i != (self.h + 1) / 2 {
-                " ".repeat(self.rbox.w_right)
-            } else {
-                match self.rbox.right {
-                    ADirect::Left => {
-                        format!("<{}", "-".repeat(self.rbox.w_right - 1))
-                    }
-                    ADirect::Right => {
-                        format!("{}>", "-".repeat(self.rbox.w_right - 1))
-                    }
-                    ADirect::Double => {
-                        format!("<{}>", "-".repeat(self.rbox.w_right - 2))
-                    }
-                    _ => " ".repeat(self.rbox.w_right),
-                }
-            };
-            rcontent.push_str(v.as_str());
-        }
-        (lcontent, rcontent)
-    }
-
     pub fn render(
         &self,
         i: usize,
-        _maxh: usize,
+        _ch: usize,
         cw: usize,
         lw: usize,
         rw: usize,
@@ -299,24 +172,21 @@ impl ANode {
         // 内容行
         match self.words.get(i as usize - 1) {
             Some(cword) => {
-                let (lastr, rastr) = self.render_arrow(i);
                 let lbank = (self.w as usize + 2 - cn_length(cword) + 1) / 2;
                 let rbank = self.w as usize + 2 - cn_length(cword) - lbank;
                 if expand_mode {
                     let lstr = " ".repeat(lb + lbank);
                     let rstr = " ".repeat(rb + rbank);
-                    return format!("{}|{}{}{}|{}", lastr, lstr, cword, rstr, rastr);
+                    return format!("|{}{}{}|", lstr, cword, rstr);
                 }
                 let lstr = " ".repeat(lbank);
                 let rstr = " ".repeat(rbank);
                 return format!(
-                    "{}{}|{}{}{}|{}{}",
+                    "{}|{}{}{}|{}",
                     " ".repeat(lb),
-                    lastr,
                     lstr,
                     cword,
                     rstr,
-                    rastr,
                     " ".repeat(rb)
                 );
             }
@@ -332,58 +202,8 @@ impl ANode {
         }
     }
 
-    pub fn render_up(&self, i: usize, _maxh: usize, cw: usize, lw: usize, rw: usize) -> String {
-        if self.rbox.h_up <= 0 {
-            return format!("{}", " ".repeat(lw + cw + rw));
-        }
-        // 将 cw 分隔成 lb + 1 + rb
-        let lb: usize = (cw - 1) / 2;
-        let rb: usize = cw - 1 - lb;
-        if i == 0 {
-            return format!("{}^{}", " ".repeat(lb + lw), " ".repeat(rb + rw));
-        } else if i <= self.rbox.h_up - 1 {
-            return format!("{}|{}", " ".repeat(lb + lw), " ".repeat(rb + rw));
-        }
-        return format!("{}", " ".repeat(lw + cw + rw));
-    }
-
-    pub fn render_down(&self, i: usize, _maxh: usize, cw: usize, lw: usize, rw: usize) -> String {
-        if self.rbox.h_down <= 0 {
-            return format!("{}", " ".repeat(lw + cw + rw));
-        }
-        // 将 cw 分隔成 lb + 1 + rb
-        let lb: usize = (cw - 1) / 2;
-        let rb: usize = cw - 1 - lb;
-        if i == self.rbox.h_down - 1 {
-            return format!("{}v{}", " ".repeat(lb + lw), " ".repeat(rb + rw));
-        } else if i < self.rbox.h_down - 1 {
-            return format!("{}|{}", " ".repeat(lb + lw), " ".repeat(rb + rw));
-        }
-        return format!("{}", " ".repeat(lw + cw + rw));
-    }
-
     pub fn content_w(&self) -> usize {
         return self.w as usize + 2;
-    }
-
-    pub fn left_w(&self) -> usize {
-        return self.rbox.w_left;
-    }
-
-    pub fn right_w(&self) -> usize {
-        return self.rbox.w_right;
-    }
-
-    pub fn total_h(&self) -> usize {
-        return self.rbox.h_up + self.h as usize + 2 + self.rbox.h_down;
-    }
-
-    pub fn up_h(&self) -> usize {
-        return self.rbox.h_up;
-    }
-
-    pub fn down_h(&self) -> usize {
-        return self.rbox.h_down;
     }
 
     pub fn content_h(&self) -> usize {
