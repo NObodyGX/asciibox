@@ -125,8 +125,6 @@ pub struct ANode {
     // 周围可用的箭头
     pub arrows: Vec<AEdge>,
     pub arrows_no_render: Vec<AEdge>,
-    // 是否浮动
-    pub floating: usize,
     // render 用 box 解构
     rbox: RBox,
     // render 用形状
@@ -135,8 +133,8 @@ pub struct ANode {
 
 impl ANode {
     #[must_use]
-    pub fn new(id: String, name: String, x: usize, y: usize, sharp: ASharp) -> Self {
-        let nid: String = id.trim().to_string();
+    pub fn new(id: &str, name: String, x: usize, y: usize) -> Self {
+        let nid = String::from(id).trim().to_string();
         let nname: String = name.trim().to_string();
         let pwords: Vec<&str> = nname.split('\n').collect();
         let mut words = Vec::new();
@@ -160,9 +158,12 @@ impl ANode {
             arrows_no_render: Vec::new(),
             idx: 0,
             rbox: mbox,
-            sharp,
-            floating: 0,
+            sharp: ASharp::Round,
         }
+    }
+
+    pub fn set_sharp(&mut self, sharp: ASharp) {
+        self.sharp = sharp;
     }
 
     /// 向 node 添加 arrow
