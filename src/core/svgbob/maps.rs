@@ -5,7 +5,7 @@ use std::cmp::{max, min};
 use std::collections::HashMap;
 
 #[derive(Debug, Clone, Default, Copy)]
-pub struct RenderBox {
+pub struct RenderNode {
     pub w: usize,
     pub w_left: usize,
     pub w_right: usize,
@@ -204,28 +204,50 @@ impl AMap {
         }
     }
 
+    fn add_orphan_graph(&mut self) {
+        for (id, _node) in self.nodes.iter() {
+            let mut flag = false;
+            for graph in self.graphs.iter() {
+                if graph.check_member(id) {
+                    flag = true;
+                    break;
+                }
+            }
+            if flag {
+                continue;
+            }
+            let mut graph = AGraph::new(1);
+            graph.add_member(id);
+            self.graphs.push(graph);
+        }
+    }
+
     // 重排 nodes 之间的位置
     fn build_board(&mut self) {
         let length = self.nodes.len();
         self.graphs = Vec::with_capacity(length);
+        // 先添加集合体
         for edge in self.edges.clone().iter() {
             let src = &edge.src;
             let dst = &edge.dst;
             self.add_into_graph(src, dst, edge);
         }
+        // 再添加一个孤儿
+        self.add_orphan_graph();
         for graph in self.graphs.iter_mut() {
             graph.assign_seats()
         }
+
         self.w = 0;
         self.h = 0;
         for graph in self.graphs.iter() {
+            self.w = max(self.w, graph.w);
             for (id, node) in graph.nodes.iter() {
                 let nnode = self.nodes.get_mut(id).unwrap();
                 nnode.x = node.x;
-                nnode.y = node.y;
-                self.w = max(self.w, node.x + 1);
-                self.h = max(self.h, node.y + 1);
+                nnode.y = self.h + node.y;
             }
+            self.h += graph.h;
         }
     }
 
@@ -235,11 +257,11 @@ impl AMap {
         }
     }
 
-    fn show(&self) -> String {
+    fn render(&self) -> String {
         self.debug_show_position();
-        let mut rboxes: Vec<RenderBox> = Vec::new();
+        let mut rboxes: Vec<RenderNode> = Vec::new();
         for _ in 0..max(self.w + 1, self.h + 1) {
-            rboxes.push(RenderBox::default());
+            rboxes.push(RenderNode::default());
         }
         let mut rw: usize = 0;
         let mut rh: usize = 0;
@@ -331,7 +353,7 @@ impl AMap {
         self.build_board();
         self.build_canvas();
         println!("load content done.");
-        let content = self.show();
+        let content = self.render();
         content
     }
 }

@@ -4,6 +4,26 @@ use std::collections::HashMap;
 use std::ops::Not;
 
 #[derive(Debug, Clone)]
+pub struct AEdgeNode {
+    pub x: usize,
+    pub y: usize,
+    id: String,
+    direct: ADirect,
+}
+
+impl AEdgeNode {
+    #[must_use]
+    pub fn new(id: String, x: usize, y: usize, direct: ADirect) -> Self {
+        Self {
+            id: id,
+            x,
+            y,
+            direct,
+        }
+    }
+}
+
+#[derive(Debug, Clone)]
 pub struct AGraphNode {
     // 横坐标，对应水平行上的位置
     pub x: usize,
@@ -11,6 +31,10 @@ pub struct AGraphNode {
     pub y: usize,
     // 保留所在位置的级别，如果级别比其他的小，则保留位置，否则需要让出位置
     level: usize,
+    l_edges: Vec<AEdgeNode>,
+    r_edges: Vec<AEdgeNode>,
+    u_edges: Vec<AEdgeNode>,
+    d_edges: Vec<AEdgeNode>,
 }
 
 impl AGraphNode {
@@ -20,6 +44,10 @@ impl AGraphNode {
             x: hold,
             y: hold,
             level: 0,
+            l_edges: Vec::new(),
+            r_edges: Vec::new(),
+            u_edges: Vec::new(),
+            d_edges: Vec::new(),
         }
     }
 }
@@ -30,6 +58,8 @@ pub struct AGraph {
     edges: Vec<AEdge>,
     pub nodes: HashMap<String, AGraphNode>,
     limit: usize,
+    pub w: usize,
+    pub h: usize,
 }
 
 impl AGraph {
@@ -39,6 +69,8 @@ impl AGraph {
             edges: Vec::new(),
             nodes: HashMap::new(),
             limit,
+            w: 0,
+            h: 0,
         }
     }
 
@@ -131,6 +163,43 @@ impl AGraph {
         }
     }
 
+    fn add_edge_node(
+        &mut self,
+        src: &String,
+        dst: &String,
+        dir: ADirect,
+        x: usize,
+        y: usize,
+        neg: bool,
+    ) {
+        let node = self.nodes.get_mut(src).unwrap();
+        let edge = AEdgeNode::new(dst.clone(), x, y, dir.clone());
+        match dir {
+            ADirect::Right | ADirect::Left => {
+                if neg {
+                    node.l_edges.push(edge);
+                } else {
+                    node.r_edges.push(edge);
+                }
+            }
+            ADirect::Up => {
+                if neg {
+                    node.d_edges.push(edge);
+                } else {
+                    node.u_edges.push(edge);
+                }
+            }
+            ADirect::Down => {
+                if neg {
+                    node.u_edges.push(edge);
+                } else {
+                    node.d_edges.push(edge);
+                }
+            }
+            _ => {}
+        }
+    }
+
     fn assign_node_seat(&mut self, src: &String, dst: &String, direct: ADirect) {
         let l1 = self.is_node_located(src);
         let l2 = self.is_node_located(dst);
@@ -154,9 +223,12 @@ impl AGraph {
                 if !self.try_move(dst, nx, y, 1) {
                     for i in 1..self.limit {
                         if self.try_move(dst, nx, y + i, 1 + i) {
+                            self.add_edge_node(src, dst, dir, nx, y + i, neg);
                             break;
                         }
                     }
+                } else {
+                    self.add_edge_node(src, dst, dir, nx, y, neg);
                 }
             }
             ADirect::Up => {
@@ -168,9 +240,12 @@ impl AGraph {
                 if !self.try_move(dst, x, ny, 1) {
                     for i in 1..self.limit {
                         if self.try_move(dst, x + i, ny, 1 + i * 2) {
+                            self.add_edge_node(src, dst, dir, x + i, ny, neg);
                             break;
                         }
                     }
+                } else {
+                    self.add_edge_node(src, dst, dir, x, ny, neg);
                 }
             }
             ADirect::Down => {
@@ -182,16 +257,25 @@ impl AGraph {
                 if !self.try_move(dst, x, ny, 1) {
                     for i in 1..self.limit {
                         if self.try_move(dst, x + i, ny, 1 + i * 2) {
+                            self.add_edge_node(src, dst, dir, x + i, ny, neg);
                             break;
                         }
                     }
+                } else {
+                    self.add_edge_node(src, dst, dir, x, ny, neg);
                 }
             }
             _ => {}
         }
     }
 
-    //
+    fn fit_wh(&mut self) {
+        for (_id, node) in self.nodes.iter() {
+            self.w = max(self.w, node.x + 1);
+            self.h = max(self.h, node.y + 1);
+        }
+    }
+
     pub fn assign_seats(&mut self) {
         let l = self.members.len();
         for id in self.members.iter() {
@@ -211,5 +295,6 @@ impl AGraph {
                 self.assign_node_seat(src, dst, direct);
             }
         }
+        self.fit_wh();
     }
 }
