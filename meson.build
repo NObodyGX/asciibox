@@ -9,7 +9,7 @@ project('asciibox', 'rust',
 
 i18n = import('i18n')
 gnome = import('gnome')
-app_id = 'asciibox'
+app_id = 'com.github.nobodygx.asciibox'
 app_name = 'asciibox'
 pkg_dir = join_paths(get_option('prefix'), get_option('datadir'), app_name)
 
