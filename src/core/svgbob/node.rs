@@ -2,7 +2,7 @@ use crate::core::utils::cn_length;
 use std::{fmt, ops::Not};
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
-pub enum GDirect {
+pub enum ADirect {
     None,
     Double,
     Left,
@@ -19,63 +19,63 @@ pub enum GDirect {
     // DownRight,
 }
 
-impl ToString for GDirect {
+impl ToString for ADirect {
     fn to_string(&self) -> String {
         match self {
-            GDirect::None => String::from("none"),
-            GDirect::Double => String::from("double"),
-            GDirect::Left => String::from("left"),
-            GDirect::Right => String::from("right"),
-            GDirect::Up => String::from("up"),
-            GDirect::Down => String::from("down"),
-            GDirect::LeftUp => String::from("leftup"),
-            GDirect::LeftDown => String::from("leftdown"),
-            GDirect::RightUp => String::from("rightup"),
-            GDirect::RightDown => String::from("rightdown"),
+            ADirect::None => String::from("none"),
+            ADirect::Double => String::from("double"),
+            ADirect::Left => String::from("left"),
+            ADirect::Right => String::from("right"),
+            ADirect::Up => String::from("up"),
+            ADirect::Down => String::from("down"),
+            ADirect::LeftUp => String::from("leftup"),
+            ADirect::LeftDown => String::from("leftdown"),
+            ADirect::RightUp => String::from("rightup"),
+            ADirect::RightDown => String::from("rightdown"),
         }
     }
 }
 
-impl Not for GDirect {
+impl Not for ADirect {
     type Output = Self;
 
     fn not(self) -> Self::Output {
         match self {
-            GDirect::None => GDirect::None,
-            GDirect::Double => GDirect::Double,
-            GDirect::Left => GDirect::Right,
-            GDirect::Right => GDirect::Left,
-            GDirect::Up => GDirect::Down,
-            GDirect::Down => GDirect::Up,
-            GDirect::LeftUp => GDirect::RightDown,
-            GDirect::LeftDown => GDirect::RightUp,
-            GDirect::RightUp => GDirect::LeftDown,
-            GDirect::RightDown => GDirect::LeftUp,
+            ADirect::None => ADirect::None,
+            ADirect::Double => ADirect::Double,
+            ADirect::Left => ADirect::Right,
+            ADirect::Right => ADirect::Left,
+            ADirect::Up => ADirect::Down,
+            ADirect::Down => ADirect::Up,
+            ADirect::LeftUp => ADirect::RightDown,
+            ADirect::LeftDown => ADirect::RightUp,
+            ADirect::RightUp => ADirect::LeftDown,
+            ADirect::RightDown => ADirect::LeftUp,
         }
     }
 }
 
 #[derive(Clone, Debug, Eq, PartialEq, Hash)]
-pub struct GNBox {
+pub struct RBox {
     pub w_left: usize,
     pub w_right: usize,
     pub h_up: usize,
     pub h_down: usize,
-    pub left: GDirect,
-    pub right: GDirect,
-    pub up: GDirect,
-    pub down: GDirect,
-    pub left_down: GDirect,
+    pub left: ADirect,
+    pub right: ADirect,
+    pub up: ADirect,
+    pub down: ADirect,
+    pub left_down: ADirect,
 }
 
-impl GNBox {
+impl RBox {
     pub fn new() -> Self {
         Self {
-            left: GDirect::None,
-            right: GDirect::None,
-            up: GDirect::None,
-            down: GDirect::None,
-            left_down: GDirect::None,
+            left: ADirect::None,
+            right: ADirect::None,
+            up: ADirect::None,
+            down: ADirect::None,
+            left_down: ADirect::None,
             w_left: 0,
             w_right: 0,
             h_up: 0,
@@ -128,7 +128,7 @@ pub struct ANode {
     // 是否浮动
     pub floating: usize,
     // render 用 box 解构
-    mbox: GNBox,
+    rbox: RBox,
     // render 用形状
     sharp: ASharp,
 }
@@ -146,7 +146,7 @@ impl ANode {
             w = std::cmp::max(w, cn_length(word) as usize);
             words.push(word.to_string());
         }
-        let mbox = GNBox::new();
+        let mbox = RBox::new();
 
         Self {
             id: nid,
@@ -159,7 +159,7 @@ impl ANode {
             arrows: Vec::new(),
             arrows_no_render: Vec::new(),
             idx: 0,
-            mbox,
+            rbox: mbox,
             sharp,
             floating: 0,
         }
@@ -169,41 +169,41 @@ impl ANode {
     /// - arrow: 要添加的 GArrow
     /// - direct: 要添加的方向
     /// - enable_render: 是否需要被绘制
-    pub fn add_arrow(&mut self, arrow: &AEdge, direct: GDirect, enable_render: bool) {
+    pub fn add_arrow(&mut self, arrow: &AEdge, direct: ADirect, enable_render: bool) {
         if !enable_render {
             self.arrows_no_render.push(arrow.clone());
             return;
         }
         self.arrows.push(arrow.clone());
         match direct {
-            GDirect::Left => {
-                self.mbox.left = arrow.direct.clone();
-                self.mbox.set_left_w(if arrow.direct == GDirect::Double {
+            ADirect::Left => {
+                self.rbox.left = arrow.direct.clone();
+                self.rbox.set_left_w(if arrow.direct == ADirect::Double {
                     4
                 } else {
                     3
                 });
             }
-            GDirect::Right => {
-                self.mbox.right = arrow.direct.clone();
-                self.mbox.set_right_w(if arrow.direct == GDirect::Double {
+            ADirect::Right => {
+                self.rbox.right = arrow.direct.clone();
+                self.rbox.set_right_w(if arrow.direct == ADirect::Double {
                     4
                 } else {
                     3
                 });
             }
-            GDirect::Up => {
-                self.mbox.up = arrow.direct.clone();
-                self.mbox.set_up_h(2);
+            ADirect::Up => {
+                self.rbox.up = arrow.direct.clone();
+                self.rbox.set_up_h(2);
             }
-            GDirect::Down => {
-                self.mbox.down = arrow.direct.clone();
-                self.mbox.set_down_h(2);
+            ADirect::Down => {
+                self.rbox.down = arrow.direct.clone();
+                self.rbox.set_down_h(2);
             }
-            GDirect::LeftDown => {
-                self.mbox.left_down = arrow.direct.clone();
-                self.mbox.set_down_h(2);
-                self.mbox.set_left_w(3);
+            ADirect::LeftDown => {
+                self.rbox.left_down = arrow.direct.clone();
+                self.rbox.set_down_h(2);
+                self.rbox.set_left_w(3);
             }
             _ => {}
         }
@@ -213,44 +213,44 @@ impl ANode {
         let mut lcontent = String::new();
         let mut rcontent = String::new();
 
-        if self.mbox.w_left > 0 {
+        if self.rbox.w_left > 0 {
             let v = if i != (self.h + 1) / 2 {
-                " ".repeat(self.mbox.w_left)
+                " ".repeat(self.rbox.w_left)
             } else {
-                match self.mbox.left {
-                    GDirect::Left => {
-                        format!("<{}", "-".repeat(self.mbox.w_left - 1))
+                match self.rbox.left {
+                    ADirect::Left => {
+                        format!("<{}", "-".repeat(self.rbox.w_left - 1))
                     }
-                    GDirect::Right => {
-                        format!("{}>", "-".repeat(self.mbox.w_left - 1))
+                    ADirect::Right => {
+                        format!("{}>", "-".repeat(self.rbox.w_left - 1))
                     }
-                    GDirect::Double => {
-                        format!("<{}>", "-".repeat(self.mbox.w_left - 2))
+                    ADirect::Double => {
+                        format!("<{}>", "-".repeat(self.rbox.w_left - 2))
                     }
                     // GDirect::LeftDown => {
                     //     format!("-{}-", "-".repeat(self.mbox.w_left - 2))
                     // }
-                    _ => " ".repeat(self.mbox.w_left),
+                    _ => " ".repeat(self.rbox.w_left),
                 }
             };
             lcontent.push_str(v.as_str());
         }
 
-        if self.mbox.w_right > 0 {
+        if self.rbox.w_right > 0 {
             let v = if i != (self.h + 1) / 2 {
-                " ".repeat(self.mbox.w_right)
+                " ".repeat(self.rbox.w_right)
             } else {
-                match self.mbox.right {
-                    GDirect::Left => {
-                        format!("<{}", "-".repeat(self.mbox.w_right - 1))
+                match self.rbox.right {
+                    ADirect::Left => {
+                        format!("<{}", "-".repeat(self.rbox.w_right - 1))
                     }
-                    GDirect::Right => {
-                        format!("{}>", "-".repeat(self.mbox.w_right - 1))
+                    ADirect::Right => {
+                        format!("{}>", "-".repeat(self.rbox.w_right - 1))
                     }
-                    GDirect::Double => {
-                        format!("<{}>", "-".repeat(self.mbox.w_right - 2))
+                    ADirect::Double => {
+                        format!("<{}>", "-".repeat(self.rbox.w_right - 2))
                     }
-                    _ => " ".repeat(self.mbox.w_right),
+                    _ => " ".repeat(self.rbox.w_right),
                 }
             };
             rcontent.push_str(v.as_str());
@@ -332,7 +332,7 @@ impl ANode {
     }
 
     pub fn render_up(&self, i: usize, _maxh: usize, cw: usize, lw: usize, rw: usize) -> String {
-        if self.mbox.h_up <= 0 {
+        if self.rbox.h_up <= 0 {
             return format!("{}", " ".repeat(lw + cw + rw));
         }
         // 将 cw 分隔成 lb + 1 + rb
@@ -340,22 +340,22 @@ impl ANode {
         let rb: usize = cw - 1 - lb;
         if i == 0 {
             return format!("{}^{}", " ".repeat(lb + lw), " ".repeat(rb + rw));
-        } else if i <= self.mbox.h_up - 1 {
+        } else if i <= self.rbox.h_up - 1 {
             return format!("{}|{}", " ".repeat(lb + lw), " ".repeat(rb + rw));
         }
         return format!("{}", " ".repeat(lw + cw + rw));
     }
 
     pub fn render_down(&self, i: usize, _maxh: usize, cw: usize, lw: usize, rw: usize) -> String {
-        if self.mbox.h_down <= 0 {
+        if self.rbox.h_down <= 0 {
             return format!("{}", " ".repeat(lw + cw + rw));
         }
         // 将 cw 分隔成 lb + 1 + rb
         let lb: usize = (cw - 1) / 2;
         let rb: usize = cw - 1 - lb;
-        if i == self.mbox.h_down - 1 {
+        if i == self.rbox.h_down - 1 {
             return format!("{}v{}", " ".repeat(lb + lw), " ".repeat(rb + rw));
-        } else if i < self.mbox.h_down - 1 {
+        } else if i < self.rbox.h_down - 1 {
             return format!("{}|{}", " ".repeat(lb + lw), " ".repeat(rb + rw));
         }
         return format!("{}", " ".repeat(lw + cw + rw));
@@ -366,23 +366,23 @@ impl ANode {
     }
 
     pub fn left_w(&self) -> usize {
-        return self.mbox.w_left;
+        return self.rbox.w_left;
     }
 
     pub fn right_w(&self) -> usize {
-        return self.mbox.w_right;
+        return self.rbox.w_right;
     }
 
     pub fn total_h(&self) -> usize {
-        return self.mbox.h_up + self.h as usize + 2 + self.mbox.h_down;
+        return self.rbox.h_up + self.h as usize + 2 + self.rbox.h_down;
     }
 
     pub fn up_h(&self) -> usize {
-        return self.mbox.h_up;
+        return self.rbox.h_up;
     }
 
     pub fn down_h(&self) -> usize {
-        return self.mbox.h_down;
+        return self.rbox.h_down;
     }
 
     pub fn content_h(&self) -> usize {
@@ -404,14 +404,14 @@ impl PartialEq for ANode {
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct AEdge {
-    pub direct: GDirect,
+    pub direct: ADirect,
     pub src: String,
     pub dst: String,
     pub text: String,
 }
 
 impl AEdge {
-    pub fn new(direct: GDirect, from: String, to: String, text: String) -> Self {
+    pub fn new(direct: ADirect, from: String, to: String, text: String) -> Self {
         Self {
             direct,
             src: from,

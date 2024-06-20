@@ -1,4 +1,4 @@
-use super::node::{AEdge, ANode, ASharp, GDirect};
+use super::node::{ADirect, AEdge, ANode, ASharp};
 use crate::core::svgbob::parse::{parse_edge, parse_node};
 use std::cmp::{max, min};
 use std::collections::HashMap;
@@ -99,7 +99,7 @@ impl AGraph {
         }
     }
 
-    fn align_node(&mut self, src: &String, dst: &String, direct: GDirect) {
+    fn align_node(&mut self, src: &String, dst: &String, direct: ADirect) {
         let l1 = self.is_node_located(src);
         let l2 = self.is_node_located(dst);
         if !l1 && !l2 {
@@ -109,13 +109,13 @@ impl AGraph {
             let x = self.nodes.get(src).unwrap().x;
             let y = self.nodes.get(src).unwrap().y;
             match direct {
-                GDirect::Left | GDirect::Right => {
+                ADirect::Left | ADirect::Right => {
                     // src <-- dst
                     if !self.is_node_exist(x + 1, y) {
                         self.node_move(dst, x + 1, y)
                     }
                 }
-                GDirect::Up => {
+                ADirect::Up => {
                     // src --^ dst
                     if x == 0 {
                         self.nodes_down();
@@ -124,7 +124,7 @@ impl AGraph {
                         self.node_move(dst, max(x, 1) - 1, y)
                     }
                 }
-                GDirect::Down => {
+                ADirect::Down => {
                     // src --v dst
                     if !self.is_node_exist(x, y + 1) {
                         self.node_move(dst, x, y + 1);
@@ -136,7 +136,7 @@ impl AGraph {
             let x = self.nodes.get(dst).unwrap().x;
             let y = self.nodes.get(dst).unwrap().y;
             match direct {
-                GDirect::Left | GDirect::Right => {
+                ADirect::Left | ADirect::Right => {
                     // src <-- dst
                     if x == 0 {
                         self.nodes_right();
@@ -145,13 +145,13 @@ impl AGraph {
                         self.node_move(src, max(x, 1) - 1, y)
                     }
                 }
-                GDirect::Up => {
+                ADirect::Up => {
                     // src --^ dst
                     if !self.is_node_exist(x, y + 1) {
                         self.node_move(src, x, y + 1);
                     }
                 }
-                GDirect::Down => {
+                ADirect::Down => {
                     // src --v dst
                     if x == 0 {
                         self.nodes_down();
@@ -253,7 +253,7 @@ impl AMap {
     fn parse_line<'a>(&'a mut self, line: &'a str, y: usize) -> bool {
         let mut text: &str;
         let mut vtext: String;
-        let mut direct: GDirect;
+        let mut direct: ADirect;
         let mut lid: String;
         let mut rid: String;
         let mut node: ANode;
@@ -494,15 +494,23 @@ impl AMap {
         content
     }
 
-    pub fn load_content(&mut self, content: &str) -> String {
-        self.clear();
-        let mut lines: Vec<&str> = content.split('\n').filter(|&s| !s.is_empty()).collect();
+    fn build_nodes(&mut self, content: &str) {
+        let lines: Vec<&str> = content
+            .split('\n')
+            .filter(|&s| !s.trim().is_empty())
+            .collect();
         let mut y: usize = 0;
-        for line in lines.iter_mut() {
-            if self.parse_line(line, y) {
+        for line in lines.iter() {
+            let aline = line.replace("\\n", "\n");
+            if self.parse_line(aline.as_str(), y) {
                 y += 1;
             }
         }
+    }
+
+    pub fn load_content(&mut self, content: &str) -> String {
+        self.clear();
+        self.build_nodes(content);
         self.build_board();
         self.build_canvas();
         println!("load content done.");

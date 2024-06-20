@@ -1,4 +1,4 @@
-use super::node::{ASharp, GDirect};
+use super::node::{ADirect, ASharp};
 
 fn split_node_char<'a>(
     input: &'a str,
@@ -63,30 +63,30 @@ pub fn parse_node(input: &str) -> (&str, &str, ASharp, &str) {
     (id, id, ASharp::Round, remain)
 }
 
-pub fn get_arrow(input: &str) -> GDirect {
+pub fn get_arrow(input: &str) -> ADirect {
     if input.starts_with("<-") && input.ends_with("->") {
-        return GDirect::Double;
+        return ADirect::Double;
     } else if input.starts_with("<-") {
-        return GDirect::Left;
+        return ADirect::Left;
     } else if input.ends_with("->") {
-        return GDirect::Right;
+        return ADirect::Right;
     } else if input.ends_with("-^") {
-        return GDirect::Up;
+        return ADirect::Up;
     } else if input.ends_with("-v") {
-        return GDirect::Down;
+        return ADirect::Down;
     } else if input.starts_with("<^-") {
-        return GDirect::LeftUp;
+        return ADirect::LeftUp;
     } else if input.starts_with("<v-") {
-        return GDirect::LeftDown;
+        return ADirect::LeftDown;
     } else if input.starts_with("-^>") {
-        return GDirect::RightUp;
+        return ADirect::RightUp;
     } else if input.starts_with("-v>") {
-        return GDirect::RightDown;
+        return ADirect::RightDown;
     }
-    GDirect::None
+    ADirect::None
 }
 
-pub fn parse_edge(input: &str) -> (GDirect, String, String) {
+pub fn parse_edge(input: &str) -> (ADirect, String, String) {
     let arrow: &str;
     let remain: &str;
 
@@ -164,19 +164,19 @@ mod tests {
         // "--|aa|-->"
         // "--^> --v>"
 
-        assert_eq!(parse_edge("-->").0, GDirect::Right);
+        assert_eq!(parse_edge("-->").0, ADirect::Right);
         assert_eq!(
             parse_edge("--|aaa|-->bb"),
-            (GDirect::Right, String::from("aaa"), String::from("bb"))
+            (ADirect::Right, String::from("aaa"), String::from("bb"))
         );
-        assert_eq!(parse_edge("<--").0, GDirect::Left);
-        assert_eq!(parse_edge("<-->").0, GDirect::Double);
-        assert_eq!(parse_edge("<-->").0, GDirect::Double);
-        assert_eq!(parse_edge("--^").0, GDirect::Up);
-        assert_eq!(parse_edge("--v").0, GDirect::Down);
-        assert_eq!(parse_edge("-^>").0, GDirect::RightUp);
-        assert_eq!(parse_edge("-v>").0, GDirect::RightDown);
-        assert_eq!(parse_edge("<^-").0, GDirect::LeftUp);
-        assert_eq!(parse_edge("<v-").0, GDirect::LeftDown);
+        assert_eq!(parse_edge("<--").0, ADirect::Left);
+        assert_eq!(parse_edge("<-->").0, ADirect::Double);
+        assert_eq!(parse_edge("<-->").0, ADirect::Double);
+        assert_eq!(parse_edge("--^").0, ADirect::Up);
+        assert_eq!(parse_edge("--v").0, ADirect::Down);
+        assert_eq!(parse_edge("-^>").0, ADirect::RightUp);
+        assert_eq!(parse_edge("-v>").0, ADirect::RightDown);
+        assert_eq!(parse_edge("<^-").0, ADirect::LeftUp);
+        assert_eq!(parse_edge("<v-").0, ADirect::LeftDown);
     }
 }

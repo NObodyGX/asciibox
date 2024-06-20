@@ -1,6 +1,6 @@
-mod gsmap;
+mod graph;
 mod node;
 mod parse;
 mod test;
 
-pub use gsmap::AMap;
+pub use graph::AMap;
