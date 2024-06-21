@@ -14,12 +14,7 @@ pub struct AEdgeNode {
 impl AEdgeNode {
     #[must_use]
     pub fn new(id: String, x: usize, y: usize, direct: ADirect) -> Self {
-        Self {
-            id: id,
-            x,
-            y,
-            direct,
-        }
+        Self { id, x, y, direct }
     }
 }
 
@@ -39,10 +34,10 @@ pub struct AGraphNode {
 
 impl AGraphNode {
     #[must_use]
-    pub fn new(hold: usize) -> Self {
+    pub fn new(i: usize) -> Self {
         Self {
-            x: hold,
-            y: hold,
+            x: i,
+            y: i,
             level: 0,
             l_edges: Vec::new(),
             r_edges: Vec::new(),
@@ -278,6 +273,13 @@ impl AGraph {
 
     pub fn assign_seats(&mut self) {
         let l = self.members.len();
+        if l == 1 {
+            for id in self.members.iter() {
+                self.nodes.insert(id.clone(), AGraphNode::new(0));
+            }
+            self.fit_wh();
+            return;
+        }
         for id in self.members.iter() {
             self.nodes.insert(id.clone(), AGraphNode::new(l));
         }
@@ -296,5 +298,9 @@ impl AGraph {
             }
         }
         self.fit_wh();
+    }
+
+    pub fn render(&self) -> String {
+        "".to_string()
     }
 }

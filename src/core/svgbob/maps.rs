@@ -251,118 +251,90 @@ impl AMap {
         }
     }
 
-    fn debug_show_position(&self) {
+    fn __show_position(&self) {
         for (id, node) in self.nodes.iter() {
             println!("{}: ({}, {})", id, node.x, node.y);
         }
     }
 
-    fn render_node_up(&self, id: &String) {}
-
-    fn render_new(&self) -> String {
-        self.debug_show_position();
-        let mut content = String::new();
-        for y in 0..self.w + 1 {
-            let canvas = self.canvas.get(y).unwrap();
-            let up_h: usize = 0;
-            let down_h: usize = 0;
-            let content_h: usize = 0;
-            let mut words = String::new();
-            for x in 0..self.h + 1 {
-                let rid = canvas.get(x).unwrap();
-                let mut letters = String::new();
-                if rid == &0 {
-                    // render blank
-                    letters.push(' ');
-                    continue;
-                }
-                for _line in 0..up_h {
-                    // render up/up_left/up_right/passby arrow
-                    // render text
-                }
-                for _line in 0..content_h {
-                    // render left/right/passby arrow
-                    // render node
-                }
-                for _line in 0..down_h {
-                    //render down/down_left/down_right/passby arrow
-                    //render text
-                }
-                words.push_str(letters.trim_end());
-                words.push('\n');
-            }
-            content.push_str(words.trim_end());
-            content.push('\n');
-        }
-        content
-    }
-
-    fn render(&self) -> String {
-        self.debug_show_position();
+    fn build_render_nodes(&self) -> Vec<RenderNode> {
         let mut rboxes: Vec<RenderNode> = Vec::new();
         for _ in 0..max(self.w + 1, self.h + 1) {
             rboxes.push(RenderNode::default());
         }
-        let mut rw: usize = 0;
-        let mut rh: usize = 0;
         // 先计算显示的长宽
-        // TODO
         for (_id, node) in self.nodes.iter() {
-            rw = max(rw, node.x + 1);
-            rh = max(rh, node.y + 1);
             for (i, cbox) in rboxes.iter_mut().enumerate() {
                 if i == node.x as usize {
-                    cbox.w = max(cbox.w, node.content_w());
+                    cbox.w = max(cbox.w, node.total_w());
                 }
                 if i == node.y as usize {
-                    cbox.h = max(cbox.h, node.content_h());
+                    cbox.h = max(cbox.h, node.total_h());
                 }
             }
         }
-        // 开始逐行打印
-        let mut content = String::new();
-        for (y, items) in self.canvas.iter().enumerate() {
-            let mut linestr: String = String::new();
-            if y > rh {
-                break;
-            }
-            let rbox = rboxes.get(y as usize).expect("error");
-            let hu = rbox.h_up;
-            let hc = rbox.h;
-            let maxh = rbox.h_total;
-            // 每行里按高度逐行计算
-            for h in 0..maxh {
-                // 开始逐列取 node 开始渲染
-                for (x, idx) in items.iter().enumerate() {
-                    if x >= rboxes.len() || x > rw {
-                        break;
-                    }
-                    let rbox2 = rboxes.get(x as usize).expect("error");
-                    let wl = rbox2.w_left;
-                    let wr = rbox2.w_right;
-                    let wc = rbox2.w; // content, when render total, need + 2
-                    let wbc = wc + 2;
-                    let maxw = wl + wr + wbc;
-                    if *idx == 0 {
-                        linestr.push_str(" ".repeat(maxw).as_str());
-                        continue;
-                    }
-                    let node = self.get_node_by_index(idx);
-                    let v;
+        rboxes
+    }
 
-                    let vv =
-                        node.render(h as usize - hu as usize, maxh, wc, wl, wr, self.expand_mode);
-                    v = format!("{}{}{}", " ".repeat(wl), vv, " ".repeat(wr));
-                    linestr.push_str(v.as_str());
+    fn render_edge_up(&self, y: usize, rbox: &Vec<RenderNode>) -> String {
+        for x in 0..self.w + 1 {
+            let _maxw = rbox.get(x).unwrap().w;
+            let _rid = self.canvas.get(y).unwrap().get(x).unwrap();
+        }
+        "".to_string()
+    }
+
+    fn render_node_with_edge(&self, y: usize, rbox: &Vec<RenderNode>) -> String {
+        let mut content = String::new();
+        let emode = self.expand_mode;
+        let maxh = rbox.get(y).unwrap().h;
+
+        for h in 0..maxh + 1 {
+            let mut line = String::new();
+            for x in 0..self.w + 1 {
+                // // render_edge_left
+                // let maxlw = rbox.get(x).unwrap().w_left;
+                // let maxrw = if x == 0 {
+                //     0
+                // } else {
+                //     rbox.get(x - 1).unwrap().w_right
+                // };
+                // let maxw = max(maxlw, maxrw);
+                // // todo render
+                // render_node
+                let maxw = rbox.get(x).unwrap().w;
+                let nid = self.canvas.get(y).unwrap().get(x).unwrap();
+                if nid == &0 {
+                    line.push_str(" ".repeat(maxw).as_str());
+                } else {
+                    let node = self.get_node_by_index(nid);
+                    line.push_str(node.render(h, maxw, emode).trim_end());
                 }
-                linestr = linestr.trim_end().to_string();
-                linestr.push('\n');
             }
-            content.push_str(linestr.trim_end());
-            // trim_end 会清除最后的换行
-            if linestr.trim_end().len() > 0 {
-                content.push('\n');
-            }
+            content.push_str(line.trim_end());
+            content.push('\n');
+        }
+
+        content
+    }
+
+    fn render(&self) -> String {
+        // 绘制分为两个部分
+        // 第一部分：绘制节点的上 edge 部分（包括上节点的下edge部分）
+        // 第二部分：绘制节点和节点的左右 edge 部分
+        self.__show_position();
+        let rbox: Vec<RenderNode> = self.build_render_nodes();
+        let mut content = String::new();
+        for graph in self.graphs.iter() {
+            content.push_str(graph.render().trim_end());
+            content.push('\n');
+        }
+        for y in 0..self.h + 1 {
+            let u_letters = self.render_edge_up(y, &rbox);
+            let c_letters = self.render_node_with_edge(y, &rbox);
+            content.push_str(u_letters.trim_end());
+            content.push_str(c_letters.trim_end());
+            content.push('\n');
         }
         content
     }
@@ -373,8 +345,7 @@ impl AMap {
         self.build_board();
         self.build_canvas();
         println!("load content done.");
-        let _ = self.render();
-        let content = self.render_new();
+        let content = self.render();
         content
     }
 }

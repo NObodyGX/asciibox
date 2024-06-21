@@ -132,18 +132,13 @@ impl ANode {
         self.sharp = sharp;
     }
 
-    pub fn render(
-        &self,
-        i: usize,
-        _ch: usize,
-        cw: usize,
-        lw: usize,
-        rw: usize,
-        expand_mode: bool,
-    ) -> String {
-        let lb: usize = (cw - self.content_w() + 1) / 2;
-        let rb: usize = cw - self.content_w() - lb;
+    // 绘制，i 行数，maxw 最大宽度(含边框), emode 是否是扩展模式
+    pub fn render(&self, i: usize, maxw: usize, emode: bool) -> String {
+        let cw = maxw - 2;
+        let lb: usize = (cw - self.cw() + 1) / 2;
+        let rb: usize = cw - self.cw() - lb;
 
+        // 首行或者尾行
         if i == 0 || i == self.h + 1 {
             let spc = if self.sharp == ASharp::Square {
                 "+"
@@ -155,26 +150,25 @@ impl ANode {
                 }
             };
 
-            if expand_mode {
-                let lstr = " ".repeat(lw);
-                let rstr = " ".repeat(rw);
+            if emode {
                 let cstr = "-".repeat(cw);
-                return format!("{}{}{}{}{}", spc, lstr, cstr, spc, rstr);
+                return format!("{}{}{}", spc, cstr, spc);
             }
-            let lstr = " ".repeat(lb + lw);
-            let rstr = " ".repeat(rb + rw);
-            let cstr = "-".repeat(self.content_w());
+            let lstr = " ".repeat(lb);
+            let rstr = " ".repeat(rb);
+            let cstr = "-".repeat(self.cw());
             return format!("{}{}{}{}{}", lstr, spc, cstr, spc, rstr);
-        } else if i >= self.h + 2 {
-            // 超出行
-            return format!("{}", " ".repeat(lw + cw + rw));
+        }
+        // 超出行
+        else if i >= self.h + 2 {
+            return format!("{}", " ".repeat(maxw));
         }
         // 内容行
-        match self.words.get(i as usize - 1) {
+        match self.words.get(i - 1) {
             Some(cword) => {
-                let lbank = (self.w as usize + 2 - cn_length(cword) + 1) / 2;
-                let rbank = self.w as usize + 2 - cn_length(cword) - lbank;
-                if expand_mode {
+                let lbank = (self.cw() - cn_length(cword) + 1) / 2;
+                let rbank = self.cw() - cn_length(cword) - lbank;
+                if emode {
                     let lstr = " ".repeat(lb + lbank);
                     let rstr = " ".repeat(rb + rbank);
                     return format!("|{}{}{}|", lstr, cword, rstr);
@@ -191,23 +185,29 @@ impl ANode {
                 );
             }
             None => {
-                let ww: usize = self.w as usize + 2;
                 return format!(
                     "{}|{}|{}",
-                    " ".repeat(lb + lw),
-                    " ".repeat(ww),
-                    " ".repeat(rb + rw),
+                    " ".repeat(lb),
+                    " ".repeat(self.cw()),
+                    " ".repeat(rb)
                 );
             }
         }
     }
 
-    pub fn content_w(&self) -> usize {
-        return self.w as usize + 2;
+    pub fn cw(&self) -> usize {
+        return self.w + 2;
     }
 
-    pub fn content_h(&self) -> usize {
-        return self.h as usize + 2;
+    pub fn total_w(&self) -> usize {
+        return self.cw() + 2;
+    }
+
+    pub fn ch(&self) -> usize {
+        return self.h;
+    }
+    pub fn total_h(&self) -> usize {
+        return self.ch() + 2;
     }
 }
 
