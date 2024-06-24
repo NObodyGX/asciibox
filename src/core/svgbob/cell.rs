@@ -96,7 +96,7 @@ pub struct ACell {
 
 impl ACell {
     #[must_use]
-    pub fn new(id: &str, name: String, x: usize, y: usize) -> Self {
+    pub fn new(id: &str, name: &str) -> Self {
         let nid = String::from(id).trim().to_string();
         let nname: String = name.trim().to_string();
         let pwords: Vec<&str> = nname.split('\n').collect();
@@ -124,7 +124,7 @@ impl ACell {
     }
 
     // 绘制，i 行数，maxw 最大宽度(含边框), emode 是否是扩展模式
-    pub fn render(&self, i: usize, maxw: usize, emode: bool) -> String {
+    pub fn do_render(&self, i: usize, maxw: usize, emode: bool) -> String {
         let cw = maxw - 2;
         let lb: usize = (cw - self.cw() + 1) / 2;
         let rb: usize = cw - self.cw() - lb;

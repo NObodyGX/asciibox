@@ -5,14 +5,13 @@ use std::cmp::{max, min};
 use std::collections::HashMap;
 
 #[derive(Debug, Clone, Default, Copy)]
-pub struct RenderNode {
+pub struct RenderBox {
     pub w: usize,
-    pub w_left: usize,
-    pub w_right: usize,
+    pub left: usize,
+    pub right: usize,
     pub h: usize,
     pub h_up: usize,
     pub h_down: usize,
-    pub h_total: usize,
 }
 
 #[derive(Debug, Clone)]
@@ -81,7 +80,7 @@ impl AMap {
 
         // 第一个 node
         (id, name, sharp, text) = parse_node(line);
-        node = ACell::new(id, name.to_string(), 0, 0);
+        node = ACell::new(id, name);
         node.set_sharp(sharp);
         lid = node.id.clone();
         self.add_node(&node);
@@ -99,7 +98,7 @@ impl AMap {
             if id.len() == 0 {
                 break;
             }
-            node = ACell::new(id, name.to_string(), 0, 0);
+            node = ACell::new(id, name);
             node.set_sharp(sharp);
             rid = node.id.clone();
             self.add_node(&node);
@@ -185,10 +184,10 @@ impl AMap {
         }
     }
 
-    fn build_render_box(&self) -> Vec<RenderNode> {
-        let mut rboxes: Vec<RenderNode> = Vec::new();
+    fn build_render_box(&self) -> Vec<RenderBox> {
+        let mut rboxes: Vec<RenderBox> = Vec::new();
         for _ in 0..max(self.w + 1, self.h + 1) {
-            rboxes.push(RenderNode::default());
+            rboxes.push(RenderBox::default());
         }
         // 先计算显示的长宽
         for graph in self.graphs.iter() {
@@ -196,9 +195,12 @@ impl AMap {
                 for (i, cbox) in rboxes.iter_mut().enumerate() {
                     if i == node.x as usize {
                         cbox.w = max(cbox.w, node.w());
+                        cbox.left = max(cbox.left, node.left());
+                        cbox.right = max(cbox.right, node.right());
                     }
                     if i == node.y as usize {
                         cbox.h = max(cbox.h, node.h());
+                        // TODO
                     }
                 }
             }
@@ -210,13 +212,13 @@ impl AMap {
     fn build_board(&mut self) {
         let length = self.cells.len();
         self.graphs = Vec::with_capacity(length);
-        // 先添加集合体
+        // 添加集合体
         for edge in self.edges.clone().iter() {
             let src = &edge.src;
             let dst = &edge.dst;
             self.add_into_graph(src, dst, edge);
         }
-        // 再添加一个孤儿
+        // 添加一个孤儿
         self.add_orphan_graph();
         for graph in self.graphs.iter_mut() {
             graph.assign_seats()
@@ -228,17 +230,14 @@ impl AMap {
             self.w = max(self.w, graph.w);
             self.h += graph.h;
         }
-
+        // 免得每次生成，直接最后生成即可
         for graph in self.graphs.iter_mut() {
             graph.build_canvas();
         }
     }
 
     fn render(&self) -> String {
-        // 绘制分为两个部分
-        // 第一部分：绘制节点的上 edge 部分（包括上节点的下edge部分）
-        // 第二部分：绘制节点和节点的左右 edge 部分
-        let rbox: Vec<RenderNode> = self.build_render_box();
+        let rbox: Vec<RenderBox> = self.build_render_box();
         let mut content = String::new();
         for graph in self.graphs.iter() {
             content.push_str(graph.render(&rbox).trim_end());

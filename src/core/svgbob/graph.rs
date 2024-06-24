@@ -1,15 +1,19 @@
 use super::cell::{ACell, ADirect, AEdge};
-use super::maps::RenderNode;
-use std::cmp::max;
+use super::maps::RenderBox;
+use std::cmp::{max, min};
 use std::collections::HashMap;
 use std::ops::Not;
 
 #[derive(Debug, Clone)]
 pub struct AEdgeCell {
+    // 目的所在位置（绝对值）
     pub x: usize,
+    // 目的所在位置（绝对值）
     pub y: usize,
-    id: String,
-    direct: ADirect,
+    // dst id
+    pub id: String,
+    // 方向
+    pub direct: ADirect,
 }
 
 impl AEdgeCell {
@@ -51,6 +55,26 @@ impl ANode {
 
     pub fn w(&self) -> usize {
         return self.cell.total_w();
+    }
+    pub fn left(&self) -> usize {
+        let w = match self.l_edges.len() {
+            0 => 0,
+            1 => 3,
+            2 => 5,
+            3 => 5,
+            _ => 5,
+        };
+        return w;
+    }
+    pub fn right(&self) -> usize {
+        let w = match self.r_edges.len() {
+            0 => 0,
+            1 => 3,
+            2 => 5,
+            3 => 5,
+            _ => 5,
+        };
+        return w;
     }
     pub fn h(&self) -> usize {
         return self.cell.total_h();
@@ -312,7 +336,7 @@ impl AGraph {
         self.fit_wh();
     }
 
-    fn render_edge_up(&self, y: usize, rbox: &Vec<RenderNode>) -> String {
+    fn render_edge_up(&self, y: usize, rbox: &Vec<RenderBox>) -> String {
         for x in 0..self.w + 1 {
             let _maxw = rbox.get(x).unwrap().w;
             let _cid = self.canvas.get(y).unwrap().get(x).unwrap();
@@ -320,31 +344,161 @@ impl AGraph {
         "".to_string()
     }
 
-    fn render_cell_with_edge(&self, y: usize, rbox: &Vec<RenderNode>) -> String {
+    fn do_render_cell(&self, i: usize, x: usize, y: usize, rbox: &Vec<RenderBox>) -> String {
+        let mut content = String::new();
+        let maxw = rbox.get(x).unwrap().w;
+        let cid = self.canvas.get(y).unwrap().get(x).unwrap();
+        if cid.is_empty() {
+            content.push_str(" ".repeat(maxw).as_str());
+        } else {
+            let cell = self.members.get(cid).unwrap();
+            content.push_str(cell.do_render(i, maxw, self.emode).trim_end());
+        }
+        content
+    }
+
+    fn do_render_right(&self, i: usize, x: usize, y: usize, rbox: &Vec<RenderBox>) -> String {
+        // 这里应该和 cell 一样，也是需要找到这个的最大宽度
+        let mut content = String::new();
+
+        let maxh = rbox.get(y).unwrap().h;
+        let maxw = max(
+            rbox.get(x).unwrap().right,
+            rbox.get(min(rbox.len() - 1, x + 1)).unwrap().left,
+        );
+
+        let cid = self.canvas.get(y).unwrap().get(x).unwrap();
+        // TODO 这里是不合理的
+        if cid.is_empty() {
+            content.push_str(" ".repeat(maxw).as_str());
+            return content;
+        }
+
+        let node = self.nodes.get(cid).unwrap();
+
+        let udis = ((maxh - 1) / 2 - 1) / 2;
+        let ddis = ((maxh + 1) / 2 + 1) / 2;
+        let mut flag: bool = false;
+        // 判断上节点
+        if i == udis {
+            // 右侧
+            for ec in node.r_edges.iter() {
+                if ec.x > x && ec.y < y {
+                    content.push_str("-".repeat((maxw + 1) / 2).as_str());
+                    content.push('\'');
+                    content.push_str(" ".repeat((maxw - 1) / 2).as_str());
+                    flag = true;
+                    break;
+                }
+            }
+            // 左侧
+            for (_nid, nnode) in self.nodes.iter() {
+                if flag {
+                    break;
+                }
+                if nnode.x <= x || node.y <= y {
+                    continue;
+                }
+                for ec in node.l_edges.iter() {
+                    if ec.id.eq(cid) {
+                        content.push_str("-".repeat((maxw - 1) / 2).as_str());
+                        content.push('\'');
+                        content.push_str(" ".repeat((maxw + 1) / 2).as_str());
+                        flag = true;
+                        break;
+                    }
+                }
+            }
+        }
+        // 判断中节点
+        else if i == maxh / 2 {
+            // 右侧
+            for ec in node.r_edges.iter() {
+                if ec.x > x && ec.y == y {
+                    if ec.direct == ADirect::Left {
+                        content.push('<');
+                        content.push_str("-".repeat(maxw - 1).as_str());
+                    } else {
+                        content.push_str("-".repeat(maxw - 1).as_str());
+                        content.push('>');
+                    }
+                    flag = true;
+                    break;
+                }
+            }
+            // 左侧
+            for (_nid, nnode) in self.nodes.iter() {
+                if flag {
+                    break;
+                }
+                if nnode.x <= x || node.y != y {
+                    continue;
+                }
+                for ec in node.l_edges.iter() {
+                    if ec.id.eq(cid) {
+                        if ec.direct == ADirect::Left {
+                            content.push('<');
+                            content.push_str("-".repeat(maxw - 1).as_str());
+                        } else {
+                            content.push_str("-".repeat(maxw - 1).as_str());
+                            content.push('>');
+                        }
+                        flag = true;
+                        break;
+                    }
+                }
+            }
+        }
+        // 判断下节点
+        else if i == maxh - ddis {
+            // 右侧
+            for ec in node.r_edges.iter() {
+                if ec.x > x && ec.y > y {
+                    content.push_str("-".repeat((maxw - 1) / 2).as_str());
+                    content.push('.');
+                    content.push_str(" ".repeat((maxw + 1) / 2).as_str());
+                    flag = true;
+                    break;
+                }
+            }
+            // 左侧
+            for (_nid, nnode) in self.nodes.iter() {
+                if flag {
+                    break;
+                }
+                if nnode.x <= x || node.y <= y {
+                    continue;
+                }
+                for ec in node.l_edges.iter() {
+                    if ec.id.eq(cid) {
+                        content.push_str("-".repeat((maxw - 1) / 2).as_str());
+                        content.push('.');
+                        content.push_str(" ".repeat((maxw + 1) / 2).as_str());
+                        flag = true;
+                        break;
+                    }
+                }
+            }
+        } else {
+            content.push_str(" ".repeat(maxw).as_str());
+            return content;
+        }
+        if content.len() < maxw {
+            content.push_str(" ".repeat(maxw - content.len()).as_str());
+        }
+
+        content
+    }
+
+    fn render_cell_with_edge(&self, y: usize, rbox: &Vec<RenderBox>) -> String {
         let mut content = String::new();
         let maxh = rbox.get(y).unwrap().h;
 
-        for h in 0..maxh + 1 {
+        for i in 0..maxh + 1 {
             let mut line = String::new();
             for x in 0..self.w + 1 {
-                // // render_edge_left
-                // let maxlw = rbox.get(x).unwrap().w_left;
-                // let maxrw = if x == 0 {
-                //     0
-                // } else {
-                //     rbox.get(x - 1).unwrap().w_right
-                // };
-                // let maxw = max(maxlw, maxrw);
-                // // todo render
-                // render_node
-                let maxw = rbox.get(x).unwrap().w;
-                let cid = self.canvas.get(y).unwrap().get(x).unwrap();
-                if cid.is_empty() {
-                    line.push_str(" ".repeat(maxw).as_str());
-                } else {
-                    let cell = self.members.get(cid).unwrap();
-                    line.push_str(cell.render(h, maxw, self.emode).trim_end());
-                }
+                line.push_str(self.do_render_cell(i, x, y, rbox).as_str());
+                line.push_str(self.do_render_right(i, x, y, rbox).as_str());
             }
             content.push_str(line.trim_end());
             content.push('\n');
@@ -362,8 +516,11 @@ impl AGraph {
     }
 
     // 绘制本graph
-    pub fn render(&self, rbox: &Vec<RenderNode>) -> String {
+    pub fn render(&self, rbox: &Vec<RenderBox>) -> String {
         self.print_members();
+        // 绘制分为两个部分
+        // 第一部分：绘制节点的上 edge 及上节点的下 edge
+        // 第二部分：绘制节点和节点的左右 edge 部分
         let mut content = String::new();
         for y in 0..self.h + 1 {
             let u_letters = self.render_edge_up(y, &rbox);
