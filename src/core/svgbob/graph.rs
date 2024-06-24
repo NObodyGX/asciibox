@@ -1,17 +1,18 @@
-use super::node::{ADirect, AEdge};
+use super::cell::{ACell, ADirect, AEdge};
+use super::maps::RenderNode;
 use std::cmp::max;
 use std::collections::HashMap;
 use std::ops::Not;
 
 #[derive(Debug, Clone)]
-pub struct AEdgeNode {
+pub struct AEdgeCell {
     pub x: usize,
     pub y: usize,
     id: String,
     direct: ADirect,
 }
 
-impl AEdgeNode {
+impl AEdgeCell {
     #[must_use]
     pub fn new(id: String, x: usize, y: usize, direct: ADirect) -> Self {
         Self { id, x, y, direct }
@@ -19,68 +20,83 @@ impl AEdgeNode {
 }
 
 #[derive(Debug, Clone)]
-pub struct AGraphNode {
+pub struct ANode {
     // 横坐标，对应水平行上的位置
     pub x: usize,
     // 纵坐标，对应垂直列上的位置
     pub y: usize,
     // 保留所在位置的级别，如果级别比其他的小，则保留位置，否则需要让出位置
     level: usize,
-    l_edges: Vec<AEdgeNode>,
-    r_edges: Vec<AEdgeNode>,
-    u_edges: Vec<AEdgeNode>,
-    d_edges: Vec<AEdgeNode>,
+    l_edges: Vec<AEdgeCell>,
+    r_edges: Vec<AEdgeCell>,
+    u_edges: Vec<AEdgeCell>,
+    d_edges: Vec<AEdgeCell>,
+    cell: ACell,
 }
 
-impl AGraphNode {
+impl ANode {
     #[must_use]
-    pub fn new(i: usize) -> Self {
+    pub fn new(i: usize, cell: &ACell) -> Self {
         Self {
             x: i,
             y: i,
             level: 0,
+            cell: cell.clone(),
             l_edges: Vec::new(),
             r_edges: Vec::new(),
             u_edges: Vec::new(),
             d_edges: Vec::new(),
         }
     }
+
+    pub fn w(&self) -> usize {
+        return self.cell.total_w();
+    }
+    pub fn h(&self) -> usize {
+        return self.cell.total_h();
+    }
 }
 
 #[derive(Debug, Clone)]
 pub struct AGraph {
-    members: Vec<String>,
-    edges: Vec<AEdge>,
-    pub nodes: HashMap<String, AGraphNode>,
-    limit: usize,
+    pub nodes: HashMap<String, ANode>,
     pub w: usize,
     pub h: usize,
+
+    members: HashMap<String, ACell>,
+    edges: Vec<AEdge>,
+    limit: usize,
+    // 以 (x,y) 的形式来记录相应的 node 位置，用于 render
+    canvas: Vec<Vec<String>>,
+    emode: bool,
 }
 
 impl AGraph {
-    pub fn new(limit: usize) -> Self {
+    pub fn new(limit: usize, emode: bool) -> Self {
         Self {
-            members: Vec::new(),
+            members: HashMap::new(),
             edges: Vec::new(),
             nodes: HashMap::new(),
             limit,
             w: 0,
             h: 0,
+            canvas: Vec::new(),
+            emode,
         }
     }
 
     pub fn check_member(&self, id: &String) -> bool {
-        if self.members.contains(id) {
+        if self.members.contains_key(id) {
             return true;
         }
         return false;
     }
 
-    pub fn add_member(&mut self, id: &String) {
-        if self.members.contains(id) {
+    pub fn add_member(&mut self, id: &String, cell: &ACell) {
+        if self.members.contains_key(id) {
             return;
         }
-        self.members.push(id.clone());
+        self.members.insert(id.clone(), cell.clone());
     }
 
     pub fn add_edge(&mut self, edge: &AEdge) {
@@ -91,15 +107,11 @@ impl AGraph {
     }
 
     pub fn merge(&mut self, graph: &AGraph) {
-        for id in graph.members.iter() {
-            if !self.members.contains(id) {
-                self.members.push(id.clone());
-            }
+        for (id, cell) in graph.members.iter() {
+            self.add_member(id, cell);
         }
         for edge in graph.edges.iter() {
-            if !self.edges.contains(edge) {
-                self.edges.push(edge.clone());
-            }
+            self.add_edge(edge);
         }
     }
 
@@ -168,7 +180,7 @@ impl AGraph {
         neg: bool,
     ) {
         let node = self.nodes.get_mut(src).unwrap();
-        let edge = AEdgeNode::new(dst.clone(), x, y, dir.clone());
+        let edge = AEdgeCell::new(dst.clone(), x, y, dir.clone());
         match dir {
             ADirect::Right | ADirect::Left => {
                 if neg {
@@ -274,14 +286,14 @@ impl AGraph {
     pub fn assign_seats(&mut self) {
         let l = self.members.len();
         if l == 1 {
-            for id in self.members.iter() {
-                self.nodes.insert(id.clone(), AGraphNode::new(0));
+            for (id, cell) in self.members.iter() {
+                self.nodes.insert(id.clone(), ANode::new(0, cell));
             }
             self.fit_wh();
             return;
         }
-        for id in self.members.iter() {
-            self.nodes.insert(id.clone(), AGraphNode::new(l));
+        for (id, cell) in self.members.iter() {
+            self.nodes.insert(id.clone(), ANode::new(l, cell));
         }
         for cnt in 0..self.edges.len() {
             if !self.is_remain_unseated() {
@@ -300,7 +312,93 @@ impl AGraph {
         self.fit_wh();
     }
 
-    pub fn render(&self) -> String {
+    fn render_edge_up(&self, y: usize, rbox: &Vec<RenderNode>) -> String {
+        for x in 0..self.w + 1 {
+            let _maxw = rbox.get(x).unwrap().w;
+            let _cid = self.canvas.get(y).unwrap().get(x).unwrap();
+        }
         "".to_string()
+    }
+
+    fn render_cell_with_edge(&self, y: usize, rbox: &Vec<RenderNode>) -> String {
+        let mut content = String::new();
+        let maxh = rbox.get(y).unwrap().h;
+
+        for h in 0..maxh + 1 {
+            let mut line = String::new();
+            for x in 0..self.w + 1 {
+                // // render_edge_left
+                // let maxlw = rbox.get(x).unwrap().w_left;
+                // let maxrw = if x == 0 {
+                //     0
+                // } else {
+                //     rbox.get(x - 1).unwrap().w_right
+                // };
+                // let maxw = max(maxlw, maxrw);
+                // // todo render
+                // render_node
+                let maxw = rbox.get(x).unwrap().w;
+                let cid = self.canvas.get(y).unwrap().get(x).unwrap();
+                if cid.is_empty() {
+                    line.push_str(" ".repeat(maxw).as_str());
+                } else {
+                    let cell = self.members.get(cid).unwrap();
+                    line.push_str(cell.render(h, maxw, self.emode).trim_end());
+                }
+            }
+            content.push_str(line.trim_end());
+            content.push('\n');
+        }
+
+        content
+    }
+
+    fn print_members(&self) {
+        println!("graph");
+        for (name, cell) in self.nodes.iter() {
+            println!("{}: ({}, {})", name, cell.x, cell.y);
+        }
+        println!("graph end!!!")
+    }
+
+    // 绘制本graph
+    pub fn render(&self, rbox: &Vec<RenderNode>) -> String {
+        self.print_members();
+        let mut content = String::new();
+        for y in 0..self.h + 1 {
+            let u_letters = self.render_edge_up(y, &rbox);
+            let c_letters = self.render_cell_with_edge(y, &rbox);
+            content.push_str(u_letters.trim_end());
+            content.push_str(c_letters.trim_end());
+            content.push('\n');
+        }
+
+        content
+    }
+
+    pub fn build_canvas(&mut self) {
+        // clear canvas
+        let w = self.w + 1;
+        let h = self.h + 1;
+        self.canvas = Vec::with_capacity(h);
+        for _ih in 0..h {
+            let mut a: Vec<String> = Vec::with_capacity(w);
+            for _ in 0..w {
+                a.push("".to_string());
+            }
+            self.canvas.push(a);
+        }
+
+        // fill canvas
+        for (id, node) in self.nodes.iter() {
+            let x = node.x;
+            let y = node.y;
+            match self.canvas.get_mut(y) {
+                Some(v) => {
+                    v[x] = id.clone();
+                }
+                None => {}
+            }
+        }
     }
 }

@@ -1,4 +1,4 @@
-use super::node::{ADirect, ASharp};
+use super::cell::{ADirect, ASharp};
 
 fn split_node_char<'a>(
     input: &'a str,

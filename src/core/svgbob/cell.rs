@@ -76,17 +76,11 @@ pub enum ASharp {
 }
 
 #[derive(Clone, Debug, Eq, Hash)]
-pub struct ANode {
-    // 节点排序用序号
-    pub idx: usize,
+pub struct ACell {
     // 节点 id
     pub id: String,
     // 节点展示内容原始值
     pub name: String,
-    // 横坐标，对应水平行上的位置
-    pub x: usize,
-    // 纵坐标，对应垂直列上的位置
-    pub y: usize,
     // 内容宽度
     pub w: usize,
     // 内容高度
@@ -100,7 +94,7 @@ pub struct ANode {
     sharp: ASharp,
 }
 
-impl ANode {
+impl ACell {
     #[must_use]
     pub fn new(id: &str, name: String, x: usize, y: usize) -> Self {
         let nid = String::from(id).trim().to_string();
@@ -116,14 +110,11 @@ impl ANode {
         Self {
             id: nid,
             name: nname,
-            x,
-            y,
             w,
             h,
             words,
             arrows: Vec::new(),
             arrows_no_render: Vec::new(),
-            idx: 0,
             sharp: ASharp::Round,
         }
     }
@@ -211,13 +202,13 @@ impl ANode {
     }
 }
 
-impl fmt::Display for ANode {
+impl fmt::Display for ACell {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "GNode({})", self.id)
     }
 }
 
-impl PartialEq for ANode {
+impl PartialEq for ACell {
     fn eq(&self, other: &Self) -> bool {
         self.id == other.id && self.name == other.name
     }

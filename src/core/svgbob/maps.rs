@@ -1,5 +1,5 @@
+use super::cell::{ACell, ADirect, AEdge, ASharp};
 use super::graph::AGraph;
-use super::node::{ADirect, AEdge, ANode, ASharp};
 use super::parse::{parse_edge, parse_node};
 use std::cmp::{max, min};
 use std::collections::HashMap;
@@ -18,21 +18,15 @@ pub struct RenderNode {
 #[derive(Debug, Clone)]
 pub struct AMap {
     // 记录所有 node 信息
-    nodes: HashMap<String, ANode>,
-    // 记录所有 id --> node.id 信息
-    node_ids: HashMap<usize, String>,
+    cells: HashMap<String, ACell>,
     // 记录所有 edge 信息
     edges: Vec<AEdge>,
-    // 以 (x,y) 的形式来记录相应的 node 位置，用于 render
-    canvas: Vec<Vec<usize>>,
     // 以列表的形式来判断组
     graphs: Vec<AGraph>,
     // max w
     w: usize,
     // max h
     h: usize,
-    // node 的序号生成起始值
-    idx: usize,
     // 是否扩展 box 保证相同
     expand_mode: bool,
 }
@@ -40,32 +34,27 @@ pub struct AMap {
 impl AMap {
     pub fn new(expand_mode: bool) -> Self {
         Self {
-            nodes: HashMap::new(),
-            node_ids: HashMap::new(),
+            cells: HashMap::new(),
             edges: Vec::new(),
-            canvas: Vec::new(),
             graphs: Vec::new(),
             w: 0,
             h: 0,
-            idx: 1,
             expand_mode,
         }
     }
 
     fn clear(&mut self) {
         self.edges = Vec::new();
-        self.nodes = HashMap::new();
-        self.node_ids = HashMap::new();
+        self.cells = HashMap::new();
         self.graphs = Vec::new();
         self.w = 0;
         self.h = 0;
-        self.idx = 1;
     }
 
     // 从输入内容里解析 node 和 edge
     // 这里会做一点预处理
     // TODO: 考虑直接支持多行文本
-    fn build_nodes(&mut self, content: &str) {
+    fn build_cells(&mut self, content: &str) {
         let lines: Vec<&str> = content
             .split('\n')
             .filter(|&s| !s.trim().is_empty())
@@ -84,7 +73,7 @@ impl AMap {
         let mut direct: ADirect;
         let mut lid: String;
         let mut rid: String;
-        let mut node: ANode;
+        let mut node: ACell;
         let mut id: &str;
         let mut name: &str;
         let mut sharp: ASharp;
@@ -92,7 +81,7 @@ impl AMap {
 
         // 第一个 node
         (id, name, sharp, text) = parse_node(line);
-        node = ANode::new(id, name.to_string(), 0, 0);
+        node = ACell::new(id, name.to_string(), 0, 0);
         node.set_sharp(sharp);
         lid = node.id.clone();
         self.add_node(&node);
@@ -110,7 +99,7 @@ impl AMap {
             if id.len() == 0 {
                 break;
             }
-            node = ANode::new(id, name.to_string(), 0, 0);
+            node = ACell::new(id, name.to_string(), 0, 0);
             node.set_sharp(sharp);
             rid = node.id.clone();
             self.add_node(&node);
@@ -122,49 +111,12 @@ impl AMap {
     }
 
     // 将 node 加入到 graph 中
-    fn add_node(&mut self, node: &ANode) -> bool {
-        if self.nodes.contains_key(&node.id) {
+    fn add_node(&mut self, node: &ACell) -> bool {
+        if self.cells.contains_key(&node.id) {
             return false;
         }
-        let mut n_node = node.clone();
-        n_node.idx = self.idx;
-        self.idx += 1;
-        self.node_ids.insert(n_node.idx.clone(), n_node.id.clone());
-        self.nodes.insert(n_node.id.clone(), n_node);
+        self.cells.insert(node.id.clone(), node.clone());
         true
-    }
-
-    fn get_node_by_index(&self, idx: &usize) -> &ANode {
-        let id = self.node_ids.get(idx).unwrap();
-        self.nodes.get(id).unwrap()
-    }
-
-    fn clear_canvas(&mut self) {
-        let w = self.w + 1;
-        let h = self.h + 1;
-        self.canvas = Vec::with_capacity(h);
-        for _ih in 0..h {
-            let mut a: Vec<usize> = Vec::with_capacity(w);
-            for _ in 0..w {
-                a.push(0);
-            }
-            self.canvas.push(a);
-        }
-    }
-
-    // 将所有的 nodes 加入
-    fn build_canvas(&mut self) {
-        self.clear_canvas();
-        for (_id, node) in self.nodes.iter() {
-            let x = node.x;
-            let y = node.y;
-            match self.canvas.get_mut(y) {
-                Some(v) => {
-                    v[x] = node.idx;
-                }
-                None => {}
-            }
-        }
     }
 
     fn search_is_member(&self, id: &String) -> usize {
@@ -176,36 +128,47 @@ impl AMap {
         self.graphs.len()
     }
 
-    fn add_into_graph(&mut self, mid1: &String, mid2: &String, edge: &AEdge) {
+    // 添加互相联系的节点
+    fn add_into_graph(&mut self, sid: &String, did: &String, edge: &AEdge) {
         let l = self.graphs.len();
-        let lock1: usize = self.search_is_member(mid1);
-        let lock2: usize = self.search_is_member(mid2);
-        if lock1 == l && lock2 == l {
-            let mut graph = AGraph::new(999);
-            graph.add_member(mid1);
-            graph.add_member(mid2);
+        let slock: usize = self.search_is_member(sid);
+        let dlock: usize = self.search_is_member(did);
+        let src = self.cells.get(sid).unwrap();
+        let dst = self.cells.get(did).unwrap();
+        // 都不在 graph 中
+        if slock == l && dlock == l {
+            let mut graph = AGraph::new(999, self.expand_mode);
+            graph.add_member(sid, src);
+            graph.add_member(did, dst);
             graph.add_edge(edge);
             self.graphs.push(graph);
             return;
-        } else if lock1 == l {
-            let graph = self.graphs.get_mut(lock2).unwrap();
-            graph.add_member(mid1);
+        }
+        // dst 在
+        else if slock == l {
+            let graph = self.graphs.get_mut(dlock).unwrap();
+            graph.add_member(sid, src);
             graph.add_edge(edge);
-        } else if lock2 == l {
-            let graph = self.graphs.get_mut(lock1).unwrap();
-            graph.add_member(mid2);
+        }
+        // src 在
+        else if dlock == l {
+            let graph = self.graphs.get_mut(slock).unwrap();
+            graph.add_member(did, dst);
             graph.add_edge(edge);
-        } else {
-            let g1 = self.graphs.get(max(lock1, lock2)).unwrap().clone();
-            let g2 = self.graphs.get_mut(min(lock1, lock2)).unwrap();
+        }
+        // 各自都在，合并 graph
+        else {
+            let g1 = self.graphs.get(max(slock, dlock)).unwrap().clone();
+            let g2 = self.graphs.get_mut(min(slock, dlock)).unwrap();
             g2.merge(&g1);
             g2.add_edge(edge);
-            self.graphs.remove(max(lock1, lock2));
+            self.graphs.remove(max(slock, dlock));
         }
     }
 
+    // 添加孤儿的节点
     fn add_orphan_graph(&mut self) {
-        for (id, _node) in self.nodes.iter() {
+        for (id, cell) in self.cells.iter() {
             let mut flag = false;
             for graph in self.graphs.iter() {
                 if graph.check_member(id) {
@@ -216,15 +179,36 @@ impl AMap {
             if flag {
                 continue;
             }
-            let mut graph = AGraph::new(1);
-            graph.add_member(id);
+            let mut graph = AGraph::new(1, self.expand_mode);
+            graph.add_member(id, cell);
             self.graphs.push(graph);
         }
     }
 
+    fn build_render_box(&self) -> Vec<RenderNode> {
+        let mut rboxes: Vec<RenderNode> = Vec::new();
+        for _ in 0..max(self.w + 1, self.h + 1) {
+            rboxes.push(RenderNode::default());
+        }
+        // 先计算显示的长宽
+        for graph in self.graphs.iter() {
+            for (_id, node) in graph.nodes.iter() {
+                for (i, cbox) in rboxes.iter_mut().enumerate() {
+                    if i == node.x as usize {
+                        cbox.w = max(cbox.w, node.w());
+                    }
+                    if i == node.y as usize {
+                        cbox.h = max(cbox.h, node.h());
+                    }
+                }
+            }
+        }
+        rboxes
+    }
+
     // 重排 nodes 之间的位置
     fn build_board(&mut self) {
-        let length = self.nodes.len();
+        let length = self.cells.len();
         self.graphs = Vec::with_capacity(length);
         // 先添加集合体
         for edge in self.edges.clone().iter() {
@@ -242,98 +226,22 @@ impl AMap {
         self.h = 0;
         for graph in self.graphs.iter() {
             self.w = max(self.w, graph.w);
-            for (id, node) in graph.nodes.iter() {
-                let nnode = self.nodes.get_mut(id).unwrap();
-                nnode.x = node.x;
-                nnode.y = self.h + node.y;
-            }
             self.h += graph.h;
         }
-    }
 
-    fn __show_position(&self) {
-        for (id, node) in self.nodes.iter() {
-            println!("{}: ({}, {})", id, node.x, node.y);
+        for graph in self.graphs.iter_mut() {
+            graph.build_canvas();
         }
-    }
-
-    fn build_render_nodes(&self) -> Vec<RenderNode> {
-        let mut rboxes: Vec<RenderNode> = Vec::new();
-        for _ in 0..max(self.w + 1, self.h + 1) {
-            rboxes.push(RenderNode::default());
-        }
-        // 先计算显示的长宽
-        for (_id, node) in self.nodes.iter() {
-            for (i, cbox) in rboxes.iter_mut().enumerate() {
-                if i == node.x as usize {
-                    cbox.w = max(cbox.w, node.total_w());
-                }
-                if i == node.y as usize {
-                    cbox.h = max(cbox.h, node.total_h());
-                }
-            }
-        }
-        rboxes
-    }
-
-    fn render_edge_up(&self, y: usize, rbox: &Vec<RenderNode>) -> String {
-        for x in 0..self.w + 1 {
-            let _maxw = rbox.get(x).unwrap().w;
-            let _rid = self.canvas.get(y).unwrap().get(x).unwrap();
-        }
-        "".to_string()
-    }
-
-    fn render_node_with_edge(&self, y: usize, rbox: &Vec<RenderNode>) -> String {
-        let mut content = String::new();
-        let emode = self.expand_mode;
-        let maxh = rbox.get(y).unwrap().h;
-
-        for h in 0..maxh + 1 {
-            let mut line = String::new();
-            for x in 0..self.w + 1 {
-                // // render_edge_left
-                // let maxlw = rbox.get(x).unwrap().w_left;
-                // let maxrw = if x == 0 {
-                //     0
-                // } else {
-                //     rbox.get(x - 1).unwrap().w_right
-                // };
-                // let maxw = max(maxlw, maxrw);
-                // // todo render
-                // render_node
-                let maxw = rbox.get(x).unwrap().w;
-                let nid = self.canvas.get(y).unwrap().get(x).unwrap();
-                if nid == &0 {
-                    line.push_str(" ".repeat(maxw).as_str());
-                } else {
-                    let node = self.get_node_by_index(nid);
-                    line.push_str(node.render(h, maxw, emode).trim_end());
-                }
-            }
-            content.push_str(line.trim_end());
-            content.push('\n');
-        }
-
-        content
     }
 
     fn render(&self) -> String {
         // 绘制分为两个部分
         // 第一部分：绘制节点的上 edge 部分（包括上节点的下edge部分）
         // 第二部分：绘制节点和节点的左右 edge 部分
-        self.__show_position();
-        let rbox: Vec<RenderNode> = self.build_render_nodes();
+        let rbox: Vec<RenderNode> = self.build_render_box();
         let mut content = String::new();
         for graph in self.graphs.iter() {
-            content.push_str(graph.render().trim_end());
-            content.push('\n');
-        }
-        for y in 0..self.h + 1 {
-            let u_letters = self.render_edge_up(y, &rbox);
-            let c_letters = self.render_node_with_edge(y, &rbox);
-            content.push_str(u_letters.trim_end());
-            content.push_str(c_letters.trim_end());
+            content.push_str(graph.render(&rbox).trim_end());
             content.push('\n');
         }
         content
@@ -341,9 +249,8 @@ impl AMap {
 
     pub fn load_content(&mut self, content: &str) -> String {
         self.clear();
-        self.build_nodes(content);
+        self.build_cells(content);
         self.build_board();
-        self.build_canvas();
         println!("load content done.");
         let content = self.render();
         content
