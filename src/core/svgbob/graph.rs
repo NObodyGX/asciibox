@@ -6,10 +6,10 @@ use std::ops::Not;
 
 #[derive(Debug, Clone)]
 pub struct AEdgeCell {
-    // 目的所在位置（绝对值）
-    pub x: usize,
-    // 目的所在位置（绝对值）
-    pub y: usize,
+    // 目的所在位置(相对值)
+    pub ox: i16,
+    // 目的所在位置(相对值)
+    pub oy: i16,
     // dst id
     pub id: String,
     // 方向
@@ -18,8 +18,8 @@ pub struct AEdgeCell {
 
 impl AEdgeCell {
     #[must_use]
-    pub fn new(id: String, x: usize, y: usize, direct: ADirect) -> Self {
-        Self { id, x, y, direct }
+    pub fn new(id: String, ox: i16, oy: i16, direct: ADirect) -> Self {
+        Self { id, ox, oy, direct }
     }
 }
 
@@ -31,6 +31,8 @@ pub struct ANode {
     pub y: usize,
     // 保留所在位置的级别，如果级别比其他的小，则保留位置，否则需要让出位置
     level: usize,
+    // 位置是否已经固定
+    locked: bool,
     l_edges: Vec<AEdgeCell>,
     r_edges: Vec<AEdgeCell>,
     u_edges: Vec<AEdgeCell>,
@@ -40,11 +42,12 @@ pub struct ANode {
 
 impl ANode {
     #[must_use]
-    pub fn new(i: usize, cell: &ACell) -> Self {
+    pub fn new(cell: &ACell) -> Self {
         Self {
-            x: i,
-            y: i,
+            x: 0,
+            y: 0,
             level: 0,
+            locked: false,
             cell: cell.clone(),
             l_edges: Vec::new(),
             r_edges: Vec::new(),
@@ -139,7 +142,7 @@ impl AGraph {
         }
     }
 
-    fn is_node_exist(&self, x: usize, y: usize) -> bool {
+    fn is_pos_exist_node(&self, x: usize, y: usize) -> bool {
         for (_id, node) in self.nodes.iter() {
             if node.x == x && node.y == y {
                 return true;
@@ -153,23 +156,27 @@ impl AGraph {
         node.x = x;
         node.y = y;
         node.level = level;
+        node.locked = true;
     }
 
     fn try_move(&mut self, id: &String, x: usize, y: usize, level: usize) -> bool {
-        if !self.is_node_exist(x, y) {
+        if !self.is_pos_exist_node(x, y) {
             self.node_move(id, x, y, level);
             return true;
         }
         false
     }
 
-    fn is_node_located(&self, id: &String) -> bool {
+    // 判断节点位置是否已经固定
+    fn is_node_locked(&self, id: &String) -> bool {
         let node = self.nodes.get(id).unwrap();
-        node.x != self.nodes.len()
+        node.locked
     }
-    fn is_remain_unseated(&self) -> bool {
+
+    // 是否有未固定的节点
+    fn is_remain_unlocked(&self) -> bool {
         for (_name, node) in self.nodes.iter() {
-            if node.x == self.nodes.len() {
+            if !node.locked {
                 return true;
             }
         }
@@ -199,12 +206,12 @@ impl AGraph {
         src: &String,
         dst: &String,
         dir: ADirect,
-        x: usize,
-        y: usize,
+        ox: i16,
+        oy: i16,
         neg: bool,
     ) {
         let node = self.nodes.get_mut(src).unwrap();
-        let edge = AEdgeCell::new(dst.clone(), x, y, dir.clone());
+        let edge = AEdgeCell::new(dst.clone(), ox, oy, dir.clone());
         match dir {
             ADirect::Right | ADirect::Left => {
                 if neg {
@@ -231,9 +238,10 @@ impl AGraph {
         }
     }
 
-    fn assign_node_seat(&mut self, src: &String, dst: &String, direct: ADirect) {
-        let l1 = self.is_node_located(src);
-        let l2 = self.is_node_located(dst);
+    // 固定 src 和 dst 的位置
+    fn assign_node_seat(&mut self, src: &String, dst: &String, direct: &ADirect) {
+        let l1 = self.is_node_locked(src);
+        let l2 = self.is_node_locked(dst);
         if !l1 && !l2 {
             return;
         }
@@ -251,15 +259,12 @@ impl AGraph {
                     self.nodes_right();
                 }
                 let nx = if !neg { x + 1 } else { max(x, 1) - 1 };
-                if !self.try_move(dst, nx, y, 1) {
-                    for i in 1..self.limit {
-                        if self.try_move(dst, nx, y + i, 1 + i) {
-                            self.add_edge_node(src, dst, dir, nx, y + i, neg);
-                            break;
-                        }
+                for i in 0..self.limit {
+                    if !self.try_move(dst, nx, y + i, 1 + i * 2) {
+                        continue;
                     }
-                } else {
-                    self.add_edge_node(src, dst, dir, nx, y, neg);
+                    self.add_edge_node(src, dst, dir, nx as i16 - x as i16, i as i16, neg);
+                    break;
                 }
             }
             ADirect::Up => {
@@ -268,15 +273,12 @@ impl AGraph {
                     self.nodes_down();
                 }
                 let ny = if !neg { max(y, 1) - 1 } else { y + 1 };
-                if !self.try_move(dst, x, ny, 1) {
-                    for i in 1..self.limit {
-                        if self.try_move(dst, x + i, ny, 1 + i * 2) {
-                            self.add_edge_node(src, dst, dir, x + i, ny, neg);
-                            break;
-                        }
+                for i in 0..self.limit {
+                    if !self.try_move(dst, x + i, ny, 1 + i * 2) {
+                        continue;
                     }
-                } else {
-                    self.add_edge_node(src, dst, dir, x, ny, neg);
+                    self.add_edge_node(src, dst, dir, i as i16, ny as i16 - y as i16, neg);
+                    break;
                 }
             }
             ADirect::Down => {
@@ -285,15 +287,12 @@ impl AGraph {
                     self.nodes_down();
                 }
                 let ny = if !neg { y + 1 } else { max(y, 1) - 1 };
-                if !self.try_move(dst, x, ny, 1) {
-                    for i in 1..self.limit {
-                        if self.try_move(dst, x + i, ny, 1 + i * 2) {
-                            self.add_edge_node(src, dst, dir, x + i, ny, neg);
-                            break;
-                        }
+                for i in 0..self.limit {
+                    if !self.try_move(dst, x + i, ny, 1 + i * 2) {
+                        continue;
                     }
-                } else {
-                    self.add_edge_node(src, dst, dir, x, ny, neg);
+                    self.add_edge_node(src, dst, dir, i as i16, ny as i16 - y as i16, neg);
+                    break;
                 }
             }
             _ => {}
@@ -307,30 +306,32 @@ impl AGraph {
         }
     }
 
+    // 分配所有的节点位置
     pub fn assign_seats(&mut self) {
         let l = self.members.len();
         if l == 1 {
             for (id, cell) in self.members.iter() {
-                self.nodes.insert(id.clone(), ANode::new(0, cell));
+                self.nodes.insert(id.clone(), ANode::new(cell));
             }
             self.fit_wh();
             return;
         }
+        // 生成所有节点
         for (id, cell) in self.members.iter() {
-            self.nodes.insert(id.clone(), ANode::new(l, cell));
+            self.nodes.insert(id.clone(), ANode::new(cell));
         }
+        // 根据 edge 依次排列节点的位置
         for cnt in 0..self.edges.len() {
-            if !self.is_remain_unseated() {
+            if !self.is_remain_unlocked() {
                 break;
             }
             for (i, edge) in self.edges.clone().iter().enumerate() {
                 let src = &edge.src;
                 let dst = &edge.dst;
-                let direct = edge.direct.clone();
                 if i == 0 && cnt == 0 {
                     self.node_move(src, 0, 0, 1);
                 }
-                self.assign_node_seat(src, dst, direct);
+                self.assign_node_seat(src, dst, &edge.direct);
             }
         }
         self.fit_wh();
@@ -383,7 +384,7 @@ impl AGraph {
         if i == udis {
             // 右侧
             for ec in node.r_edges.iter() {
-                if ec.x > x && ec.y < y {
+                if ec.ox > 0 && ec.oy < 0 {
                     content.push_str("-".repeat((maxw + 1) / 2).as_str());
                     content.push('\'');
                     content.push_str(" ".repeat((maxw - 1) / 2).as_str());
@@ -392,14 +393,14 @@ impl AGraph {
                 }
             }
             // 左侧
-            for (_nid, nnode) in self.nodes.iter() {
+            for (_nid, aode) in self.nodes.iter() {
                 if flag {
                     break;
                 }
-                if nnode.x <= x || node.y <= y {
+                if !(aode.x > x && aode.y > y) {
                     continue;
                 }
-                for ec in node.l_edges.iter() {
+                for ec in aode.l_edges.iter() {
                     if ec.id.eq(cid) {
                         content.push_str("-".repeat((maxw - 1) / 2).as_str());
                         content.push('\'');
@@ -414,7 +415,7 @@ impl AGraph {
         else if i == maxh / 2 {
             // 右侧
             for ec in node.r_edges.iter() {
-                if ec.x > x && ec.y == y {
+                if ec.ox > 0 && ec.oy == 0 {
                     if ec.direct == ADirect::Left {
                         content.push('<');
                         content.push_str("-".repeat(maxw - 1).as_str());
@@ -427,14 +428,14 @@ impl AGraph {
                 }
             }
             // 左侧
-            for (_nid, nnode) in self.nodes.iter() {
+            for (_nid, aode) in self.nodes.iter() {
                 if flag {
                     break;
                 }
-                if nnode.x <= x || node.y != y {
+                if aode.x <= x || aode.y != y {
                     continue;
                 }
-                for ec in node.l_edges.iter() {
+                for ec in aode.l_edges.iter() {
                     if ec.id.eq(cid) {
                         if ec.direct == ADirect::Left {
                             content.push('<');
@@ -453,7 +454,7 @@ impl AGraph {
         else if i == maxh - ddis {
             // 右侧
             for ec in node.r_edges.iter() {
-                if ec.x > x && ec.y > y {
+                if ec.ox > 0 && ec.oy > 0 {
                     content.push_str("-".repeat((maxw - 1) / 2).as_str());
                     content.push('.');
                     content.push_str(" ".repeat((maxw + 1) / 2).as_str());
@@ -462,14 +463,14 @@ impl AGraph {
                 }
             }
             // 左侧
-            for (_nid, nnode) in self.nodes.iter() {
+            for (_nid, aode) in self.nodes.iter() {
                 if flag {
                     break;
                 }
-                if nnode.x <= x || node.y <= y {
+                if aode.x <= x || aode.y <= y {
                     continue;
                 }
-                for ec in node.l_edges.iter() {
+                for ec in aode.l_edges.iter() {
                     if ec.id.eq(cid) {
                         content.push_str("-".repeat((maxw - 1) / 2).as_str());
                         content.push('.');
