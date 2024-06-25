@@ -1,88 +1,9 @@
-use super::cell::{ACell, ADirect, AEdge};
+use super::cell::{Arrow, Cell, Direct};
 use super::maps::RenderBox;
+use super::node::{AEdgeCell, ANode};
 use std::cmp::{max, min};
 use std::collections::HashMap;
 use std::ops::Not;
-
-#[derive(Debug, Clone)]
-pub struct AEdgeCell {
-    // 目的所在位置(相对值)
-    pub ox: i16,
-    // 目的所在位置(相对值)
-    pub oy: i16,
-    // dst id
-    pub id: String,
-    // 方向
-    pub direct: ADirect,
-}
-
-impl AEdgeCell {
-    #[must_use]
-    pub fn new(id: String, ox: i16, oy: i16, direct: ADirect) -> Self {
-        Self { id, ox, oy, direct }
-    }
-}
-
-#[derive(Debug, Clone)]
-pub struct ANode {
-    // 横坐标，对应水平行上的位置
-    pub x: usize,
-    // 纵坐标，对应垂直列上的位置
-    pub y: usize,
-    // 保留所在位置的级别，如果级别比其他的小，则保留位置，否则需要让出位置
-    level: usize,
-    // 位置是否已经固定
-    locked: bool,
-    l_edges: Vec<AEdgeCell>,
-    r_edges: Vec<AEdgeCell>,
-    u_edges: Vec<AEdgeCell>,
-    d_edges: Vec<AEdgeCell>,
-    cell: ACell,
-}
-
-impl ANode {
-    #[must_use]
-    pub fn new(cell: &ACell) -> Self {
-        Self {
-            x: 0,
-            y: 0,
-            level: 0,
-            locked: false,
-            cell: cell.clone(),
-            l_edges: Vec::new(),
-            r_edges: Vec::new(),
-            u_edges: Vec::new(),
-            d_edges: Vec::new(),
-        }
-    }
-
-    pub fn w(&self) -> usize {
-        return self.cell.total_w();
-    }
-    pub fn left(&self) -> usize {
-        let w = match self.l_edges.len() {
-            0 => 0,
-            1 => 3,
-            2 => 5,
-            3 => 5,
-            _ => 5,
-        };
-        return w;
-    }
-    pub fn right(&self) -> usize {
-        let w = match self.r_edges.len() {
-            0 => 0,
-            1 => 3,
-            2 => 5,
-            3 => 5,
-            _ => 5,
-        };
-        return w;
-    }
-    pub fn h(&self) -> usize {
-        return self.cell.total_h();
-    }
-}
 
 #[derive(Debug, Clone)]
 pub struct AGraph {
@@ -90,11 +11,12 @@ pub struct AGraph {
     pub w: usize,
     pub h: usize,
 
-    members: HashMap<String, ACell>,
-    edges: Vec<AEdge>,
+    members: HashMap<String, Cell>,
+    edges: Vec<Arrow>,
     limit: usize,
     // 以 (x,y) 的形式来记录相应的 node 位置，用于 render
     canvas: Vec<Vec<String>>,
+    edge_canvas: HashMap<String, Vec<AEdgeCell>>,
     emode: bool,
 }
 
@@ -109,6 +31,7 @@ impl AGraph {
             h: 0,
             canvas: Vec::new(),
             emode,
+            edge_canvas: HashMap::new(),
         }
     }
 
@@ -119,14 +42,14 @@ impl AGraph {
         return false;
     }
 
-    pub fn add_member(&mut self, id: &String, cell: &ACell) {
+    pub fn add_member(&mut self, id: &String, cell: &Cell) {
         if self.members.contains_key(id) {
             return;
         }
         self.members.insert(id.clone(), cell.clone());
     }
 
-    pub fn add_edge(&mut self, edge: &AEdge) {
+    pub fn add_edge(&mut self, edge: &Arrow) {
         if self.edges.contains(edge) {
             return;
         }
@@ -201,45 +124,40 @@ impl AGraph {
         }
     }
 
+    // 将 edge 添加到 node 上，为了渲染方便，只保留 right/down 两边的结构
+
     fn add_edge_node(
         &mut self,
         src: &String,
         dst: &String,
-        dir: ADirect,
+        dir: Direct,
         ox: i16,
         oy: i16,
         neg: bool,
     ) {
-        let node = self.nodes.get_mut(src).unwrap();
-        let edge = AEdgeCell::new(dst.clone(), ox, oy, dir.clone());
+        let flag = match dir {
+            Direct::Right | Direct::Left => !neg,
+            Direct::Up => neg,
+            Direct::Down => !neg,
+            _ => false,
+        };
+
+        let (si, di) = if flag { (src, dst) } else { (dst, src) };
+        let edge = AEdgeCell::new(di.clone(), ox, oy, dir.clone());
+        let node = self.nodes.get_mut(si).unwrap();
         match dir {
-            ADirect::Right | ADirect::Left => {
-                if neg {
-                    node.l_edges.push(edge);
-                } else {
-                    node.r_edges.push(edge);
-                }
+            Direct::Right | Direct::Left => {
+                node.r_edges.push(edge);
             }
-            ADirect::Up => {
-                if neg {
-                    node.d_edges.push(edge);
-                } else {
-                    node.u_edges.push(edge);
-                }
-            }
-            ADirect::Down => {
-                if neg {
-                    node.u_edges.push(edge);
-                } else {
-                    node.d_edges.push(edge);
-                }
+            Direct::Up | Direct::Down => {
+                node.d_edges.push(edge);
             }
             _ => {}
         }
     }
 
     // 固定 src 和 dst 的位置
-    fn assign_node_seat(&mut self, src: &String, dst: &String, direct: &ADirect) {
+    fn assign_node_seat(&mut self, src: &String, dst: &String, direct: &Direct) {
         let l1 = self.is_node_locked(src);
         let l2 = self.is_node_locked(dst);
         if !l1 && !l2 {
@@ -254,7 +172,7 @@ impl AGraph {
         let x = self.nodes.get(src).unwrap().x;
         let y = self.nodes.get(src).unwrap().y;
         match dir {
-            ADirect::Left | ADirect::Right => {
+            Direct::Left | Direct::Right => {
                 if x == 0 && neg {
                     self.nodes_right();
                 }
@@ -267,7 +185,7 @@ impl AGraph {
                     break;
                 }
             }
-            ADirect::Up => {
+            Direct::Up => {
                 // src --^ dst
                 if y == 0 && !neg {
                     self.nodes_down();
@@ -281,7 +199,7 @@ impl AGraph {
                     break;
                 }
             }
-            ADirect::Down => {
+            Direct::Down => {
                 // src --v dst
                 if y == 0 && neg {
                     self.nodes_down();
@@ -379,7 +297,6 @@ impl AGraph {
 
         let udis = ((maxh - 1) / 2 - 1) / 2;
         let ddis = ((maxh + 1) / 2 + 1) / 2;
-        let mut flag: bool = false;
         // 判断上节点
         if i == udis {
             // 右侧
@@ -388,26 +305,7 @@ impl AGraph {
                     content.push_str("-".repeat((maxw + 1) / 2).as_str());
                     content.push('\'');
                     content.push_str(" ".repeat((maxw - 1) / 2).as_str());
-                    flag = true;
                     break;
-                }
-            }
-            // 左侧
-            for (_nid, aode) in self.nodes.iter() {
-                if flag {
-                    break;
-                }
-                if !(aode.x > x && aode.y > y) {
-                    continue;
-                }
-                for ec in aode.l_edges.iter() {
-                    if ec.id.eq(cid) {
-                        content.push_str("-".repeat((maxw - 1) / 2).as_str());
-                        content.push('\'');
-                        content.push_str(" ".repeat((maxw + 1) / 2).as_str());
-                        flag = true;
-                        break;
-                    }
                 }
             }
         }
@@ -416,37 +314,14 @@ impl AGraph {
             // 右侧
             for ec in node.r_edges.iter() {
                 if ec.ox > 0 && ec.oy == 0 {
-                    if ec.direct == ADirect::Left {
+                    if ec.direct == Direct::Left {
                         content.push('<');
                         content.push_str("-".repeat(maxw - 1).as_str());
                     } else {
                         content.push_str("-".repeat(maxw - 1).as_str());
                         content.push('>');
                     }
-                    flag = true;
                     break;
-                }
-            }
-            // 左侧
-            for (_nid, aode) in self.nodes.iter() {
-                if flag {
-                    break;
-                }
-                if aode.x <= x || aode.y != y {
-                    continue;
-                }
-                for ec in aode.l_edges.iter() {
-                    if ec.id.eq(cid) {
-                        if ec.direct == ADirect::Left {
-                            content.push('<');
-                            content.push_str("-".repeat(maxw - 1).as_str());
-                        } else {
-                            content.push_str("-".repeat(maxw - 1).as_str());
-                            content.push('>');
-                        }
-                        flag = true;
-                        break;
-                    }
                 }
             }
         }
@@ -458,26 +333,7 @@ impl AGraph {
                     content.push_str("-".repeat((maxw - 1) / 2).as_str());
                     content.push('.');
                     content.push_str(" ".repeat((maxw + 1) / 2).as_str());
-                    flag = true;
                     break;
-                }
-            }
-            // 左侧
-            for (_nid, aode) in self.nodes.iter() {
-                if flag {
-                    break;
-                }
-                if aode.x <= x || aode.y <= y {
-                    continue;
-                }
-                for ec in aode.l_edges.iter() {
-                    if ec.id.eq(cid) {
-                        content.push_str("-".repeat((maxw - 1) / 2).as_str());
-                        content.push('.');
-                        content.push_str(" ".repeat((maxw + 1) / 2).as_str());
-                        flag = true;
-                        break;
-                    }
                 }
             }
         } else {
@@ -539,6 +395,7 @@ impl AGraph {
         let w = self.w + 1;
         let h = self.h + 1;
         self.canvas = Vec::with_capacity(h);
+        self.edge_canvas = HashMap::new();
         for _ih in 0..h {
             let mut a: Vec<String> = Vec::with_capacity(w);
             for _ in 0..w {

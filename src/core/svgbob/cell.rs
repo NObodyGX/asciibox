@@ -2,7 +2,7 @@ use crate::core::utils::cn_length;
 use std::{fmt, ops::Not};
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
-pub enum ADirect {
+pub enum Direct {
     None,
     Double,
     Left,
@@ -19,38 +19,38 @@ pub enum ADirect {
     // DownRight,
 }
 
-impl ToString for ADirect {
+impl ToString for Direct {
     fn to_string(&self) -> String {
         match self {
-            ADirect::None => String::from("none"),
-            ADirect::Double => String::from("double"),
-            ADirect::Left => String::from("left"),
-            ADirect::Right => String::from("right"),
-            ADirect::Up => String::from("up"),
-            ADirect::Down => String::from("down"),
-            ADirect::LeftUp => String::from("leftup"),
-            ADirect::LeftDown => String::from("leftdown"),
-            ADirect::RightUp => String::from("rightup"),
-            ADirect::RightDown => String::from("rightdown"),
+            Direct::None => String::from("none"),
+            Direct::Double => String::from("double"),
+            Direct::Left => String::from("left"),
+            Direct::Right => String::from("right"),
+            Direct::Up => String::from("up"),
+            Direct::Down => String::from("down"),
+            Direct::LeftUp => String::from("leftup"),
+            Direct::LeftDown => String::from("leftdown"),
+            Direct::RightUp => String::from("rightup"),
+            Direct::RightDown => String::from("rightdown"),
         }
     }
 }
 
-impl Not for ADirect {
+impl Not for Direct {
     type Output = Self;
 
     fn not(self) -> Self::Output {
         match self {
-            ADirect::None => ADirect::None,
-            ADirect::Double => ADirect::Double,
-            ADirect::Left => ADirect::Right,
-            ADirect::Right => ADirect::Left,
-            ADirect::Up => ADirect::Down,
-            ADirect::Down => ADirect::Up,
-            ADirect::LeftUp => ADirect::RightDown,
-            ADirect::LeftDown => ADirect::RightUp,
-            ADirect::RightUp => ADirect::LeftDown,
-            ADirect::RightDown => ADirect::LeftUp,
+            Direct::None => Direct::None,
+            Direct::Double => Direct::Double,
+            Direct::Left => Direct::Right,
+            Direct::Right => Direct::Left,
+            Direct::Up => Direct::Down,
+            Direct::Down => Direct::Up,
+            Direct::LeftUp => Direct::RightDown,
+            Direct::LeftDown => Direct::RightUp,
+            Direct::RightUp => Direct::LeftDown,
+            Direct::RightDown => Direct::LeftUp,
         }
     }
 }
@@ -61,11 +61,11 @@ pub struct RBox {
     pub w_right: usize,
     pub h_up: usize,
     pub h_down: usize,
-    pub left: ADirect,
-    pub right: ADirect,
-    pub up: ADirect,
-    pub down: ADirect,
-    pub left_down: ADirect,
+    pub left: Direct,
+    pub right: Direct,
+    pub up: Direct,
+    pub down: Direct,
+    pub left_down: Direct,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
@@ -76,7 +76,7 @@ pub enum ASharp {
 }
 
 #[derive(Clone, Debug, Eq, Hash)]
-pub struct ACell {
+pub struct Cell {
     // 节点 id
     pub id: String,
     // 节点展示内容原始值
@@ -88,13 +88,13 @@ pub struct ACell {
     // 具体每行内容
     words: Vec<String>,
     // 周围可用的箭头
-    pub arrows: Vec<AEdge>,
-    pub arrows_no_render: Vec<AEdge>,
+    pub arrows: Vec<Arrow>,
+    pub arrows_no_render: Vec<Arrow>,
     // render 用形状
     sharp: ASharp,
 }
 
-impl ACell {
+impl Cell {
     #[must_use]
     pub fn new(id: &str, name: &str) -> Self {
         let nid = String::from(id).trim().to_string();
@@ -202,28 +202,28 @@ impl ACell {
     }
 }
 
-impl fmt::Display for ACell {
+impl fmt::Display for Cell {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "GNode({})", self.id)
     }
 }
 
-impl PartialEq for ACell {
+impl PartialEq for Cell {
     fn eq(&self, other: &Self) -> bool {
         self.id == other.id && self.name == other.name
     }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
-pub struct AEdge {
-    pub direct: ADirect,
+pub struct Arrow {
+    pub direct: Direct,
     pub src: String,
     pub dst: String,
     pub text: String,
 }
 
-impl AEdge {
-    pub fn new(direct: ADirect, from: String, to: String, text: String) -> Self {
+impl Arrow {
+    pub fn new(direct: Direct, from: String, to: String, text: String) -> Self {
         Self {
             direct,
             src: from,
@@ -233,7 +233,7 @@ impl AEdge {
     }
 }
 
-impl fmt::Display for AEdge {
+impl fmt::Display for Arrow {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "GArrow({} -{:?}- {})", self.src, self.direct, self.dst)
     }

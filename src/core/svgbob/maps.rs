@@ -1,4 +1,4 @@
-use super::cell::{ACell, ADirect, AEdge, ASharp};
+use super::cell::{ASharp, Arrow, Cell, Direct};
 use super::graph::AGraph;
 use super::parse::{parse_edge, parse_node};
 use std::cmp::{max, min};
@@ -17,9 +17,9 @@ pub struct RenderBox {
 #[derive(Debug, Clone)]
 pub struct AMap {
     // 记录所有 node 信息
-    cells: HashMap<String, ACell>,
+    cells: HashMap<String, Cell>,
     // 记录所有 edge 信息
-    edges: Vec<AEdge>,
+    edges: Vec<Arrow>,
     // 以列表的形式来判断组
     graphs: Vec<AGraph>,
     // max w
@@ -69,10 +69,10 @@ impl AMap {
     fn parse_line<'a>(&'a mut self, line: &'a str) -> bool {
         let mut text: &str;
         let mut vtext: String;
-        let mut direct: ADirect;
+        let mut direct: Direct;
         let mut lid: String;
         let mut rid: String;
-        let mut node: ACell;
+        let mut node: Cell;
         let mut id: &str;
         let mut name: &str;
         let mut sharp: ASharp;
@@ -80,7 +80,7 @@ impl AMap {
 
         // 第一个 node
         (id, name, sharp, text) = parse_node(line);
-        node = ACell::new(id, name);
+        node = Cell::new(id, name);
         node.set_sharp(sharp);
         lid = node.id.clone();
         self.add_node(&node);
@@ -98,19 +98,19 @@ impl AMap {
             if id.len() == 0 {
                 break;
             }
-            node = ACell::new(id, name);
+            node = Cell::new(id, name);
             node.set_sharp(sharp);
             rid = node.id.clone();
             self.add_node(&node);
             self.edges
-                .push(AEdge::new(direct, lid, rid.clone(), a_text));
+                .push(Arrow::new(direct, lid, rid.clone(), a_text));
             lid = rid;
         }
         true
     }
 
     // 将 node 加入到 graph 中
-    fn add_node(&mut self, node: &ACell) -> bool {
+    fn add_node(&mut self, node: &Cell) -> bool {
         if self.cells.contains_key(&node.id) {
             return false;
         }
@@ -128,7 +128,7 @@ impl AMap {
     }
 
     // 添加互相联系的节点
-    fn add_into_graph(&mut self, sid: &String, did: &String, edge: &AEdge) {
+    fn add_into_graph(&mut self, sid: &String, did: &String, edge: &Arrow) {
         let l = self.graphs.len();
         let slock: usize = self.search_is_member(sid);
         let dlock: usize = self.search_is_member(did);
@@ -195,7 +195,6 @@ impl AMap {
                 for (i, cbox) in rboxes.iter_mut().enumerate() {
                     if i == node.x as usize {
                         cbox.w = max(cbox.w, node.w());
-                        cbox.left = max(cbox.left, node.left());
                         cbox.right = max(cbox.right, node.right());
                     }
                     if i == node.y as usize {
