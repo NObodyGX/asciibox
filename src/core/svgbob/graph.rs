@@ -18,6 +18,7 @@ pub struct AGraph {
     canvas: Vec<Vec<String>>,
     edge_canvas: HashMap<String, Vec<AEdgeCell>>,
     emode: bool,
+    rboard: HashMap<String, Vec<AEdgeCell>>,
 }
 
 impl AGraph {
@@ -32,6 +33,7 @@ impl AGraph {
             canvas: Vec::new(),
             emode,
             edge_canvas: HashMap::new(),
+            rboard: HashMap::new(),
         }
     }
 
@@ -131,8 +133,8 @@ impl AGraph {
         src: &String,
         dst: &String,
         dir: Direct,
-        ox: i16,
-        oy: i16,
+        x: usize,
+        y: usize,
         neg: bool,
     ) {
         let flag = match dir {
@@ -143,7 +145,7 @@ impl AGraph {
         };
 
         let (si, di) = if flag { (src, dst) } else { (dst, src) };
-        let edge = AEdgeCell::new(di.clone(), ox, oy, dir.clone());
+        let edge = AEdgeCell::new(di.clone(), x, y, dir.clone());
         let node = self.nodes.get_mut(si).unwrap();
         match dir {
             Direct::Right | Direct::Left => {
@@ -181,7 +183,7 @@ impl AGraph {
                     if !self.try_move(dst, nx, y + i, 1 + i * 2) {
                         continue;
                     }
-                    self.add_edge_node(src, dst, dir, nx as i16 - x as i16, i as i16, neg);
+                    self.add_edge_node(src, dst, dir, nx, y + i, neg);
                     break;
                 }
             }
@@ -195,7 +197,7 @@ impl AGraph {
                     if !self.try_move(dst, x + i, ny, 1 + i * 2) {
                         continue;
                     }
-                    self.add_edge_node(src, dst, dir, i as i16, ny as i16 - y as i16, neg);
+                    self.add_edge_node(src, dst, dir, x + i, ny, neg);
                     break;
                 }
             }
@@ -209,7 +211,7 @@ impl AGraph {
                     if !self.try_move(dst, x + i, ny, 1 + i * 2) {
                         continue;
                     }
-                    self.add_edge_node(src, dst, dir, i as i16, ny as i16 - y as i16, neg);
+                    self.add_edge_node(src, dst, dir, x + i, ny, neg);
                     break;
                 }
             }
@@ -276,20 +278,68 @@ impl AGraph {
         content
     }
 
-    fn do_render_right(&self, i: usize, x: usize, y: usize, rbox: &Vec<RenderBox>) -> String {
+    fn do_render_right_arrow(&self, i: usize, x: usize, y: usize, rbox: &Vec<RenderBox>) -> String {
         // 这里应该和 cell 一样，也是需要找到这个的最大宽度
         let mut content = String::new();
 
         let maxh = rbox.get(y).unwrap().h;
-        let maxw = max(
-            rbox.get(x).unwrap().right,
-            rbox.get(min(rbox.len() - 1, x + 1)).unwrap().left,
-        );
+        let maxw = rbox.get(x).unwrap().right;
 
         let cid = self.canvas.get(y).unwrap().get(x).unwrap();
         // TODO 这里是不合理的
         if cid.is_empty() {
-            content.push_str(" ".repeat(maxw).as_str());
+            let bid = self.get_bid(x, y);
+            let line = match self.rboard.get(&bid) {
+                Some(v) => {
+                    let l: usize = (maxw - 1) / 2;
+                    let r: usize = maxw - l;
+                    let mut mode: usize = 0;
+                    let mut dir: bool = true;
+                    for ec in v.iter() {
+                        // todo, 需要区分开
+                        if ec.y != y {
+                            if mode == 0 {
+                                mode = 1;
+                            }
+                        } else {
+                            if ec.direct != Direct::Right {
+                                dir = false;
+                            }
+                            if mode == 0 {
+                                mode = 2;
+                            } else if mode == 1 {
+                                mode = 4;
+                            } else {
+                                mode = 6;
+                            }
+                        }
+                    }
+                    // 继续往上
+                    if mode == 1 {
+                        format!("{}|{}", " ".repeat(l), " ".repeat(r - 1))
+                    }
+                    // 当前到顶，且需要向右
+                    // TODO 区分上下和左右
+                    else if mode == 2 {
+                        if i == maxh / 2 {
+                            let seg = if dir { '>' } else { '<' };
+                            format!("{}|{}{}", " ".repeat(l), "-".repeat(r - 2), seg)
+                        } else {
+                            format!("{}|{}", " ".repeat(l), " ".repeat(r - 1))
+                        }
+                    } else {
+                        if i == maxh / 2 {
+                            let seg = if dir { '>' } else { '<' };
+                            format!("{}|{}{}", " ".repeat(l), "-".repeat(r - 2), seg)
+                        } else {
+                            format!("{}|{}", " ".repeat(l), " ".repeat(r - 1))
+                        }
+                    }
+                }
+                None => " ".repeat(maxw),
+            };
+
+            content.push_str(line.as_str());
             return content;
         }
 
@@ -301,7 +351,7 @@ impl AGraph {
         if i == udis {
             // 右侧
             for ec in node.r_edges.iter() {
-                if ec.ox > 0 && ec.oy < 0 {
+                if ec.x > x && ec.y < y {
                     content.push_str("-".repeat((maxw + 1) / 2).as_str());
                     content.push('\'');
                     content.push_str(" ".repeat((maxw - 1) / 2).as_str());
@@ -313,7 +363,7 @@ impl AGraph {
         else if i == maxh / 2 {
             // 右侧
             for ec in node.r_edges.iter() {
-                if ec.ox > 0 && ec.oy == 0 {
+                if ec.x > x && ec.y == y {
                     if ec.direct == Direct::Left {
                         content.push('<');
                         content.push_str("-".repeat(maxw - 1).as_str());
@@ -329,10 +379,10 @@ impl AGraph {
         else if i == maxh - ddis {
             // 右侧
             for ec in node.r_edges.iter() {
-                if ec.ox > 0 && ec.oy > 0 {
+                if ec.x > x && ec.y > y {
                     content.push_str("-".repeat((maxw - 1) / 2).as_str());
                     content.push('.');
-                    content.push_str(" ".repeat((maxw + 1) / 2).as_str());
+                    content.push_str(" ".repeat((maxw) / 2).as_str());
                     break;
                 }
             }
@@ -355,7 +405,7 @@ impl AGraph {
             let mut line = String::new();
             for x in 0..self.w + 1 {
                 line.push_str(self.do_render_cell(i, x, y, rbox).as_str());
-                line.push_str(self.do_render_right(i, x, y, rbox).as_str());
+                line.push_str(self.do_render_right_arrow(i, x, y, rbox).as_str());
             }
             content.push_str(line.trim_end());
             content.push('\n');
@@ -415,5 +465,42 @@ impl AGraph {
                 None => {}
             }
         }
+
+        self.rboard = HashMap::new();
+        for (_id, node) in self.nodes.iter() {
+            for ec in node.r_edges.iter() {
+                // 如果是斜着的，暂时额外安排
+                if ec.y != node.y && ec.x != node.x {
+                    for y in min(ec.y, node.y)..=max(ec.y, node.y) {
+                        for x in min(ec.x, node.x)..=max(ec.x, node.x) {
+                            if x == node.x && y == node.y {
+                                continue;
+                            }
+                            if x == ec.x && y == ec.y {
+                                continue;
+                            }
+                            if !(x == node.x || y == ec.y) {
+                                continue;
+                            }
+                            let bid = self.get_bid(x, y);
+                            match self.rboard.get_mut(&bid) {
+                                Some(v) => {
+                                    v.push(ec.clone());
+                                }
+                                None => {
+                                    let mut array: Vec<AEdgeCell> = Vec::new();
+                                    array.push(ec.clone());
+                                    self.rboard.insert(bid, array);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    fn get_bid(&self, x: usize, y: usize) -> String {
+        format!("{}#{}", x, y)
     }
 }

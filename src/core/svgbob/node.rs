@@ -3,9 +3,9 @@ use super::cell::{Cell, Direct};
 #[derive(Debug, Clone)]
 pub struct AEdgeCell {
     // 目的所在位置(相对值)
-    pub ox: i16,
+    pub x: usize,
     // 目的所在位置(相对值)
-    pub oy: i16,
+    pub y: usize,
     // dst id
     pub id: String,
     // 方向
@@ -14,8 +14,8 @@ pub struct AEdgeCell {
 
 impl AEdgeCell {
     #[must_use]
-    pub fn new(id: String, ox: i16, oy: i16, direct: Direct) -> Self {
-        Self { id, ox, oy, direct }
+    pub fn new(id: String, x: usize, y: usize, direct: Direct) -> Self {
+        Self { id, x, y, direct }
     }
 }
 
