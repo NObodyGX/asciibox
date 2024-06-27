@@ -38,7 +38,7 @@ mod imp {
             window.set_default_size(1280, 720);
             // todo: read settings
             window.set_title(Some(APP_NAME));
-            window.set_icon_name(Some(APP_ID));
+            window.set_icon_name(Some(APP_NAME));
             window.present();
         }
     }
@@ -103,7 +103,7 @@ impl AsciiboxApplication {
             .transient_for(&window)
             .modal(true)
             .program_name(APP_NAME)
-            .logo_icon_name(APP_ID)
+            .logo_icon_name(APP_NAME)
             .version(VERSION)
             .authors(vec!["nobodygx"])
             .website(APP_URL)
