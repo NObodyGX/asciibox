@@ -287,7 +287,6 @@ impl AGraph {
         let maxw = rbox.get(x).unwrap().right;
 
         let cid = self.canvas.get(y).unwrap().get(x).unwrap();
-        // TODO 这里是不合理的
         if cid.is_empty() {
             let bid = self.get_bid(x, y);
             let line = match self.rboard.get(&bid) {
@@ -415,7 +414,7 @@ impl AGraph {
         let mut content = String::new();
         let maxh = rbox.get(y).unwrap().h;
 
-        for i in 0..maxh + 1 {
+        for i in 0..maxh {
             let mut line = String::new();
             for x in 0..self.w + 1 {
                 line.push_str(self.do_render_cell(i, x, y, rbox).as_str());
