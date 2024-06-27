@@ -1,4 +1,5 @@
 use super::cell::{Cell, Direct};
+use std::cmp::{max, min};
 
 #[derive(Debug, Clone)]
 pub struct AEdgeCell {
@@ -38,6 +39,16 @@ impl AEdgeCell {
             oy,
             direct,
         }
+    }
+
+    pub fn need_record(&self) -> bool {
+        if self.x == self.ox && max(self.y, self.oy) - min(self.y, self.oy) > 1 {
+            return true;
+        }
+        if self.y == self.oy && max(self.x, self.ox) - min(self.x, self.ox) > 1 {
+            return true;
+        }
+        return false;
     }
 }
 
@@ -88,7 +99,7 @@ impl ANode {
     pub fn down(&self) -> usize {
         let w = match self.d_edges.len() {
             0 => 0,
-            1 => 3,
+            1 => 2,
             2 => 3,
             _ => 4,
         };

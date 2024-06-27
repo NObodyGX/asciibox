@@ -82,6 +82,32 @@ impl AGraph {
         node.y = y;
         node.level = level;
         node.locked = true;
+
+        // 修改本 node 对应的位置
+        for ec in node.r_edges.iter_mut() {
+            ec.ox = x;
+            ec.oy = y;
+        }
+        for ec in node.d_edges.iter_mut() {
+            ec.ox = x;
+            ec.oy = y;
+        }
+
+        // 修改相应的 node 对应的位置
+        for (_id, node) in self.nodes.iter_mut() {
+            for ec in node.r_edges.iter_mut() {
+                if ec.id.eq(id) {
+                    ec.x = x;
+                    ec.y = y;
+                }
+            }
+            for ec in node.d_edges.iter_mut() {
+                if ec.id.eq(id) {
+                    ec.x = x;
+                    ec.y = y;
+                }
+            }
+        }
     }
 
     fn try_move(&mut self, id: &String, x: usize, y: usize, level: usize) -> bool {
@@ -110,19 +136,30 @@ impl AGraph {
 
     fn nodes_down(&mut self) {
         let l = self.nodes.len();
-        for (_id, node) in self.nodes.iter_mut() {
+        let mut todos: Vec<String> = Vec::new();
+        for (id, node) in self.nodes.clone().iter() {
             if node.y != l {
-                node.y += 1;
+                todos.push(id.clone());
             }
+        }
+
+        for id in todos.iter() {
+            let node = self.nodes.get(id).unwrap();
+            self.node_move(id, node.x, node.y + 1, node.level);
         }
     }
 
     fn nodes_right(&mut self) {
         let l = self.nodes.len();
-        for (_id, node) in self.nodes.iter_mut() {
+        let mut todos: Vec<String> = Vec::new();
+        for (id, node) in self.nodes.iter_mut() {
             if node.x != l {
-                node.x += 1;
+                todos.push(id.clone());
             }
+        }
+        for id in todos.iter() {
+            let node = self.nodes.get(id).unwrap();
+            self.node_move(id, node.x + 1, node.y, node.level);
         }
     }
 
@@ -263,8 +300,10 @@ impl AGraph {
 
         let maxh = rbox.get(y).unwrap().down;
         let maxw = rbox.get(x).unwrap().w;
+        let extw = rbox.get(x).unwrap().right;
         let cid = self.canvas.get(y).unwrap().get(x).unwrap();
         if cid.is_empty() {
+            content.push_str(" ".repeat(maxw + extw).as_str());
             return content;
         }
 
@@ -286,7 +325,12 @@ impl AGraph {
         }
         let lb: usize = maxw / 2;
         let rb: usize = maxw - 1 - lb;
+
         if !(is_left || is_right) {
+            if adir == Direct::None {
+                content.push_str(" ".repeat(maxw + extw).as_str());
+                return content;
+            }
             if i == 0 {
                 let seq = if adir == Direct::Up { '^' } else { '|' };
                 let a = format!("{}{}{}", " ".repeat(lb), seq, " ".repeat(rb));
@@ -300,6 +344,7 @@ impl AGraph {
                 content.push_str(a.as_str());
             }
         }
+        content.push_str(" ".repeat(extw).as_str());
 
         content
     }
@@ -538,6 +583,9 @@ impl AGraph {
         self.rboard = HashMap::new();
         for (_id, node) in self.nodes.iter() {
             for ec in node.r_edges.iter() {
+                if !ec.need_record() {
+                    continue;
+                }
                 // 如果是斜着的，暂时额外安排
                 if ec.y != node.y && ec.x != node.x {
                     for y in min(ec.y, node.y)..=max(ec.y, node.y) {
