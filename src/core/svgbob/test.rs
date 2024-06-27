@@ -89,5 +89,31 @@ mod tests {
 ",
         );
         assert_eq!(gmap.load_content(code), result[1..]);
+
+        let code = "
+        a --> b
+        a --> c
+        a --> d
+        d --> f
+        f --^ g --> h --^ k";
+        result = String::new();
+        result.push_str(
+            "
+.---.     .---.           .---.
+| a |---->| b |           | k |
+'---'--.  '---'           '---'
+       |                    ^
+       |                    |
+       |  .---.   .---.   .---.
+       +->| c |   | g |-->| h |
+       |  '---'   '---'   '---'
+       |            ^
+       |            |
+       |  .---.   .---.
+       '->| d |-->| f |
+          '---'   '---'
+",
+        );
+        assert_eq!(gmap.load_content(code), result[1..]);
     }
 }

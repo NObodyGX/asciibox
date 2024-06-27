@@ -411,6 +411,86 @@ impl AGraph {
         content
     }
 
+    fn inner_render_right_arrow(
+        &self,
+        i: usize,
+        x: usize,
+        y: usize,
+        rbox: &Vec<RenderBox>,
+    ) -> String {
+        let mut content = String::new();
+
+        let maxh = rbox.get(y).unwrap().h;
+        let maxw = rbox.get(x).unwrap().right;
+
+        let bid = self.get_bid(x, y);
+        let line = match self.rboard.get(&bid) {
+            Some(v) => {
+                let mut adir = Direct::None;
+                let mut is_over = false;
+                let mut adown = false;
+                let l: usize = (maxw - 1) / 2;
+                let r: usize = maxw - l;
+                for ec in v.iter() {
+                    // todo, 需要区分开
+                    if ec.y == y {
+                        adir = ec.direct.clone();
+                        if ec.oy < y {
+                            adown = true;
+                        } else {
+                            adown = false;
+                        }
+                    }
+                    if ec.y > y {
+                        is_over = true;
+                    }
+                    if ec.y < y {
+                        is_over = true;
+                    }
+                }
+                if i == maxh / 2 {
+                    match adir {
+                        Direct::None => {
+                            format!("{}|{}", " ".repeat(l), " ".repeat(r - 1))
+                        }
+                        // 判断是否结束
+                        Direct::Left | Direct::Right => {
+                            let seq = if adir == Direct::Left { '<' } else { '>' };
+                            if is_over {
+                                format!("{}+{}{}", " ".repeat(l), "-".repeat(r - 2), seq)
+                            } else {
+                                format!("{}'{}{}", " ".repeat(l), "-".repeat(r - 2), seq)
+                            }
+                        }
+                        _ => {
+                            format!("{}|{}", " ".repeat(l), " ".repeat(r - 1))
+                        }
+                    }
+                } else if i < maxh / 2 {
+                    if is_over {
+                        format!("{}|{}", " ".repeat(l), " ".repeat(r - 1))
+                    } else if adown && adir != Direct::None {
+                        format!("{}|{}", " ".repeat(l), " ".repeat(r - 1))
+                    } else {
+                        " ".repeat(maxw)
+                    }
+                } else {
+                    if is_over {
+                        format!("{}|{}", " ".repeat(l), " ".repeat(r - 1))
+                    } else if !adown && adir != Direct::None {
+                        format!("{}|{}", " ".repeat(l), " ".repeat(r - 1))
+                    } else {
+                        " ".repeat(maxw)
+                    }
+                }
+            }
+            None => " ".repeat(maxw),
+        };
+
+        content.push_str(line.as_str());
+        return content;
+    }
+
     fn do_render_right_arrow(&self, i: usize, x: usize, y: usize, rbox: &Vec<RenderBox>) -> String {
         // 这里应该和 cell 一样，也是需要找到这个的最大宽度
         let mut content = String::new();
@@ -420,72 +500,7 @@ impl AGraph {
 
         let cid = self.canvas.get(y).unwrap().get(x).unwrap();
         if cid.is_empty() {
-            let bid = self.get_bid(x, y);
-            let line = match self.rboard.get(&bid) {
-                Some(v) => {
-                    let mut adir = Direct::None;
-                    let mut is_over = false;
-                    let mut adown = false;
-                    let l: usize = (maxw - 1) / 2;
-                    let r: usize = maxw - l;
-                    for ec in v.iter() {
-                        // todo, 需要区分开
-                        if ec.y == y {
-                            adir = ec.direct.clone();
-                            if ec.oy < y {
-                                adown = true;
-                            } else {
-                                adown = false;
-                            }
-                        }
-                        if ec.y > y {
-                            is_over = true;
-                        }
-                        if ec.y < y {
-                            is_over = true;
-                        }
-                    }
-                    if i == maxh / 2 {
-                        match adir {
-                            Direct::None => {
-                                format!("{}|{}", " ".repeat(l), " ".repeat(r - 1))
-                            }
-                            // 判断是否结束
-                            Direct::Left | Direct::Right => {
-                                let seq = if adir == Direct::Left { '<' } else { '>' };
-                                if is_over {
-                                    format!("{}+{}{}", " ".repeat(l), "-".repeat(r - 2), seq)
-                                } else {
-                                    format!("{}'{}{}", " ".repeat(l), "-".repeat(r - 2), seq)
-                                }
-                            }
-                            _ => {
-                                format!("{}|{}", " ".repeat(l), " ".repeat(r - 1))
-                            }
-                        }
-                    } else if i < maxh / 2 {
-                        if is_over {
-                            format!("{}|{}", " ".repeat(l), " ".repeat(r - 1))
-                        } else if adown && adir != Direct::None {
-                            format!("{}|{}", " ".repeat(l), " ".repeat(r - 1))
-                        } else {
-                            " ".repeat(maxw)
-                        }
-                    } else {
-                        if is_over {
-                            format!("{}|{}", " ".repeat(l), " ".repeat(r - 1))
-                        } else if !adown && adir != Direct::None {
-                            format!("{}|{}", " ".repeat(l), " ".repeat(r - 1))
-                        } else {
-                            " ".repeat(maxw)
-                        }
-                    }
-                }
-                None => " ".repeat(maxw),
-            };
-
-            content.push_str(line.as_str());
-            return content;
+            return self.inner_render_right_arrow(i, x, y, rbox);
         }
 
         let node = self.nodes.get(cid).unwrap();
@@ -536,7 +551,7 @@ impl AGraph {
             return content;
         }
         if content.len() < maxw {
-            content.push_str(" ".repeat(maxw - content.len()).as_str());
+            return self.inner_render_right_arrow(i, x, y, rbox);
         }
 
         content
@@ -580,7 +595,7 @@ impl AGraph {
 
             content.push_str(c_letters.trim_end());
             content.push('\n');
-            if u_letters.trim().len() > 0 {
+            if u_letters.trim_end().len() > 0 {
                 content.push_str(u_letters.trim_end());
                 content.push('\n');
             }
