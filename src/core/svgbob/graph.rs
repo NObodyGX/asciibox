@@ -258,12 +258,66 @@ impl AGraph {
         self.fit_wh();
     }
 
-    fn render_edge_up(&self, y: usize, rbox: &Vec<RenderBox>) -> String {
-        for x in 0..self.w + 1 {
-            let _maxw = rbox.get(x).unwrap().w;
-            let _cid = self.canvas.get(y).unwrap().get(x).unwrap();
+    fn do_render_down_arrow(&self, i: usize, x: usize, y: usize, rbox: &Vec<RenderBox>) -> String {
+        let mut content = String::new();
+
+        let maxh = rbox.get(y).unwrap().down;
+        let maxw = rbox.get(x).unwrap().w;
+        let cid = self.canvas.get(y).unwrap().get(x).unwrap();
+        if cid.is_empty() {
+            return content;
         }
-        "".to_string()
+
+        let node = self.nodes.get(cid).unwrap();
+        let mut adir = Direct::None;
+        let mut is_left = false;
+        let mut is_right = false;
+        // 判断有几个需要绘制的
+        for ec in node.d_edges.iter() {
+            if ec.x == x {
+                adir = if ec.y > y { Direct::Down } else { Direct::Up };
+            }
+            if ec.x > x && ec.y != y {
+                is_right = true;
+            }
+            if ec.x < x && ec.y != y {
+                is_left = true;
+            }
+        }
+        let lb: usize = maxw / 2;
+        let rb: usize = maxw - 1 - lb;
+        if !(is_left || is_right) {
+            if i == 0 {
+                let seq = if adir == Direct::Up { '^' } else { '|' };
+                let a = format!("{}{}{}", " ".repeat(lb), seq, " ".repeat(rb));
+                content.push_str(a.as_str());
+            } else if i == maxh - 1 {
+                let seq = if adir == Direct::Down { 'v' } else { '|' };
+                let a = format!("{}{}{}", " ".repeat(lb), seq, " ".repeat(rb));
+                content.push_str(a.as_str());
+            } else {
+                let a = format!("{}|{}", " ".repeat(lb), " ".repeat(rb));
+                content.push_str(a.as_str());
+            }
+        }
+
+        content
+    }
+
+    fn render_edge_down(&self, y: usize, rbox: &Vec<RenderBox>) -> String {
+        let mut content = String::new();
+        let maxh = rbox.get(y).unwrap().down;
+
+        for i in 0..maxh {
+            let mut line = String::new();
+            for x in 0..self.w + 1 {
+                line.push_str(self.do_render_down_arrow(i, x, y, rbox).as_str());
+            }
+            content.push_str(line.trim_end());
+            content.push('\n');
+        }
+
+        content
     }
 
     fn do_render_cell(&self, i: usize, x: usize, y: usize, rbox: &Vec<RenderBox>) -> String {
@@ -443,10 +497,12 @@ impl AGraph {
         // 第二部分：绘制节点和节点的左右 edge 部分
         let mut content = String::new();
         for y in 0..self.h + 1 {
-            let u_letters = self.render_edge_up(y, &rbox);
             let c_letters = self.render_cell_with_edge(y, &rbox);
-            content.push_str(u_letters.trim_end());
+            let u_letters = self.render_edge_down(y, &rbox);
+
             content.push_str(c_letters.trim_end());
+            content.push('\n');
+            content.push_str(u_letters.trim_end());
             content.push('\n');
         }
 

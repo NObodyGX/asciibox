@@ -10,8 +10,8 @@ pub struct RenderBox {
     pub left: usize,
     pub right: usize,
     pub h: usize,
-    pub h_up: usize,
-    pub h_down: usize,
+    pub up: usize,
+    pub down: usize,
 }
 
 #[derive(Debug, Clone)]
@@ -199,7 +199,7 @@ impl AMap {
                     }
                     if i == node.y as usize {
                         cbox.h = max(cbox.h, node.h());
-                        // TODO
+                        cbox.down = max(cbox.down, node.down());
                     }
                 }
             }

@@ -84,6 +84,17 @@ impl ANode {
         };
         return w;
     }
+
+    pub fn down(&self) -> usize {
+        let w = match self.d_edges.len() {
+            0 => 0,
+            1 => 3,
+            2 => 3,
+            _ => 4,
+        };
+        return w;
+    }
+
     pub fn h(&self) -> usize {
         return self.cell.total_h();
     }
