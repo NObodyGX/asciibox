@@ -1,5 +1,14 @@
 # ChangeLog
 
+## v0.8.4
+
+Fixed some render bug
+New features:
+
+- support up/down arrow in svgbob generate
+- support multiple left/right arrow in svgbob generate
+
+
 ## v0.8.3
 
 Remove nom dependency
