@@ -42,6 +42,9 @@ impl AEdgeCell {
     }
 
     pub fn need_record(&self) -> bool {
+        if self.x != self.ox && self.y != self.oy {
+            return true;
+        }
         if self.x == self.ox && max(self.y, self.oy) - min(self.y, self.oy) > 1 {
             return true;
         }

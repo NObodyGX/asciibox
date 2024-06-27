@@ -300,11 +300,10 @@ impl AGraph {
 
         let maxh = rbox.get(y).unwrap().down;
         let maxw = rbox.get(x).unwrap().w;
-        let extw = rbox.get(x).unwrap().right;
         let cid = self.canvas.get(y).unwrap().get(x).unwrap();
+
         if cid.is_empty() {
-            content.push_str(" ".repeat(maxw + extw).as_str());
-            return content;
+            return " ".repeat(maxw);
         }
 
         let node = self.nodes.get(cid).unwrap();
@@ -328,7 +327,7 @@ impl AGraph {
 
         if !(is_left || is_right) {
             if adir == Direct::None {
-                content.push_str(" ".repeat(maxw + extw).as_str());
+                content.push_str(" ".repeat(maxw).as_str());
                 return content;
             }
             if i == 0 {
@@ -344,8 +343,41 @@ impl AGraph {
                 content.push_str(a.as_str());
             }
         }
-        content.push_str(" ".repeat(extw).as_str());
+        content
+    }
 
+    fn do_render_down_arrow_right(
+        &self,
+        _i: usize,
+        x: usize,
+        y: usize,
+        rbox: &Vec<RenderBox>,
+    ) -> String {
+        let mut content = String::new();
+        let maxw = rbox.get(x).unwrap().right;
+        // 注意，由于信息是存放在 (x, y+1) 的右侧，所以判断需要这个格子
+        let bid = self.get_bid(x, y + 1);
+
+        let line = match self.rboard.get(&bid) {
+            Some(v) => {
+                let mut is_over = false;
+                let l: usize = (maxw - 1) / 2;
+                let r: usize = maxw - l;
+                for ec in v.iter() {
+                    if ec.y >= y {
+                        is_over = true;
+                    }
+                }
+
+                if is_over {
+                    format!("{}|{}", " ".repeat(l), " ".repeat(r - 1))
+                } else {
+                    " ".repeat(maxw)
+                }
+            }
+            None => " ".repeat(maxw),
+        };
+        content.push_str(line.as_str());
         content
     }
 
@@ -357,6 +389,7 @@ impl AGraph {
             let mut line = String::new();
             for x in 0..self.w + 1 {
                 line.push_str(self.do_render_down_arrow(i, x, y, rbox).as_str());
+                line.push_str(&self.do_render_down_arrow_right(i, x, y, rbox).as_str());
             }
             content.push_str(line.trim_end());
             content.push('\n');
@@ -547,8 +580,10 @@ impl AGraph {
 
             content.push_str(c_letters.trim_end());
             content.push('\n');
-            content.push_str(u_letters.trim_end());
-            content.push('\n');
+            if u_letters.trim().len() > 0 {
+                content.push_str(u_letters.trim_end());
+                content.push('\n');
+            }
         }
 
         content
