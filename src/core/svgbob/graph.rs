@@ -145,8 +145,9 @@ impl AGraph {
         };
 
         let (si, di) = if flag { (src, dst) } else { (dst, src) };
-        let edge = AEdgeCell::new(di.clone(), x, y, dir.clone());
         let node = self.nodes.get_mut(si).unwrap();
+        let edge = AEdgeCell::new(di.clone(), x, y, si.clone(), node.x, node.y, dir.clone());
+
         match dir {
             Direct::Right | Direct::Left => {
                 node.r_edges.push(edge);
@@ -291,48 +292,61 @@ impl AGraph {
             let bid = self.get_bid(x, y);
             let line = match self.rboard.get(&bid) {
                 Some(v) => {
+                    let mut adir = Direct::None;
+                    let mut is_over = false;
+                    let mut adown = false;
                     let l: usize = (maxw - 1) / 2;
                     let r: usize = maxw - l;
-                    let mut mode: usize = 0;
-                    let mut dir: bool = true;
                     for ec in v.iter() {
                         // todo, 需要区分开
-                        if ec.y != y {
-                            if mode == 0 {
-                                mode = 1;
-                            }
-                        } else {
-                            if ec.direct != Direct::Right {
-                                dir = false;
-                            }
-                            if mode == 0 {
-                                mode = 2;
-                            } else if mode == 1 {
-                                mode = 4;
+                        if ec.y == y {
+                            adir = ec.direct.clone();
+                            if ec.oy < y {
+                                adown = true;
                             } else {
-                                mode = 6;
+                                adown = false;
                             }
                         }
+                        if ec.y > y {
+                            is_over = true;
+                        }
+                        if ec.y < y {
+                            is_over = true;
+                        }
                     }
-                    // 继续往上
-                    if mode == 1 {
-                        format!("{}|{}", " ".repeat(l), " ".repeat(r - 1))
-                    }
-                    // 当前到顶，且需要向右
-                    // TODO 区分上下和左右
-                    else if mode == 2 {
-                        if i == maxh / 2 {
-                            let seg = if dir { '>' } else { '<' };
-                            format!("{}|{}{}", " ".repeat(l), "-".repeat(r - 2), seg)
-                        } else {
+                    if i == maxh / 2 {
+                        match adir {
+                            Direct::None => {
+                                format!("{}|{}", " ".repeat(l), " ".repeat(r - 1))
+                            }
+                            // 判断是否结束
+                            Direct::Left | Direct::Right => {
+                                let seq = if adir == Direct::Left { '<' } else { '>' };
+                                if is_over {
+                                    format!("{}+{}{}", " ".repeat(l), "-".repeat(r - 2), seq)
+                                } else {
+                                    format!("{}'{}{}", " ".repeat(l), "-".repeat(r - 2), seq)
+                                }
+                            }
+                            _ => {
+                                format!("{}|{}", " ".repeat(l), " ".repeat(r - 1))
+                            }
+                        }
+                    } else if i < maxh / 2 {
+                        if is_over {
                             format!("{}|{}", " ".repeat(l), " ".repeat(r - 1))
+                        } else if adown && adir != Direct::None {
+                            format!("{}|{}", " ".repeat(l), " ".repeat(r - 1))
+                        } else {
+                            " ".repeat(maxw)
                         }
                     } else {
-                        if i == maxh / 2 {
-                            let seg = if dir { '>' } else { '<' };
-                            format!("{}|{}{}", " ".repeat(l), "-".repeat(r - 2), seg)
-                        } else {
+                        if is_over {
                             format!("{}|{}", " ".repeat(l), " ".repeat(r - 1))
+                        } else if !adown && adir != Direct::None {
+                            format!("{}|{}", " ".repeat(l), " ".repeat(r - 1))
+                        } else {
+                            " ".repeat(maxw)
                         }
                     }
                 }

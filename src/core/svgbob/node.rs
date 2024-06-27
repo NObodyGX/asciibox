@@ -2,20 +2,42 @@ use super::cell::{Cell, Direct};
 
 #[derive(Debug, Clone)]
 pub struct AEdgeCell {
-    // 目的所在位置(相对值)
+    // 目的所在位置(绝对值)
     pub x: usize,
-    // 目的所在位置(相对值)
+    // 目的所在位置(绝对值)
     pub y: usize,
+    // 源所在位置(绝对值)
+    pub ox: usize,
+    // 源所在位置(绝对值)
+    pub oy: usize,
     // dst id
     pub id: String,
+    // origin id
+    pub oid: String,
     // 方向
     pub direct: Direct,
 }
 
 impl AEdgeCell {
     #[must_use]
-    pub fn new(id: String, x: usize, y: usize, direct: Direct) -> Self {
-        Self { id, x, y, direct }
+    pub fn new(
+        id: String,
+        x: usize,
+        y: usize,
+        oid: String,
+        ox: usize,
+        oy: usize,
+        direct: Direct,
+    ) -> Self {
+        Self {
+            id,
+            x,
+            y,
+            oid,
+            ox,
+            oy,
+            direct,
+        }
     }
 }
 
