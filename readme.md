@@ -28,3 +28,45 @@ run `sh build.sh` in project root dir
     - [ ] beautify code
     - [ ] transform from markdown
     - [ ] preview
+
+## install
+
+### linux
+
+```shell
+# for arch linux
+paru -S asciibox
+
+# for other linux
+git clone --depth=1 https://github.com/nobodygx/asciibox
+meson setup build
+meson compile -C build
+meson install -C build
+
+# run asciibox to enjoy!!
+```
+
+### windows
+
+```shell
+
+# Install MSYS2
+pacman -S mingw-w64-x86_64-gtk4 mingw-w64-x86_64-gettext mingw-w64-x86_64-libxml2 mingw-w64-x86_64-librsvg mingw-w64-x86_64-pkgconf mingw-w64-x86_64-gcc mingw-w64-x86_64-libadwaita
+
+# add into paths
+C:\msys64\mingw64\include
+C:\msys64\mingw64\bin
+C:\msys64\mingw64\lib
+
+# install rust
+rustup toolchain install stable-gnu
+rustup default stable-gnu
+
+# before cargo run
+# sh build.sh  # --> to build asciibox, but without install
+# cp data/com.github.nobodygx.asciibox.gschema.xml /usr/share/glib-2.0/schemas/
+# cp _build/data/asciibox.gresource /mingw/share/asciibox/
+# cargo run to enjoy
+```
+
+
