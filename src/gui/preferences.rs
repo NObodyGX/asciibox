@@ -91,14 +91,22 @@ impl MainPreferences {
         let fdesc = self.settings().string("custom-font");
         imp.font
             .set_font_desc(&gtk::pango::FontDescription::from_string(fdesc.as_str()));
-        imp.font
-            .connect_font_desc_notify(clone!(@weak imp => move |_| {
+        imp.font.connect_font_desc_notify(clone!(
+            #[weak]
+            imp,
+            move |_| {
                 let font_string = imp.font.font_desc().unwrap().to_string();
-                let settings = imp.settings.get().expect("Could not get settings from imp.");
-                settings.set_string("custom-font", font_string.as_str()).unwrap();
+                let settings = imp
+                    .settings
+                    .get()
+                    .expect("Could not get settings from imp.");
+                settings
+                    .set_string("custom-font", font_string.as_str())
+                    .unwrap();
                 // println!("{}", font_string);
                 imp.obj().emit_by_name::<()>("font-changed", &[]);
-            }));
+            },
+        ));
     }
 
     fn settings(&self) -> &Settings {

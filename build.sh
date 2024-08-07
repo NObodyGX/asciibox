@@ -96,7 +96,7 @@ function run_target() {
 function main() {
   sync_version
 
-  # build_target
+  build_target
   link_target_resource
   run_target
 }

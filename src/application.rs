@@ -68,21 +68,33 @@ impl AsciiboxApplication {
 
     fn setup_gactions(&self) {
         let preferences_action = gio::SimpleAction::new("preferences", None);
-        preferences_action.connect_activate(clone!(@weak self as app => move |_, _| {
-            app.show_prefrerences();
-        }));
+        preferences_action.connect_activate(glib::clone!(
+            #[weak(rename_to = app)]
+            self,
+            move |_action, _parameter| {
+                app.show_prefrerences();
+            }
+        ));
         self.add_action(&preferences_action);
 
         let quit_action = gio::SimpleAction::new("quit", None);
-        quit_action.connect_activate(clone!(@weak self as app => move |_, _| {
-            app.quit();
-        }));
+        quit_action.connect_activate(glib::clone!(
+            #[weak(rename_to = app)]
+            self,
+            move |_action, _parameter| {
+                app.quit();
+            }
+        ));
         self.add_action(&quit_action);
 
         let about_action = gio::SimpleAction::new("about", None);
-        about_action.connect_activate(clone!(@weak self as app => move |_, _| {
-            app.show_about();
-        }));
+        about_action.connect_activate(glib::clone!(
+            #[weak(rename_to = app)]
+            self,
+            move |_action, _parameter| {
+                app.show_about();
+            }
+        ));
         self.add_action(&about_action);
     }
 
@@ -91,9 +103,15 @@ impl AsciiboxApplication {
         let preferences = MainPreferences::new();
         preferences.set_modal(true);
         preferences.set_transient_for(Some(&window));
-        preferences.connect_font_changed(clone!(@weak window => move |_| {
-            let _ = window.activate_action("win.refresh_text_view_font", None);
-        }));
+        preferences.connect_font_changed(clone!(
+            #[weak]
+            window,
+            move |_| {
+                window
+                    .activate_action("win.refresh_text_view_font", None)
+                    .unwrap();
+            },
+        ));
         preferences.present();
     }
 
