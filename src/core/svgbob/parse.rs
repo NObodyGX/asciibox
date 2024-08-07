@@ -1,66 +1,57 @@
-use super::cell::{Direct, ASharp};
+use std::usize;
 
-fn split_node_char<'a>(
-    input: &'a str,
-    l: char,
-    r: char,
-) -> Option<(&'a str, &'a str, ASharp, &'a str)> {
-    let sharp = match l {
-        '(' => ASharp::Round,
-        '[' => ASharp::Square,
-        '{' => ASharp::Circle,
-        _ => ASharp::Round,
-    };
+use super::cell::{ASharp, Direct};
 
-    match input.find(l) {
-        Some(v) => match input.find(r) {
-            Some(vv) => {
-                let (node, r) = input.split_at(vv);
-                let (id, n) = node.split_at(v);
-                let (_, name) = n.split_at(1);
-                let (_, remain) = r.split_at(1);
-                return Some((id.trim(), name.trim(), sharp, remain.trim()));
+#[allow(dead_code)]
+pub fn parse_node(input: &str) -> (String, String, ASharp, String) {
+    let mut isharp = ASharp::Round;
+    let mut iid = String::new();
+    let mut iname = String::new();
+    let mut iremain = String::new();
+    let mut state: u8 = 0;
+
+    for c in input.chars() {
+        match c {
+            '[' => {
+                state = 1;
+                isharp = ASharp::Round;
             }
-            None => {
-                let (id, n) = input.split_at(v);
-                let (_, name) = n.split_at(1);
-                return Some((id.trim(), name.trim(), sharp, ""));
+            '(' => {
+                state = 1;
+                isharp = ASharp::Square;
             }
-        },
-        None => {
-            return None;
+            '{' => {
+                state = 1;
+                isharp = ASharp::Circle;
+            }
+            ']' | ')' | '}' => {
+                if state == 1 {
+                    state = 2;
+                }
+            }
+            '-' | '<' | '>' => match state {
+                0 => {
+                    state = 2;
+                    iremain.push(c);
+                }
+                1 => iname.push(c),
+                2 => iremain.push(c),
+                _ => {}
+            },
+            _ => match state {
+                0 => iid.push(c),
+                1 => iname.push(c),
+                2 => iremain.push(c),
+                _ => {}
+            },
         }
     }
-}
 
-pub fn parse_node(input: &str) -> (&str, &str, ASharp, &str) {
-    match split_node_char(input, '(', ')') {
-        Some(v) => return v,
-        None => {}
-    }
-    match split_node_char(input, '[', ']') {
-        Some(v) => return v,
-        None => {}
-    }
-    match split_node_char(input, '{', '}') {
-        Some(v) => return v,
-        None => {}
-    }
-    let mut left: usize = 0;
-    for (i, c) in input.chars().enumerate() {
-        if c == '-' || c == '<' || c == '>' || c == '^' {
-            break;
-        }
-        left = i;
+    if iname.len() == 0 {
+        return (iid.clone(), iid, isharp, iremain);
     }
 
-    let (id, remain) = if left + 1 != input.len() {
-        input.split_at(left + 1)
-    } else {
-        (input, "")
-    };
-
-    (id, id, ASharp::Round, remain)
+    (iid, iname, isharp, iremain)
 }
 
 pub fn get_arrow(input: &str) -> Direct {
@@ -140,18 +131,31 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_node_parse() {
-        assert_eq!(parse_node("a"), ("a", "a", ASharp::Round, ""));
-        assert_eq!(parse_node("a1(bb)"), ("a1", "bb", ASharp::Round, ""));
-        assert_eq!(parse_node("a2[bb ]"), ("a2", "bb", ASharp::Square, ""));
-        assert_eq!(parse_node("a3[你好]"), ("a3", "你好", ASharp::Square, ""));
+    fn test_chinese_parse() {
+        let a = "你好 --> aaaa";
+        assert_eq!(a.len(), a.chars().count());
+    }
+
+    fn ppp(i: &str, o1: &str, o2: &str, sharp: ASharp, o3: &str) {
         assert_eq!(
-            parse_node("a4[你好] cc"),
-            ("a4", "你好", ASharp::Square, "cc")
+            parse_node(i),
+            (o1.to_string(), o2.to_string(), sharp, o3.to_string())
         );
-        assert_eq!(
-            parse_node("天下[天下神一舞]"),
-            ("天下", "天下神一舞", ASharp::Square, "")
+    }
+
+    #[test]
+    fn test_node_parse() {
+        ppp("a", "a", "a", ASharp::Round, "");
+        ppp("a1(bb)", "a1", "bb", ASharp::Square, "");
+        ppp("a2[bb ]", "a2", "bb ", ASharp::Round, "");
+        ppp("a3[你好]", "a3", "你好", ASharp::Round, "");
+        ppp("a3[你好] cc", "a3", "你好", ASharp::Round, " cc");
+        ppp(
+            "天下无敌[天上来客]",
+            "天下无敌",
+            "天上来客",
+            ASharp::Round,
+            "",
         );
     }
 

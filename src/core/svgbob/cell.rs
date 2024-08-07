@@ -70,9 +70,9 @@ pub struct RBox {
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum ASharp {
-    Round,
-    Square,
-    Circle,
+    Round,  // 圆角
+    Square, // 直角
+    Circle, // 圆形
 }
 
 #[derive(Clone, Debug, Eq, Hash)]

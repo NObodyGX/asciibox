@@ -67,20 +67,20 @@ impl AMap {
     // 逐行解析出现的节点
     // 后续依据节点之间的关系重排节点位置
     fn parse_line<'a>(&'a mut self, line: &'a str) -> bool {
-        let mut text: &str;
+        let mut text: String;
         let mut vtext: String;
         let mut direct: Direct;
         let mut lid: String;
         let mut rid: String;
         let mut node: Cell;
-        let mut id: &str;
-        let mut name: &str;
+        let mut id: String;
+        let mut name: String;
         let mut sharp: ASharp;
         let mut a_text: String;
 
         // 第一个 node
         (id, name, sharp, text) = parse_node(line);
-        node = Cell::new(id, name);
+        node = Cell::new(id.as_str(), name.as_str());
         node.set_sharp(sharp);
         lid = node.id.clone();
         self.add_node(&node);
@@ -89,7 +89,7 @@ impl AMap {
                 break;
             }
             // edge
-            (direct, a_text, vtext) = parse_edge(text);
+            (direct, a_text, vtext) = parse_edge(text.as_str());
             // node
             if vtext.len() <= 0 {
                 break;
@@ -98,7 +98,7 @@ impl AMap {
             if id.len() == 0 {
                 break;
             }
-            node = Cell::new(id, name);
+            node = Cell::new(id.as_str(), name.as_str());
             node.set_sharp(sharp);
             rid = node.id.clone();
             self.add_node(&node);
