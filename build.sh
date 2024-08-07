@@ -19,49 +19,86 @@ bdir="_build"
 # cp $pwd/data/asciibox.gschema.xml /usr/share/glib-2.0/schemas/
 # glib-compile-schemas /usr/share/glib-2.0/schemas/
 
-function sync_version {
-  local ver=$(sed -n '2p' meson.build | grep -Eo "[0-9]+\.[0-9]+\.+[0-9]")
-  local ver2=$(sed -n '3p' Cargo.toml | grep -Eo "[0-9]+\.[0-9]+\.+[0-9]")
-  if [ $ver != $ver2 ]; then
-    echo "change Cargo: $ver2 --> $ver"
-    sed -i "3s/${ver2}/${ver}/g" Cargo.toml
+function sudo_run() {
+  sudo -u root -H sh -c "$1"
+}
+
+function sync_version() {
+  local ver_o="" ver_n=""
+  ver_o=$(sed -n '2p' meson.build | grep -Eo "[0-9]+\.[0-9]+\.+[0-9]")
+  ver_n=$(sed -n '3p' Cargo.toml | grep -Eo "[0-9]+\.[0-9]+\.+[0-9]")
+  if [ "$ver_o" != "$ver_n" ]; then
+    echo "change Cargo: $ver_n --> $ver_o"
+    sed -i "3s/${ver_n}/${ver_o}/g" Cargo.toml
   fi
 }
 
-sync_version
-
-function del_target {
+function rm_target() {
   local target="$pwd/$bdir/src/asciibox"
-  if [ -f $target ];then
-    rm -f $target
+  if [ -f "$target" ];then
+    rm -f "$target"
   fi
 }
 
+function build_target() {
+  cd "$pwd" || exit
+  if [ $is_clean -eq 1 ]; then
+    meson setup $bdir --reconfigure
+  elif [ $is_clean -eq 2 ]; then
+    rm -rf $bdir
+    meson setup $bdir
+  else
+    meson setup $bdir
+  fi
+  cd "${pwd}/${bdir}" || exit
+  meson compile
+  cd - || exit
+  cd - || exit
+}
 
-cd $pwd
-if [ $is_clean -eq 1 ]; then
-  meson setup $bdir --reconfigure
-elif [ $is_clean -eq 2 ]; then
-  rm -rf $bdir
-  meson setup $bdir
-else
-  meson setup $bdir
-fi
-cd $pwd/$bdir
-meson compile
+function link_target_resource() {
+  local sdir="$pwd/$bdir/data" ddir="" src="" dst=""
 
-function run_target {
+  src="$sdir/asciibox.gresource"
+  ddir=$(grep "PKGDATA_DIR" "${pwd}/src/config.rs" | awk '{print $6}' | sed 's/;//g' | sed 's/"//g')
+  dst="$ddir/asciibox.gresource"
+
+  if [ ! -d "$ddir" ];then
+    sudo_run "mkdir -p $ddir"
+  fi
+  if [ ! -h "$dst" ];then
+    sudo_run "ln -s $src $dst"
+  fi
+
+  sdir="$pwd/data"
+  src="$sdir/com.github.nobodygx.asciibox.gschema.xml"
+  ddir="/usr/share/glib-2.0/schemas"
+  dst="$ddir/com.github.nobodygx.asciibox.gschema.xml"
+  if [ ! -f "$dst" ];then
+    sudo_run "cp -f $src $dst"
+    cd $ddir || exit
+    sudo_run "glib-compile-schemas ."
+    cd - || exit
+  fi
+}
+
+function run_target() {
   local target="$pwd/$bdir/src/asciibox"
-  if [ -f $target ];then
-    cd $pwd/$bdir/src
+  if [ -f "$target" ];then
+    cd "$pwd/$bdir/src" || exit
     ./asciibox
-    cd -
+    cd - || exit
   else
     echo "[error]: build failed."
   fi
-
 }
-run_target
 
-cd -
-cd -
+function main() {
+  sync_version
+
+  # build_target
+  link_target_resource
+  run_target
+}
+
+main "$@"
