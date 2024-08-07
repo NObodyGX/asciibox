@@ -199,10 +199,7 @@ impl SvgbobPage {
         let texture: gdk::Texture =
             gdk::Texture::from_bytes(&glib::Bytes::from(svg_content.as_bytes()))
                 .expect("load svgbob out svg error");
-        self.imp()
-            .out_image
-            .get()
-            .set_from_paintable(Some(&texture));
+        self.imp().out_image.get().set_paintable(Some(&texture));
 
         self.imp().icon_str_backup.replace(svg_content);
     }
