@@ -89,7 +89,7 @@ impl AMap {
                 break;
             }
             // edge
-            (direct, a_text, vtext) = parse_edge(text.as_str());
+            (direct, a_text, vtext) = parse_edge(text.trim());
             // node
             if vtext.len() <= 0 {
                 break;

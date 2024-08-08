@@ -2,47 +2,63 @@ use std::usize;
 
 use super::cell::{ASharp, Direct};
 
-#[allow(dead_code)]
+#[derive(Debug, PartialEq)]
+enum ParseState {
+    Id,
+    Name,
+    Remain,
+}
+
 pub fn parse_node(input: &str) -> (String, String, ASharp, String) {
     let mut isharp = ASharp::Round;
     let mut iid = String::new();
     let mut iname = String::new();
     let mut iremain = String::new();
-    let mut state: u8 = 0;
+    let mut state: ParseState = ParseState::Id;
+    let mut left: char = '_';
 
     for c in input.chars() {
         match c {
-            '[' => {
-                state = 1;
-                isharp = ASharp::Round;
-            }
-            '(' => {
-                state = 1;
-                isharp = ASharp::Square;
-            }
-            '{' => {
-                state = 1;
-                isharp = ASharp::Circle;
-            }
-            ']' | ')' | '}' => {
-                if state == 1 {
-                    state = 2;
+            '[' | '(' | '{' => match state {
+                ParseState::Id => {
+                    state = ParseState::Name;
+                    isharp = match c {
+                        '[' => ASharp::Round,
+                        '(' => ASharp::Square,
+                        '{' => ASharp::Circle,
+                        _ => ASharp::Round,
+                    };
+                    left = c;
                 }
-            }
+                ParseState::Name => iname.push(c),
+                ParseState::Remain => iremain.push(c),
+            },
+            ']' | ')' | '}' => match state {
+                ParseState::Id => iid.push(c),
+                ParseState::Name => {
+                    if (left == '[' && c == ']')
+                        || (left == '(' && c == ')')
+                        || (left == '{' && c == '}')
+                    {
+                        state = ParseState::Remain;
+                    } else {
+                        iname.push(c);
+                    }
+                }
+                ParseState::Remain => iremain.push(c),
+            },
             '-' | '<' | '>' => match state {
-                0 => {
-                    state = 2;
+                ParseState::Id => {
+                    state = ParseState::Remain;
                     iremain.push(c);
                 }
-                1 => iname.push(c),
-                2 => iremain.push(c),
-                _ => {}
+                ParseState::Name => iname.push(c),
+                ParseState::Remain => iremain.push(c),
             },
             _ => match state {
-                0 => iid.push(c),
-                1 => iname.push(c),
-                2 => iremain.push(c),
-                _ => {}
+                ParseState::Id => iid.push(c),
+                ParseState::Name => iname.push(c),
+                ParseState::Remain => iremain.push(c),
             },
         }
     }
