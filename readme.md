@@ -13,7 +13,7 @@ asciibox is an auxiliary tool intended to simplify ascii text manipulation, incl
 
 run `sh build.sh` in project root dir
 
-> if you want to debug with cargo, you should replace gresource with your build, run `ln -s $PKGDATA_DIR/asciibox.gresource $PROJECTDIR/_build/data/asciibox.gresource`, `PKGDATA_DIR` define in `config.rs`, `PROJECTDIR` is project folder locate
+> if you want to debug with cargo, the config.rs will be generated differently than the installation. so you link file with your build, which should be done with ``build.sh``, if not, you should run `ln -s $PKGDATA_DIR/asciibox.gresource $PROJECTDIR/_build/data/asciibox.gresource`, `PKGDATA_DIR` define in `config.rs`, `PROJECTDIR` is project folder locate
 
 ## roadmap
 
@@ -68,5 +68,3 @@ rustup default stable-gnu
 # cp _build/data/asciibox.gresource /mingw/share/asciibox/
 # cargo run to enjoy
 ```
-
-
