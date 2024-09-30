@@ -102,7 +102,10 @@ impl AdocPage {
 
         // 当输入为 0 的时候不覆盖，这样可以编辑 svgbob 窗口并转换
         if content.len() != 0 {
-            let mut formator: TableFormator = TableFormator::new(24, 80);
+            let settings = Settings::new(crate::APP_ID);
+            let cellw = settings.int("cell-max-width");
+            let linew = settings.int("line-max-width");
+            let mut formator: TableFormator = TableFormator::new(cellw as usize, linew as usize);
             let otext: String = formator.do_format(content.as_str());
 
             let obuffer = self.imp().out_view.get().buffer();

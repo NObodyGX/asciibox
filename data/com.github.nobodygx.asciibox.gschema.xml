@@ -24,5 +24,13 @@
             <default>true</default>
             <summary>Enable auto cell expand</summary>
         </key>
+        <key name="cell-max-width" type="i">
+            <default>24</default>
+            <summary>cell max width</summary>
+        </key>
+        <key name="line-max-width" type="i">
+            <default>120</default>
+            <summary>line max width</summary>
+        </key>
     </schema>
 </schemalist>

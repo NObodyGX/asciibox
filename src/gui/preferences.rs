@@ -24,6 +24,10 @@ mod imp {
         pub font: TemplateChild<FontDialogButton>,
         #[template_child]
         pub expand_mode: TemplateChild<Switch>,
+        #[template_child]
+        pub cell_max_width: TemplateChild<adw::SpinRow>,
+        #[template_child]
+        pub line_max_width: TemplateChild<adw::SpinRow>,
     }
 
     #[glib::object_subclass]
@@ -124,6 +128,17 @@ impl MainPreferences {
         let expand_mode = self.imp().expand_mode.get();
         self.settings()
             .bind("expand-mode", &expand_mode, "active")
+            .flags(SettingsBindFlags::DEFAULT)
+            .build();
+
+        let cell_max_width = self.imp().cell_max_width.get();
+        self.settings()
+            .bind("cell-max-width", &cell_max_width, "value")
+            .flags(SettingsBindFlags::DEFAULT)
+            .build();
+        let line_max_width = self.imp().line_max_width.get();
+        self.settings()
+            .bind("line-max-width", &line_max_width, "value")
             .flags(SettingsBindFlags::DEFAULT)
             .build();
     }
