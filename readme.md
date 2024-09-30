@@ -23,8 +23,8 @@ run `sh build.sh` in project root dir
     - [ ] subgraph support
     - [ ] multi arrow support
     - [x] preview
-- [ ] asciidoc
-    - [ ] beautify table
+- [x] asciidoc
+    - [x] beautify table
     - [ ] beautify code
     - [ ] transform from markdown
     - [ ] preview
