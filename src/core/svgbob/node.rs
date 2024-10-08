@@ -13,28 +13,17 @@ pub struct AEdgeCell {
     pub oy: usize,
     // dst id
     pub id: String,
-    // origin id
-    pub oid: String,
     // 方向
     pub direct: Direct,
 }
 
 impl AEdgeCell {
     #[must_use]
-    pub fn new(
-        id: String,
-        x: usize,
-        y: usize,
-        oid: String,
-        ox: usize,
-        oy: usize,
-        direct: Direct,
-    ) -> Self {
+    pub fn new(id: String, x: usize, y: usize, ox: usize, oy: usize, direct: Direct) -> Self {
         Self {
             id,
             x,
             y,
-            oid,
             ox,
             oy,
             direct,

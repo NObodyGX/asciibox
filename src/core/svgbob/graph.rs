@@ -183,7 +183,7 @@ impl AGraph {
 
         let (si, di) = if flag { (src, dst) } else { (dst, src) };
         let node = self.nodes.get_mut(si).unwrap();
-        let edge = AEdgeCell::new(di.clone(), x, y, si.clone(), node.x, node.y, dir.clone());
+        let edge = AEdgeCell::new(di.clone(), x, y, node.x, node.y, dir.clone());
 
         match dir {
             Direct::Right | Direct::Left => {

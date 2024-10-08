@@ -7,10 +7,8 @@ use std::collections::HashMap;
 #[derive(Debug, Clone, Default, Copy)]
 pub struct RenderBox {
     pub w: usize,
-    pub left: usize,
     pub right: usize,
     pub h: usize,
-    pub up: usize,
     pub down: usize,
 }
 
