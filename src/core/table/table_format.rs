@@ -2,14 +2,14 @@ use super::TableData;
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum TableMode {
-    Markdown,
     Asciidoc,
+    Markdown,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum OriginTableMode {
-    Markdown,
     Asciidoc,
+    Markdown,
     NoneByTab,
     NoneBySpace,
     None,
@@ -194,7 +194,7 @@ impl TableFormator {
         return Some(data);
     }
 
-    pub fn do_format(&mut self, text: &str, mode: TableMode) -> String {
+    pub fn do_format(&mut self, text: &str, mode: &TableMode) -> String {
         let data = self.try_format_into_basic_table(text);
         match data {
             Some(v) => match mode {

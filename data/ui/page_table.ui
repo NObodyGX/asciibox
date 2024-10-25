@@ -62,6 +62,7 @@
                 <property name="orientation">vertical</property>
                 <property name="valign">end</property>
                 <property name="halign">end</property>
+                <!-- first -->
                 <child>
                   <object class="GtkButton">
                     <property name="visible">True</property>
@@ -71,6 +72,22 @@
                       Text</property>
                     <property name="icon-name">file-copy-symbolic</property>
                     <property name="action-name">adoc.do_transform_copy</property>
+                  </object>
+                </child>
+                <!-- second -->
+                <child>
+                  <object class="GtkDropDown" id="table_mode">
+                    <property name="margin-end">2</property>
+                    <property name="valign">center</property>
+                    <property name="width-request">60</property>
+                    <property name="model">
+                      <object class="GtkStringList">
+                        <items>
+                          <item translatable="false">Asciidoc</item>
+                          <item translatable="false">Markdown</item>
+                        </items>
+                      </object>
+                    </property>
                   </object>
                 </child>
               </object>

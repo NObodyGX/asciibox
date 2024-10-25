@@ -18,6 +18,8 @@ mod imp {
         pub in_view: TemplateChild<gtk::TextView>,
         #[template_child]
         pub out_view: TemplateChild<gtk::TextView>,
+        #[template_child]
+        pub table_mode: TemplateChild<gtk::DropDown>,
 
         pub provider: gtk::CssProvider,
     }
@@ -99,6 +101,11 @@ impl TablePage {
     fn do_transform(&self) {
         let ibuffer: gtk::TextBuffer = self.imp().in_view.get().buffer();
         let content = ibuffer.text(&ibuffer.bounds().0, &ibuffer.bounds().1, false);
+        let omode = match self.imp().table_mode.get().selected() {
+            0 => TableMode::Asciidoc,
+            1 => TableMode::Markdown,
+            _ => TableMode::Asciidoc,
+        };
 
         // 当输入为 0 的时候不覆盖，这样可以编辑 svgbob 窗口并转换
         if content.len() != 0 {
@@ -106,7 +113,7 @@ impl TablePage {
             let cellw = settings.int("cell-max-width");
             let linew = settings.int("line-max-width");
             let mut formator: TableFormator = TableFormator::new(cellw as usize, linew as usize);
-            let otext: String = formator.do_format(content.as_str(), TableMode::Markdown);
+            let otext: String = formator.do_format(content.as_str(), &omode);
 
             let obuffer = self.imp().out_view.get().buffer();
             obuffer.set_text(otext.as_str());
