@@ -7,7 +7,7 @@ use gtk::{gio, glib, prelude::*, CompositeTemplate, MenuButton};
 use std::cell::OnceCell;
 
 use crate::application::AsciiboxApplication;
-use crate::gui::{AdocPage, SvgbobPage};
+use crate::gui::{SvgbobPage, TablePage};
 use crate::APP_ID;
 
 mod imp {
@@ -27,7 +27,7 @@ mod imp {
         #[template_child]
         pub svgbob: TemplateChild<SvgbobPage>,
         #[template_child]
-        pub adoc: TemplateChild<AdocPage>,
+        pub adoc: TemplateChild<TablePage>,
         pub settings: OnceCell<Settings>,
     }
 

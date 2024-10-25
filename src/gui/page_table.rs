@@ -1,4 +1,4 @@
-use crate::core::adoc::TableFormator;
+use crate::core::table::{TableFormator, TableMode};
 use adw::prelude::*;
 use adw::subclass::prelude::*;
 use gtk::gdk;
@@ -12,8 +12,8 @@ mod imp {
     use super::*;
 
     #[derive(Debug, Default, CompositeTemplate)]
-    #[template(resource = "/com/github/nobodygx/asciibox/ui/page_adoc.ui")]
-    pub struct AdocPage {
+    #[template(resource = "/com/github/nobodygx/asciibox/ui/page_table.ui")]
+    pub struct TablePage {
         #[template_child]
         pub in_view: TemplateChild<gtk::TextView>,
         #[template_child]
@@ -23,9 +23,9 @@ mod imp {
     }
 
     #[glib::object_subclass]
-    impl ObjectSubclass for AdocPage {
-        const NAME: &'static str = "AdocPage";
-        type Type = super::AdocPage;
+    impl ObjectSubclass for TablePage {
+        const NAME: &'static str = "TablePage";
+        type Type = super::TablePage;
         type ParentType = gtk::Box;
 
         fn class_init(klass: &mut Self::Class) {
@@ -54,7 +54,7 @@ mod imp {
     }
 
     #[gtk::template_callbacks]
-    impl AdocPage {
+    impl TablePage {
         #[template_callback]
         fn top_picks_cb(&self) {
             println!("click top picks cb");
@@ -66,7 +66,7 @@ mod imp {
         }
     }
 
-    impl ObjectImpl for AdocPage {
+    impl ObjectImpl for TablePage {
         fn constructed(&self) {
             let obj = self.obj();
             self.parent_constructed();
@@ -74,19 +74,19 @@ mod imp {
             obj.setup_font_setting();
         }
     }
-    impl WidgetImpl for AdocPage {}
-    impl BoxImpl for AdocPage {}
+    impl WidgetImpl for TablePage {}
+    impl BoxImpl for TablePage {}
 }
 
 glib::wrapper! {
-    pub struct AdocPage(ObjectSubclass<imp::AdocPage>)
+    pub struct TablePage(ObjectSubclass<imp::TablePage>)
         @extends gtk::Widget, gtk::Box,
         @implements gtk::Accessible, gtk::Buildable,gtk::ConstraintTarget, gtk::Orientable;
 }
 
-impl AdocPage {
+impl TablePage {
     pub fn new() -> Self {
-        let page: AdocPage = glib::Object::new();
+        let page: TablePage = glib::Object::new();
         page
     }
     fn do_transform_copy(&self) {
@@ -164,7 +164,7 @@ impl AdocPage {
     }
 }
 
-impl Default for AdocPage {
+impl Default for TablePage {
     fn default() -> Self {
         Self::new()
     }

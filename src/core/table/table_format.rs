@@ -2,11 +2,18 @@ use std::cmp;
 
 use crate::core::utils::{self, cn_length};
 
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+pub enum TableMode {
+    Markdown,
+    Asciidoc,
+}
+
 #[derive(Debug)]
 pub struct TableFormator {
     pub title: String,
     pub w: usize,
     pub max_w: usize,
+    pub mode: TableMode,
     start_count: usize, // 有效表格头
     end_count: usize,   // 有效表格尾
 }
@@ -19,7 +26,28 @@ impl TableFormator {
             max_w,
             start_count: 0,
             end_count: 0,
+            mode: TableMode::Markdown,
         }
+    }
+
+    pub fn set_mode(&mut self, mode: TableMode) {
+        self.mode = mode;
+    }
+
+    pub fn try_format(&mut self, input: &str) -> String {
+        match self.mode {
+            TableMode::Markdown => return self.try_format_markdown(input),
+            TableMode::Asciidoc => return self.try_format_asciidoc(input),
+        }
+    }
+
+    fn try_format_into_basic_table(&self, input: &str) {}
+
+    fn try_format_markdown(&mut self, input: &str) -> String {
+        return "".to_string();
+    }
+    fn try_format_asciidoc(&mut self, input: &str) -> String {
+        return "".to_string();
     }
 
     pub fn do_format(&mut self, input: &str) -> String {
@@ -73,6 +101,10 @@ impl TableFormator {
             }
             // 如果是 asciidoc 列表
             if nline.starts_with("* ") {
+                continue;
+            }
+            // 如果是 asciidoc 列表格式
+            if nline.starts_with("|===") {
                 continue;
             }
             // 如果是 md 列表

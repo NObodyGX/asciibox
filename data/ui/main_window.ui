@@ -66,11 +66,11 @@
             </child>
             <child>
               <object class="AdwViewStackPage">
-                <property name="name">adoc</property>
-                <property name="title" translatable="yes">Adoc</property>
+                <property name="name">table</property>
+                <property name="title" translatable="yes">Table</property>
                 <property name="icon-name">table-export-symbolic</property>
                 <property name="child">
-                  <object class="AdocPage" id="adoc" />
+                  <object class="TablePage" id="adoc" />
                 </property>
               </object>
             </child>
