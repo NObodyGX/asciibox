@@ -1,6 +1,4 @@
-use std::cmp;
-
-use crate::core::utils::{self, cn_length};
+use super::TableData;
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum TableMode {
@@ -8,184 +6,207 @@ pub enum TableMode {
     Asciidoc,
 }
 
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+pub enum OriginTableMode {
+    Markdown,
+    Asciidoc,
+    NoneByTab,
+    NoneBySpace,
+    None,
+}
+
 #[derive(Debug)]
 pub struct TableFormator {
-    pub title: String,
     pub w: usize,
     pub max_w: usize,
-    pub mode: TableMode,
-    start_count: usize, // 有效表格头
-    end_count: usize,   // 有效表格尾
 }
 
 impl TableFormator {
     pub fn new(w: usize, max_w: usize) -> Self {
-        Self {
-            title: "".to_string(),
-            w,
-            max_w,
-            start_count: 0,
-            end_count: 0,
-            mode: TableMode::Markdown,
+        Self { w, max_w }
+    }
+
+    fn check_origin_table_mode(&self, text: &str) -> OriginTableMode {
+        // 不包含 | 则证明是非markdown或者asciidoc表格
+        if !text.contains("|") {
+            // 如果
+            let mut space_flag = true;
+            let mut tab_flag = true;
+            let lines: Vec<&str> = text.split('\n').filter(|&s| !s.is_empty()).collect();
+            for x in lines.iter() {
+                let x = x.trim();
+                if x.contains(" ") {
+                    space_flag = false;
+                }
+                if !x.contains("\t") {
+                    tab_flag = false;
+                }
+                if !space_flag && !tab_flag {
+                    break;
+                }
+            }
+            if tab_flag {
+                return OriginTableMode::NoneByTab;
+            }
+            if space_flag {
+                return OriginTableMode::NoneBySpace;
+            }
+            return OriginTableMode::None;
+        }
+        // 如果包含 markdown 表格对齐标识
+        if text.contains("---")
+            || text.contains(":--")
+            || text.contains("--:")
+            || text.contains(":-:")
+        {
+            return OriginTableMode::Markdown;
+        }
+        // 如果包含 asciidoc 表格标识
+        if text.contains("|==") {
+            return OriginTableMode::Asciidoc;
+        }
+        let lines: Vec<&str> = text.split('\n').filter(|&s| !s.is_empty()).collect();
+        let line = lines[0].trim();
+        // 如果刚开始是 asciidoc 的标题的话
+        if line.starts_with(".") {
+            return OriginTableMode::Asciidoc;
+        }
+        if line.starts_with("|") {
+            // 原始风格的 markdown
+            if line.ends_with("|") {
+                return OriginTableMode::Markdown;
+            } else {
+                return OriginTableMode::Asciidoc;
+            }
+        }
+        // 如果每层都有 | 的话，则证明是 markdown
+        let mut markdown_flag = true;
+        for x in lines.iter() {
+            if !x.contains("|") {
+                markdown_flag = false;
+            }
+        }
+        if markdown_flag {
+            return OriginTableMode::Markdown;
+        }
+        return OriginTableMode::None;
+    }
+
+    fn get_table_width(&self, lines: &Vec<&str>, omode: &OriginTableMode) -> usize {
+        match omode {
+            OriginTableMode::Markdown => {
+                let line = lines[0].trim();
+                if line.starts_with("|") {
+                    return line.matches("|").count() - 1;
+                }
+                return line.matches("|").count() + 1;
+            }
+            OriginTableMode::Asciidoc => {
+                let mut line = lines[0].trim();
+                if line.starts_with(".") {
+                    line = lines[1].trim();
+                }
+                return line.matches("|").count();
+            }
+            OriginTableMode::NoneByTab => {
+                let line = lines[0].trim();
+                return line.matches("\t").count() + 1;
+            }
+            OriginTableMode::NoneBySpace => {
+                let line = lines[0].trim();
+                return line.matches(" ").count() + 1;
+            }
+            OriginTableMode::None => {
+                let line = lines[0].trim();
+                return line.matches(" ").count() + 1;
+            }
         }
     }
 
-    pub fn set_mode(&mut self, mode: TableMode) {
-        self.mode = mode;
-    }
-
-    pub fn try_format(&mut self, input: &str) -> String {
-        match self.mode {
-            TableMode::Markdown => return self.try_format_markdown(input),
-            TableMode::Asciidoc => return self.try_format_asciidoc(input),
-        }
-    }
-
-    fn try_format_into_basic_table(&self, input: &str) {}
-
-    fn try_format_markdown(&mut self, input: &str) -> String {
-        return "".to_string();
-    }
-    fn try_format_asciidoc(&mut self, input: &str) -> String {
-        return "".to_string();
-    }
-
-    pub fn do_format(&mut self, input: &str) -> String {
-        if !self.check_content(input) {
-            return "".to_string();
-        }
+    fn try_format_into_basic_table(&self, input: &str) -> Option<TableData> {
         let lines: Vec<&str> = input.split('\n').filter(|&s| !s.is_empty()).collect();
-        let adata = self.prepare_content(lines);
-        let result = self.format_content(adata);
-        return result;
+        let h = lines.len();
+        if h < 2 {
+            return None;
+        }
+        let omode = self.check_origin_table_mode(input);
+        let w = self.get_table_width(&lines, &omode);
+        let mut data = TableData::new(w, h);
+        match omode {
+            OriginTableMode::Markdown => {
+                for (i, line) in lines.iter().enumerate() {
+                    // 正常风格
+                    if line.starts_with("|") {
+                        for (j, cell) in line.split("|").enumerate() {
+                            if j == 0 {
+                                continue;
+                            }
+                            data.set_cell(j - 1, i, cell);
+                        }
+                        continue;
+                    }
+                    // github 风格
+                    for (j, cell) in line.split("|").enumerate() {
+                        data.set_cell(j, i, cell);
+                    }
+                }
+            }
+            OriginTableMode::Asciidoc => {
+                for (i, line) in lines.iter().enumerate() {
+                    if i == 0 && line.starts_with(".") {
+                        data.title = line.to_string().clone();
+                    }
+                    // 忽略掉表格的部分
+                    if line.starts_with("|=") {
+                        continue;
+                    }
+                    // TODO：这里需要asciidoc的语法做一点特殊分析
+                    // 例如表格扩展之类的
+                    for (j, cell) in line.split("|").enumerate() {
+                        data.set_cell(j, i, cell);
+                    }
+                }
+            }
+            OriginTableMode::NoneByTab => {
+                for (i, line) in lines.iter().enumerate() {
+                    for (j, cell) in line.split("\t").enumerate() {
+                        data.set_cell(j, i, cell);
+                    }
+                }
+            }
+            OriginTableMode::NoneBySpace => {
+                for (i, line) in lines.iter().enumerate() {
+                    for (j, cell) in line.split(" ").enumerate() {
+                        data.set_cell(j, i, cell);
+                    }
+                }
+            }
+            OriginTableMode::None => {
+                // 先依照 space, 再用强行补 0 的方式
+                for (i, line) in lines.iter().enumerate() {
+                    for (j, cell) in line.split(" ").enumerate() {
+                        data.set_cell(j, i, cell);
+                    }
+                }
+            }
+        }
+        return Some(data);
     }
 
-    // 检查内容是否包含表格
-    fn check_content(&self, input: &str) -> bool {
-        let lines: Vec<&str> = input.split('\n').filter(|&s| !s.is_empty()).collect();
-        if lines.len() < 2 {
-            return false;
-        }
-        for line in lines.iter() {
-            // asciidoc or markdown table
-            if line.starts_with("|") {
-                return true;
-            }
-            // github style markdown table
-            if line.contains(" | ") {
-                return true;
-            }
-        }
-        return true;
-    }
-
-    // 准备用于转换的表格内容，直接过滤不要的内容
-    // todo：直接覆盖原有内容
-    fn prepare_content(&mut self, lines: Vec<&str>) -> Vec<Vec<String>> {
-        let mut data: Vec<Vec<String>> = Vec::new();
-        let mut idx: usize = lines.len();
-        // 包含标题
-        if lines[0].starts_with(".") {
-            self.title = lines[0].to_string();
-            idx = 0;
-            self.start_count = 1;
-        }
-
-        for (i, line) in lines.iter().enumerate() {
-            if i == idx {
-                continue;
-            }
-            let nline: String = line.trim().to_string();
-            if nline.len() == 0 {
-                continue;
-            }
-            // 如果是 asciidoc 列表
-            if nline.starts_with("* ") {
-                continue;
-            }
-            // 如果是 asciidoc 列表格式
-            if nline.starts_with("|===") {
-                continue;
-            }
-            // 如果是 md 列表
-            if nline.starts_with("- ") {
-                continue;
-            }
-            // 如果不含表格内容
-            if !nline.contains("|") {
-                continue;
-            }
-            self.end_count = i + 1;
-            // 如果是 asciidoc 或者 md 表格
-            let mut skip_header = false;
-            if nline.starts_with("|") {
-                skip_header = true;
-            }
-            let mut aline: Vec<String> = Vec::new();
-            let aaa: Vec<_> = nline.split('|').collect();
-            for (i, word) in aaa.iter().enumerate() {
-                if skip_header && i == 0 {
-                    continue;
+    pub fn do_format(&mut self, input: &str, mode: TableMode) -> String {
+        let data = self.try_format_into_basic_table(input);
+        match data {
+            Some(v) => match mode {
+                TableMode::Markdown => {
+                    return v.to_markdown_table();
                 }
-                let b = word.trim().to_string();
-                aline.push(b.clone());
-            }
-            data.push(aline);
-            continue;
-        }
-        data
-    }
-
-    fn format_content(&self, data: Vec<Vec<String>>) -> String {
-        // 计算每列的最大宽度，保证相同
-        let mut cell_widths: Vec<usize> = Vec::new();
-        for line in data.iter() {
-            for (i, cell) in line.iter().enumerate() {
-                while i >= cell_widths.len() {
-                    cell_widths.push(0);
+                TableMode::Asciidoc => {
+                    return v.to_asciidoc_table();
                 }
-                // 超出 w 的空格不做处理
-                if cn_length(cell) > self.w {
-                    continue;
-                }
-                cell_widths[i] = cmp::max(cell_widths[i], cn_length(cell));
+            },
+            None => {
+                return "error".to_string();
             }
         }
-        // 生成表格内容
-        let mut content: Vec<String> = Vec::new();
-        for line in data.iter() {
-            let mut xline = String::new();
-            for (j, cell) in line.iter().enumerate() {
-                let symbol = if j == 0 { "| " } else { " | " };
-                let (v1, v2) = (cell_widths[j], utils::cn_length(cell));
-                let blank = " ".repeat(cmp::max(v1, v2) - cmp::min(v1, v2));
-                xline.push_str(symbol);
-                xline.push_str(cell);
-                xline.push_str(blank.as_str());
-            }
-            content.push(xline.clone());
-        }
-        // 添加表头和表尾
-        let mut total_w = cell_widths.len() * 3 - 2;
-        for length in cell_widths.iter() {
-            total_w += length;
-        }
-        let mut border = String::new();
-        border.push('|');
-        border.push_str("=".repeat(std::cmp::min(self.max_w, total_w)).as_str());
-        content.insert(0, border.clone());
-        content.push(border);
-
-        // 添加标题
-        if self.title.len() > 0 {
-            content.insert(0, self.title.clone() + "\n");
-        }
-
-        let mut result = String::new();
-        for x in content.iter() {
-            result.push_str(x.trim());
-            result.push('\n');
-        }
-        result
     }
 }

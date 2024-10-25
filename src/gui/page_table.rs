@@ -106,7 +106,7 @@ impl TablePage {
             let cellw = settings.int("cell-max-width");
             let linew = settings.int("line-max-width");
             let mut formator: TableFormator = TableFormator::new(cellw as usize, linew as usize);
-            let otext: String = formator.do_format(content.as_str());
+            let otext: String = formator.do_format(content.as_str(), TableMode::Markdown);
 
             let obuffer = self.imp().out_view.get().buffer();
             obuffer.set_text(otext.as_str());
