@@ -26,29 +26,30 @@ impl TableFormator {
         Self { w, max_w }
     }
 
+    // 判断是否包含，如果超过 60% 的行包含，那么证明包含
+    fn check_contain_symbol(&self, text: &str, symbol: &str) -> bool {
+        let mut count = 0;
+        let lines: Vec<&str> = text.split('\n').filter(|&s| !s.is_empty()).collect();
+        let total = lines.len() * 6 / 10;
+        for x in lines.iter() {
+            let x = x.trim();
+            if x.contains(symbol) {
+                count += 1;
+            }
+            if count >= total {
+                return true;
+            }
+        }
+        return false;
+    }
+
     fn check_origin_table_mode(&self, text: &str) -> OriginTableMode {
         // 不包含 | 则证明是非markdown或者asciidoc表格
         if !text.contains("|") {
-            // 如果
-            let mut space_flag = true;
-            let mut tab_flag = true;
-            let lines: Vec<&str> = text.split('\n').filter(|&s| !s.is_empty()).collect();
-            for x in lines.iter() {
-                let x = x.trim();
-                if x.contains(" ") {
-                    space_flag = false;
-                }
-                if !x.contains("\t") {
-                    tab_flag = false;
-                }
-                if !space_flag && !tab_flag {
-                    break;
-                }
-            }
-            if tab_flag {
+            if self.check_contain_symbol(text, "\t") {
                 return OriginTableMode::NoneByTab;
             }
-            if space_flag {
+            if self.check_contain_symbol(text, " ") {
                 return OriginTableMode::NoneBySpace;
             }
             return OriginTableMode::None;
@@ -123,13 +124,13 @@ impl TableFormator {
         }
     }
 
-    fn try_format_into_basic_table(&self, input: &str) -> Option<TableData> {
-        let lines: Vec<&str> = input.split('\n').filter(|&s| !s.is_empty()).collect();
+    fn try_format_into_basic_table(&self, text: &str) -> Option<TableData> {
+        let lines: Vec<&str> = text.split('\n').filter(|&s| !s.is_empty()).collect();
         let h = lines.len();
         if h < 2 {
             return None;
         }
-        let omode = self.check_origin_table_mode(input);
+        let omode = self.check_origin_table_mode(text);
         let w = self.get_table_width(&lines, &omode);
         let mut data = TableData::new(w, h);
         match omode {
@@ -193,8 +194,8 @@ impl TableFormator {
         return Some(data);
     }
 
-    pub fn do_format(&mut self, input: &str, mode: TableMode) -> String {
-        let data = self.try_format_into_basic_table(input);
+    pub fn do_format(&mut self, text: &str, mode: TableMode) -> String {
+        let data = self.try_format_into_basic_table(text);
         match data {
             Some(v) => match mode {
                 TableMode::Markdown => {
