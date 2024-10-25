@@ -17,13 +17,16 @@ pub enum OriginTableMode {
 
 #[derive(Debug)]
 pub struct TableFormator {
-    pub w: usize,
-    pub max_w: usize,
+    pub cell_max_w: usize,
+    pub line_max_w: usize,
 }
 
 impl TableFormator {
     pub fn new(w: usize, max_w: usize) -> Self {
-        Self { w, max_w }
+        Self {
+            cell_max_w: w,
+            line_max_w: max_w,
+        }
     }
 
     // 判断是否包含，如果超过 60% 的行包含，那么证明包含
@@ -132,7 +135,7 @@ impl TableFormator {
         }
         let omode = self.check_origin_table_mode(text);
         let w = self.get_table_width(&lines, &omode);
-        let mut data = TableData::new(w, h);
+        let mut data = TableData::new(w, h, self.cell_max_w, self.line_max_w);
         match omode {
             OriginTableMode::Markdown => {
                 for (i, line) in lines.iter().enumerate() {

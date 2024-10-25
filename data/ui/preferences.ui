@@ -66,14 +66,14 @@
             <child>
               <object class="AdwSpinRow" id="cell_max_width">
                 <property name="title" translatable="yes">Single Cell Max Width</property>
-                <property name="subtitle" translatable="yes">default to 24</property>
+                <property name="subtitle" translatable="yes">default to 99</property>
                 <property name="adjustment">
                   <object class="GtkAdjustment">
                     <property name="step-increment">1</property>
                     <property name="page-increment">10</property>
                     <property name="upper">999</property>
                     <property name="lower">12</property>
-                    <property name="value">24</property>
+                    <property name="value">99</property>
                   </object>
                 </property>
                </object>

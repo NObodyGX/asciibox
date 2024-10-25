@@ -7,16 +7,20 @@ pub struct TableData {
     pub title: String,
     pub w: usize,
     pub h: usize,
+    cell_max_w: usize,
+    line_max_w: usize,
     data: Vec<Vec<String>>,
 }
 
 impl TableData {
-    pub fn new(w: usize, h: usize) -> Self {
+    pub fn new(w: usize, h: usize, cell_max_w: usize, line_max_w: usize) -> Self {
         let data = vec![vec!["".to_string(); w]; h];
         Self {
             title: "".to_string(),
             w,
             h,
+            cell_max_w,
+            line_max_w,
             data,
         }
     }
@@ -64,15 +68,23 @@ impl TableData {
             }
             w = cmp::max(w, cur_width);
         }
-        return w;
+        return cmp::min(w, self.line_max_w);
     }
 
-    pub fn to_markdown_table(&self) -> String {
+    fn cell_line_widths(&self, is_markdown: bool) -> Vec<usize> {
         let mut cell_widths: Vec<usize> = Vec::new();
         for x in 0..self.w {
             // markdown 对齐需要三格
-            cell_widths.push(std::cmp::max(self.width(x, true), 3));
+            cell_widths.push(std::cmp::min(
+                std::cmp::max(self.width(x, is_markdown), 3),
+                self.cell_max_w,
+            ));
         }
+        return cell_widths;
+    }
+
+    pub fn to_markdown_table(&self) -> String {
+        let cell_widths = self.cell_line_widths(true);
 
         let mut content: Vec<String> = Vec::new();
         // 正文
@@ -80,7 +92,11 @@ impl TableData {
             let mut xline = String::new();
             for (j, cell) in line.iter().enumerate() {
                 let (v1, v2) = (cell_widths[j], utils::cn_length(cell));
-                let blank = " ".repeat(cmp::max(v1, v2) - cmp::min(v1, v2));
+                let blank = if v1 > v2 {
+                    " ".repeat(v1 - v2)
+                } else {
+                    "".to_string()
+                };
                 xline.push_str("| ");
                 xline.push_str(cell);
                 xline.push_str(blank.as_str());
@@ -135,10 +151,7 @@ impl TableData {
     }
 
     pub fn to_asciidoc_table(&self) -> String {
-        let mut cell_widths: Vec<usize> = Vec::new();
-        for x in 0..self.w {
-            cell_widths.push(self.width(x, false));
-        }
+        let cell_widths = self.cell_line_widths(false);
 
         let mut content: Vec<String> = Vec::new();
         // 第 i 行
@@ -184,7 +197,7 @@ mod tests {
 
     #[test]
     fn test_data_new() {
-        let mut data = TableData::new(5, 3);
+        let mut data = TableData::new(5, 3, 33, 99);
         data.set_cell(0, 0, "1");
         data.set_cell(1, 0, "2");
         data.set_cell(2, 0, "3");
