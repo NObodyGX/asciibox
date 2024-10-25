@@ -1,5 +1,13 @@
 # ChangeLog
 
+## v0.9.0
+
+Fixed table format bug
+New features:
+
+- support input markdown/asciibox table format
+- support table format which copy from web
+
 ## v0.8.4
 
 Fixed some render bug
