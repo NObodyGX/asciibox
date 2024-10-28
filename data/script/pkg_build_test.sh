@@ -1,7 +1,9 @@
 #!/bin/bash
 
 pwd=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
-tdir="${pwd}/pkg_build"
+tdir="${pwd}/test_pkg_build"
+idir="${pwd}/../aur"
+pkg="PKGBUILD"
 
 if [ ! -d "${tdir}" ]; then
   mkdir -p "${tdir}"
@@ -10,7 +12,7 @@ if [ ! -d "${tdir}" ]; then
   cd - || exit
 fi
 
-cp "${pwd}"/../PKGBUILD "${tdir}"/PKGBUILD
+cp "${idir}/${pkg}" "${tdir}/${pkg}"
 
 cd "${tdir}" || exit
 
@@ -20,6 +22,6 @@ makepkg --printsrcinfo >.SRCINFO
 
 makepkg -f
 
-cp "${tdir}"/PKGBUILD "${pwd}"/../PKGBUILD
+cp "${tdir}/${pkg}" "${idir}/${pkg}"
 
 cd - || exit
