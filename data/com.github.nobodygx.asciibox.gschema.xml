@@ -32,5 +32,9 @@
             <default>120</default>
             <summary>line max width</summary>
         </key>
+        <key name="gfm-table-enable" type="b">
+            <default>false</default>
+            <summary>Use GFM table style</summary>
+        </key>
     </schema>
 </schemalist>

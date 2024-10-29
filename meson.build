@@ -13,7 +13,7 @@ app_id = 'com.github.nobodygx.asciibox'
 app_name = 'asciibox'
 pkg_dir = join_paths(get_option('prefix'), get_option('datadir'), app_name)
 localedir = join_paths(get_option('prefix'), get_option('localedir'))
-podir = join_paths(meson.project_source_root() 'po')
+podir = join_paths(meson.project_source_root(), 'po')
 gettext_package = meson.project_name()
 
 conf = configuration_data()

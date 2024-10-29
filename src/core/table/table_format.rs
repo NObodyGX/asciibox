@@ -7,6 +7,12 @@ pub enum TableMode {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
+pub enum MarkdownStyle {
+    Normal,
+    Github,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum OriginTableMode {
     Asciidoc,
     Markdown,
@@ -197,12 +203,12 @@ impl TableFormator {
         return Some(data);
     }
 
-    pub fn do_format(&mut self, text: &str, mode: &TableMode) -> String {
+    pub fn do_format(&mut self, text: &str, mode: &TableMode, style: MarkdownStyle) -> String {
         let data = self.try_format_into_basic_table(text);
         match data {
             Some(v) => match mode {
                 TableMode::Markdown => {
-                    return v.to_markdown_table();
+                    return v.to_markdown_table(style);
                 }
                 TableMode::Asciidoc => {
                     return v.to_asciidoc_table();

@@ -2,6 +2,8 @@ use std::cmp;
 
 use crate::core::utils;
 
+use super::table_format::MarkdownStyle;
+
 #[derive(Debug)]
 pub struct TableData {
     pub title: String,
@@ -83,7 +85,7 @@ impl TableData {
         return cell_widths;
     }
 
-    pub fn to_markdown_table(&self) -> String {
+    pub fn to_markdown_table(&self, style: MarkdownStyle) -> String {
         let cell_widths = self.cell_line_widths(true);
 
         let mut content: Vec<String> = Vec::new();
@@ -97,12 +99,16 @@ impl TableData {
                 } else {
                     "".to_string()
                 };
-                xline.push_str("| ");
+                if style == MarkdownStyle::Normal || j != 0 {
+                    xline.push_str("| ");
+                }
                 xline.push_str(cell);
                 xline.push_str(blank.as_str());
                 xline.push(' ');
             }
-            xline.push('|');
+            if style == MarkdownStyle::Normal {
+                xline.push('|');
+            }
             content.push(xline.clone());
         }
         // 添加表格对齐
@@ -110,18 +116,24 @@ impl TableData {
         let line: &String = content.get(1).unwrap();
         if !line.contains("-") {
             let mut nline = String::new();
-            for w in cell_widths.iter() {
-                nline.push_str("| ");
+            for (i, w) in cell_widths.iter().enumerate() {
+                if style == MarkdownStyle::Normal || i != 0 {
+                    nline.push_str("| ");
+                }
                 nline.push_str("-".repeat(*w).as_str());
                 nline.push(' ');
             }
-            nline.push('|');
+            if style == MarkdownStyle::Normal {
+                nline.push('|');
+            }
             content.insert(1, nline);
         } else {
             let mut nline = String::new();
             let cells = self.data.get(1).unwrap();
             for (w, cell) in cells.iter().enumerate() {
-                nline.push_str("| ");
+                if style == MarkdownStyle::Normal || w != 0 {
+                    nline.push_str("| ");
+                }
                 if cell.starts_with(":-") && cell.ends_with("-:") {
                     nline.push(':');
                     nline.push_str("-".repeat(cell_widths[w] - 2).as_str());
@@ -137,8 +149,10 @@ impl TableData {
                 }
                 nline.push(' ');
             }
-            nline.push('|');
-            content.insert(1, nline);
+            if style == MarkdownStyle::Normal {
+                nline.push('|');
+            }
+            content.insert(1, nline.trim().to_string());
             content.remove(2);
         }
 

@@ -28,6 +28,8 @@ mod imp {
         pub cell_max_width: TemplateChild<adw::SpinRow>,
         #[template_child]
         pub line_max_width: TemplateChild<adw::SpinRow>,
+        #[template_child]
+        pub gfm_table_enable: TemplateChild<Switch>,
     }
 
     #[glib::object_subclass]
@@ -139,6 +141,11 @@ impl MainPreferences {
         let line_max_width = self.imp().line_max_width.get();
         self.settings()
             .bind("line-max-width", &line_max_width, "value")
+            .flags(SettingsBindFlags::DEFAULT)
+            .build();
+        let gfm_table_enable = self.imp().gfm_table_enable.get();
+        self.settings()
+            .bind("gfm-table-enable", &gfm_table_enable, "active")
             .flags(SettingsBindFlags::DEFAULT)
             .build();
     }

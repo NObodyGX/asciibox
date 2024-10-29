@@ -1,4 +1,4 @@
-use crate::core::table::{TableFormator, TableMode};
+use crate::core::table::{MarkdownStyle, TableFormator, TableMode};
 use adw::prelude::*;
 use adw::subclass::prelude::*;
 use gtk::gdk;
@@ -112,8 +112,14 @@ impl TablePage {
             let settings = Settings::new(crate::APP_ID);
             let cellw = settings.int("cell-max-width");
             let linew = settings.int("line-max-width");
+            let gfm_style = if settings.boolean("gfm-table-enable") {
+                MarkdownStyle::Github
+            } else {
+                MarkdownStyle::Normal
+            };
+
             let mut formator: TableFormator = TableFormator::new(cellw as usize, linew as usize);
-            let otext: String = formator.do_format(content.as_str(), &omode);
+            let otext: String = formator.do_format(content.as_str(), &omode, gfm_style);
 
             let obuffer = self.imp().out_view.get().buffer();
             obuffer.set_text(otext.as_str());
