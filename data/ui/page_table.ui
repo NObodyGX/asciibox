@@ -71,7 +71,7 @@
                     <property name="tooltip_text" translatable="yes">Copy Svgbob
                       Text</property>
                     <property name="icon-name">file-copy-symbolic</property>
-                    <property name="action-name">adoc.do_transform_copy</property>
+                    <property name="action-name">table.do_transform_copy</property>
                   </object>
                 </child>
                 <!-- second -->
@@ -101,7 +101,7 @@
       <object class="GtkButton">
         <property name="label">---- run ----</property>
         <property name="focus-on-click">True</property>
-        <property name="action-name">adoc.do_transform</property>
+        <property name="action-name">table.do_transform</property>
       </object>
     </child>
   </template>

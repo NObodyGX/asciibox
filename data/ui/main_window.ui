@@ -70,7 +70,7 @@
                 <property name="title" translatable="yes">Table</property>
                 <property name="icon-name">table-export-symbolic</property>
                 <property name="child">
-                  <object class="TablePage" id="adoc" />
+                  <object class="TablePage" id="table" />
                 </property>
               </object>
             </child>

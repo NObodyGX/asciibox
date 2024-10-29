@@ -34,18 +34,18 @@ mod imp {
             klass.bind_template();
             klass.bind_template_callbacks();
 
-            klass.install_action("adoc.do_transform_copy", None, move |obj, _, _| {
+            klass.install_action("table.do_transform_copy", None, move |obj, _, _| {
                 obj.do_transform_copy();
             });
 
-            klass.install_action("adoc.do_transform", None, move |obj, _, _| {
+            klass.install_action("table.do_transform", None, move |obj, _, _| {
                 obj.do_transform();
             });
 
-            klass.install_action("adoc.do_clear", None, move |obj, _, _| {
+            klass.install_action("table.do_clear", None, move |obj, _, _| {
                 obj.do_clear();
             });
-            klass.install_action("adoc.refresh_font", None, move |obj, _, _| {
+            klass.install_action("table.refresh_font", None, move |obj, _, _| {
                 obj.refresh_font();
             });
         }

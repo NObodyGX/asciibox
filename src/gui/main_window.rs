@@ -27,7 +27,7 @@ mod imp {
         #[template_child]
         pub svgbob: TemplateChild<SvgbobPage>,
         #[template_child]
-        pub adoc: TemplateChild<TablePage>,
+        pub table: TemplateChild<TablePage>,
         pub settings: OnceCell<Settings>,
     }
 
@@ -153,8 +153,8 @@ impl MainWindow {
             Some(name) => {
                 if name.as_str() == "svgbob" {
                     let _ = imp.svgbob.activate_action("svgbob.do_transform", None);
-                } else if name.as_str() == "adoc" {
-                    let _ = imp.adoc.activate_action("adoc.do_transform", None);
+                } else if name.as_str() == "table" {
+                    let _ = imp.table.activate_action("table.do_transform", None);
                 }
             }
             None => {}
@@ -168,8 +168,8 @@ impl MainWindow {
             Some(name) => {
                 if name.as_str() == "svgbob" {
                     let _ = imp.svgbob.activate_action("svgbob.do_clear", None);
-                } else if name.as_str() == "adoc" {
-                    let _ = imp.adoc.activate_action("adoc.do_clear", None);
+                } else if name.as_str() == "table" {
+                    let _ = imp.table.activate_action("table.do_clear", None);
                 }
             }
             None => {}
@@ -179,7 +179,7 @@ impl MainWindow {
     fn switch_tab(&self) {
         let mut names: Vec<&str> = Vec::new();
         names.push("svgbob");
-        names.push("adoc");
+        names.push("table");
         names.push(names[0]);
         let s = self.imp().stack.visible_child_name();
         match s {
@@ -205,7 +205,7 @@ impl MainWindow {
         println!("refresh_text_view_font");
         let imp = self.imp();
         // 只需要改动一个，因为目前直接改动的是 textview 基类 css
-        let _ = imp.adoc.activate_action("adoc.refresh_font", None);
+        let _ = imp.table.activate_action("table.refresh_font", None);
     }
 }
 
