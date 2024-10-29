@@ -1,5 +1,12 @@
 # ChangeLog
 
+## v0.9.1
+
+Fixed table format bug
+New features:
+
+- support gfm markdown style table format
+
 ## v0.9.0
 
 Fixed table format bug
