@@ -1,17 +1,191 @@
-# Chinese translations for asciibox package
-# Copyright (C) 2024 THE asciibox'S COPYRIGHT HOLDER
-# This file is distributed under the same license as the asciibox package.
-# nobodygx <nobodygx@163.com>, 2024.
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
+#, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: asciibox\n"
-"Report-Msgid-Bugs-To: \n"
+"Project-Id-Version: asciibox main\n"
+"Report-Msgid-Bugs-To: https://github.com/nobodygx/asciibox/issues/\n"
 "POT-Creation-Date: 2024-05-30 15:00+0000\n"
-"PO-Revision-Date: 2024-05-30 15:38+0800\n"
-"Last-Translator: nobodygx <nobodygx@163.com>\n"
+"PO-Revision-Date: 2024-10-29 16:26+0800\n"
+"Last-Translator: NObodyGX <nobodygx@163.com>\n"
 "Language-Team: Chinese (simplified) <i18n-zh@googlegroups.com>\n"
 "Language: zh_CN\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: Gtranslator 46.1\n"
+
+#: data/com.github.nobodygx.asciibox.desktop.in:4
+msgid "svgbob;asciidoc;text;"
+msgstr ""
+
+#: data/com.github.nobodygx.asciibox.desktop.in:7
+#: data/com.github.nobodygx.asciibox.desktop.in:9
+#: data/com.github.nobodygx.asciibox.metainfo.xml.in:5
+#: data/ui/main_window.ui:27
+msgid "Asciibox"
+msgstr ""
+
+#: data/com.github.nobodygx.asciibox.desktop.in:10
+msgid "a simple tools for svgbob/asciidoc"
+msgstr ""
+
+#: data/com.github.nobodygx.asciibox.metainfo.xml.in:6
+msgid "A simple tools for svgbob/asciidoc"
+msgstr ""
+
+#: data/com.github.nobodygx.asciibox.metainfo.xml.in:10
+msgid "A simple text tool to help generate svgbob ascii text and image easily"
+msgstr ""
+
+#: data/com.github.nobodygx.asciibox.metainfo.xml.in:11
+msgid "Also can used to formating asciidoc table."
+msgstr ""
+
+#: data/com.github.nobodygx.asciibox.metainfo.xml.in:12
+msgid "Build by rust with gtk4."
+msgstr ""
+
+#: data/com.github.nobodygx.asciibox.metainfo.xml.in:15
+msgid "NObodyGX"
+msgstr ""
+
+#: data/com.github.nobodygx.asciibox.metainfo.xml.in:20
+msgid "Main window"
+msgstr "主界面"
+
+#: data/ui/main_window.ui:11
+msgid "_Preferences"
+msgstr "设置"
+
+#: data/ui/main_window.ui:15
+msgid "_Keyboard Shortcuts"
+msgstr "快捷键"
+
+#: data/ui/main_window.ui:19
+msgid "_About asciibox"
+msgstr "关于 asciibox"
+
+#: data/ui/main_window.ui:35
+msgid "Main Menu"
+msgstr "主菜单"
+
+#: data/ui/main_window.ui:60 data/ui/preferences.ui:52
+msgid "Svgbob"
+msgstr ""
+
+#: data/ui/main_window.ui:70 data/ui/preferences.ui:71
+msgid "Table"
+msgstr ""
+
+#: data/ui/page_svgbob.ui:77
+msgid "Copy Svg"
+msgstr "复制 Svg"
+
+#: data/ui/page_svgbob.ui:87
+msgid "Save Svg"
+msgstr "保存 Svg"
+
+#: data/ui/page_svgbob.ui:131
+msgid "Copy Svgbob Text"
+msgstr "复制 Svgbob 文字"
+
+#: data/ui/page_svgbob.ui:141
+msgid "Transform Svgbob To Svg"
+msgstr "转换 Svgbob 到 Svg"
+
+#: data/ui/page_table.ui:71
+msgid ""
+"Copy Svgbob\n"
+"                      Text"
+msgstr ""
+
+#: data/ui/preferences.ui:7
+msgid "Preferences"
+msgstr "设置"
+
+#: data/ui/preferences.ui:12
+msgid "General"
+msgstr "通用"
+
+#: data/ui/preferences.ui:15
+msgid "Use Custom _Font"
+msgstr "使用自定义字体"
+
+#: data/ui/preferences.ui:16
+msgid "Should use mono font for the best experience"
+msgstr "为了最好的体验，请使用等宽字符"
+
+#: data/ui/preferences.ui:28
+msgid "Font"
+msgstr "字符"
+
+#: data/ui/preferences.ui:55
+msgid "Expand Mode"
+msgstr "扩张模式"
+
+#: data/ui/preferences.ui:56
+msgid "Box will expand auto"
+msgstr "方框将自动扩张"
+
+#: data/ui/preferences.ui:74
+msgid "Single Cell Max Width"
+msgstr "单个方格的最大宽度"
+
+#: data/ui/preferences.ui:75
+msgid "default to 99"
+msgstr "默认：99"
+
+#: data/ui/preferences.ui:89
+msgid "Total Line Max Width"
+msgstr "整行的最大宽度"
+
+#: data/ui/preferences.ui:90
+msgid "default to 120"
+msgstr "默认：120"
+
+#: data/ui/shortcuts.ui:11
+msgctxt "shortcut window"
+msgid "General"
+msgstr "通用"
+
+#: data/ui/shortcuts.ui:14
+msgctxt "shortcut window"
+msgid "Quit"
+msgstr "退出"
+
+#: data/ui/shortcuts.ui:20
+msgctxt "shortcut window"
+msgid "Show shortcuts"
+msgstr "显示快捷键"
+
+#: data/ui/shortcuts.ui:26
+msgctxt "shortcut window"
+msgid "Switch Tab"
+msgstr "切换界面"
+
+#: data/ui/shortcuts.ui:32
+msgctxt "shortcut window"
+msgid "Execute"
+msgstr "执行"
+
+#: data/ui/shortcuts.ui:38
+msgctxt "shortcut window"
+msgid "Clear"
+msgstr "清空"
+
+#: data/ui/theme_selector.ui:22
+msgid "Use system style"
+msgstr "跟随系统主题"
+
+#: data/ui/theme_selector.ui:35
+msgid "Light style"
+msgstr "白天模式"
+
+#: data/ui/theme_selector.ui:49
+msgid "Dark style"
+msgstr "夜晚模式"

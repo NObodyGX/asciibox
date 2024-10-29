@@ -1,5 +1,6 @@
 pub const VERSION: &str = @VERSION@;
 pub const PKGDATA_DIR: &str = @PACKAGE_DATADIR@;
+pub const LOCALE_DIR: &str = @LOCALE_DIR@;
 pub const APP_ID: &str = @APP_ID@;
 pub const APP_NAME: &str = @APP_NAME@;
 pub const APP_URL: &str = @PACKAGE_WEBSITE@;

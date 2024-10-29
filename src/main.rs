@@ -3,6 +3,7 @@ mod config;
 mod core;
 mod gui;
 use application::AsciiboxApplication;
+use gettextrs::LocaleCategory;
 use gtk::prelude::*;
 use gtk::{gio, glib};
 
@@ -13,6 +14,12 @@ fn main() -> glib::ExitCode {
     let resources = gio::Resource::load(PKGDATA_DIR.to_owned() + "/asciibox.gresource")
         .expect("Could not load resources");
     gio::resources_register(&resources);
+
+    // Prepare i18n
+    gettextrs::setlocale(LocaleCategory::LcAll, "");
+    gettextrs::bindtextdomain(config::APP_NAME, config::LOCALE_DIR)
+        .expect("Unable to bind the text domain");
+    gettextrs::textdomain(config::APP_NAME).expect("Unable to switch to the text domain");
 
     // Create a new application
     let app = AsciiboxApplication::new(APP_ID, &gio::ApplicationFlags::empty());
