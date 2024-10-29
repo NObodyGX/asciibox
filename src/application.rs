@@ -117,18 +117,18 @@ impl AsciiboxApplication {
 
     fn show_about(&self) {
         let window = self.active_window().unwrap();
-        let dialog = gtk::AboutDialog::builder()
-            .transient_for(&window)
-            .modal(true)
-            .program_name(APP_NAME)
-            .logo_icon_name(APP_NAME)
+        let dialog = adw::AboutDialog::builder()
+            .application_icon(APP_NAME)
+            .application_name(APP_NAME)
             .version(VERSION)
-            .authors(vec!["nobodygx"])
+            .developer_name("NObodyGX")
+            .developers(vec!["NObodyGX"])
+            .copyright("© 2024 NObodyGX")
             .website(APP_URL)
+            .issue_url(format!("{APP_URL}/issues"))
             .license_type(gtk::License::MitX11)
             .build();
-
-        dialog.present();
+        dialog.present(Some(&window));
     }
 }
 
