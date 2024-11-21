@@ -1,7 +1,7 @@
 #!/bin/bash
 
 pwd=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
-tdir="${pwd}/test_pkg_build"
+tdir="${pwd}/../../target/test_pkg_build"
 idir="${pwd}/../aur"
 pkg="PKGBUILD"
 
