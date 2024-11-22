@@ -112,11 +112,16 @@ impl TableFormator {
                 return line.matches("|").count() + 1;
             }
             OriginTableMode::Asciidoc => {
-                let mut line = lines[0].trim();
-                if line.starts_with(".") {
-                    line = lines[1].trim();
+                for line in lines.iter() {
+                    if line.starts_with(".") {
+                        continue;
+                    }
+                    if line.starts_with("|==") {
+                        continue;
+                    }
+                    return line.matches("|").count();
                 }
-                return line.matches("|").count();
+                return 0;
             }
             OriginTableMode::NoneByTab => {
                 let line = lines[0].trim();
@@ -167,13 +172,16 @@ impl TableFormator {
                         data.title = line.to_string().clone();
                     }
                     // 忽略掉表格的部分
-                    if line.starts_with("|=") {
+                    if line.starts_with("|==") {
                         continue;
                     }
                     // TODO：这里需要asciidoc的语法做一点特殊分析
                     // 例如表格扩展之类的
                     for (j, cell) in line.split("|").enumerate() {
-                        data.set_cell(j, i, cell);
+                        if j == 0 {
+                            continue;
+                        }
+                        data.set_cell(j - 1, i, cell);
                     }
                 }
             }
