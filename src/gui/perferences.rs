@@ -1,12 +1,13 @@
 use adw::subclass::prelude::AdwWindowImpl;
 use adw::subclass::prelude::PreferencesWindowImpl;
-use gtk::gio::SettingsBindFlags;
 use gtk::glib::clone;
 use gtk::{glib, prelude::*, subclass::prelude::*, CompositeTemplate, *};
 
+use crate::core::config::Config;
+
 mod imp {
 
-    use std::sync::OnceLock;
+    use std::{cell::RefCell, sync::OnceLock};
 
     use glib::subclass::Signal;
 
@@ -25,8 +26,8 @@ mod imp {
         pub cell_max_width: TemplateChild<adw::SpinRow>,
         #[template_child]
         pub line_max_width: TemplateChild<adw::SpinRow>,
-        #[template_child]
-        pub gfm_table_enable: TemplateChild<Switch>,
+
+        pub config: RefCell<Config>,
     }
 
     #[glib::object_subclass]
@@ -49,7 +50,7 @@ mod imp {
             let obj = self.obj();
             self.parent_constructed();
 
-            obj.setup_settings();
+            obj.setup_config();
             obj.setup_font();
             obj.bind_settings();
         }
@@ -81,70 +82,78 @@ impl MainPreferences {
         glib::Object::new()
     }
 
-    fn setup_settings(&self) {
-        // let settings = Settings::new(crate::APP_ID);
-        // self.imp()
-        //     .settings
-        //     .set(settings)
-        //     .expect("Could not set `Settings`.");
+    fn setup_config(&self) {
+        let iconfig = Config::new();
+        let mut config = self.imp().config.borrow_mut();
+        config.clone_from(&iconfig);
     }
 
     fn setup_font(&self) {
-        // let imp = self.imp();
-        // let fdesc = self.settings().string("custom-font");
-        // imp.font
-        //     .set_font_desc(&gtk::pango::FontDescription::from_string(fdesc.as_str()));
-        // imp.font.connect_font_desc_notify(clone!(
-        //     #[weak]
-        //     imp,
-        //     move |_| {
-        //         let font_string = imp.font.font_desc().unwrap().to_string();
-        //         let settings = imp
-        //             .settings
-        //             .get()
-        //             .expect("Could not get settings from imp.");
-        //         settings
-        //             .set_string("custom-font", font_string.as_str())
-        //             .unwrap();
-        //         // println!("{}", font_string);
-        //         imp.obj().emit_by_name::<()>("font-changed", &[]);
-        //     },
-        // ));
-    }
+        let imp = self.imp();
+        let fdesc = self.imp().config.borrow().custom_font.clone();
+        imp.font
+            .set_font_desc(&gtk::pango::FontDescription::from_string(fdesc.as_str()));
+        imp.font.connect_font_desc_notify(clone!(
+            #[weak]
+            imp,
+            move |_| {
+                let font_string = imp.font.font_desc().unwrap().to_string();
 
-    // fn settings(&self) -> &Settings {
-    //     // self.imp().settings.get().expect("Could not get settings.")
-    // }
+                let mut config = imp.config.borrow_mut();
+                config.custom_font = font_string;
+                config.save();
+
+                imp.obj().emit_by_name::<()>("font-changed", &[]);
+            },
+        ));
+    }
 
     fn bind_settings(&self) {
         // 注意: schema 里不能使用 _ 而是需要使用 - 才符合格式
-        // let use_custom_font = self.imp().use_custom_font.get();
-        // self.settings()
-        //     .bind("use-custom-font", &use_custom_font, "active")
-        //     .flags(SettingsBindFlags::DEFAULT)
-        //     .build();
+        let imp = self.imp();
+        let use_custom_font = self.imp().use_custom_font.get();
+        use_custom_font.connect_active_notify(clone!(
+            #[weak]
+            imp,
+            move |switch| {
+                let mut config = imp.config.borrow_mut();
+                config.use_custom_font = switch.is_active();
+                config.save();
+            },
+        ));
 
-        // let expand_mode = self.imp().expand_mode.get();
-        // self.settings()
-        //     .bind("expand-mode", &expand_mode, "active")
-        //     .flags(SettingsBindFlags::DEFAULT)
-        //     .build();
+        let expand_mode = self.imp().expand_mode.get();
+        expand_mode.connect_active_notify(clone!(
+            #[weak]
+            imp,
+            move |switch| {
+                let mut config = imp.config.borrow_mut();
+                config.flowchart.expand_mode = switch.is_active();
+                config.save();
+            },
+        ));
 
-        // let cell_max_width = self.imp().cell_max_width.get();
-        // self.settings()
-        //     .bind("cell-max-width", &cell_max_width, "value")
-        //     .flags(SettingsBindFlags::DEFAULT)
-        //     .build();
-        // let line_max_width = self.imp().line_max_width.get();
-        // self.settings()
-        //     .bind("line-max-width", &line_max_width, "value")
-        //     .flags(SettingsBindFlags::DEFAULT)
-        //     .build();
-        // let gfm_table_enable = self.imp().gfm_table_enable.get();
-        // self.settings()
-        //     .bind("gfm-table-enable", &gfm_table_enable, "active")
-        //     .flags(SettingsBindFlags::DEFAULT)
-        //     .build();
+        let cell_max_width = self.imp().cell_max_width.get();
+        cell_max_width.connect_value_notify(clone!(
+            #[weak]
+            imp,
+            move |spin| {
+                let mut config = imp.config.borrow_mut();
+                config.table.cell_max_width = spin.value() as i32;
+                config.save();
+            },
+        ));
+
+        let line_max_width = self.imp().line_max_width.get();
+        line_max_width.connect_value_notify(clone!(
+            #[weak]
+            imp,
+            move |spin| {
+                let mut config = imp.config.borrow_mut();
+                config.table.line_max_width = spin.value() as i32;
+                config.save();
+            },
+        ));
     }
 
     pub(crate) fn connect_font_changed<F: Fn(&Self) + 'static>(

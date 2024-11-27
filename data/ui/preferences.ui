@@ -99,12 +99,6 @@
                 </property>
                </object>
             </child>
-            <child>
-              <object class="GtkSwitch" id="expand_mode">
-                <property name="valign">center</property>
-                <property name="active">False</property>
-              </object>
-            </child>
           </object>
         </child>
       </object>

@@ -7,26 +7,25 @@ use std::{
 use serde::{Deserialize, Serialize};
 use toml;
 
-#[derive(Serialize, Deserialize, Debug, Default)]
+#[derive(Serialize, Deserialize, Debug, Clone, Copy)]
 #[serde(deny_unknown_fields)]
 pub struct Flowchart {
     pub expand_mode: bool,
 }
 
-#[derive(Serialize, Deserialize, Debug, Default)]
+#[derive(Serialize, Deserialize, Debug, Clone, Copy)]
 #[serde(deny_unknown_fields)]
 pub struct Table {
     pub cell_max_width: i32,
     pub line_max_width: i32,
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(deny_unknown_fields)]
 pub struct Config {
     pub theme_style: String,
     pub use_custom_font: bool,
     pub custom_font: String,
-
     pub flowchart: Flowchart,
     pub table: Table,
 }
@@ -55,10 +54,6 @@ impl Config {
 
     pub fn new() -> Config {
         let filename = Config::get_filename();
-        if !filename.parent().unwrap().exists() {
-            fs::create_dir_all(filename.parent().unwrap()).unwrap();
-            return Config::default();
-        }
         if !filename.exists() {
             return Config::default();
         }
@@ -73,7 +68,10 @@ impl Config {
     pub fn save(&self) {
         let filename = Config::get_filename();
         let toml = toml::to_string(self).unwrap();
-        println!("{toml}");
+
+        if !filename.parent().unwrap().exists() {
+            fs::create_dir_all(filename.parent().unwrap()).unwrap();
+        }
 
         let mut file: std::fs::File = OpenOptions::new()
             .write(true)

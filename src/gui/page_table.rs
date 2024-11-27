@@ -1,5 +1,3 @@
-use std::borrow::Borrow;
-
 use crate::core::config::Config;
 use crate::core::table::{MarkdownStyle, TableFormator, TableMode};
 use adw::prelude::*;

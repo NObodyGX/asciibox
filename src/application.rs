@@ -1,7 +1,8 @@
 use crate::config::{APP_ID, APP_NAME, APP_URL, VERSION};
-use crate::gui::MainWindow;
+use crate::gui::{MainPreferences, MainWindow};
 use adw::prelude::*;
 use adw::subclass::prelude::*;
+use gtk::glib::clone;
 use gtk::{gio, glib};
 
 mod imp {
@@ -97,7 +98,20 @@ impl AsciiboxApplication {
     }
 
     fn show_prefrerences(&self) {
-        // todo
+        let window = self.active_window().unwrap();
+        let preferences = MainPreferences::new();
+        preferences.set_modal(true);
+        preferences.set_transient_for(Some(&window));
+        preferences.connect_font_changed(clone!(
+            #[weak]
+            window,
+            move |_| {
+                window
+                    .activate_action("win.refresh_text_view_font", None)
+                    .unwrap();
+            },
+        ));
+        preferences.present();
     }
 
     fn show_about(&self) {

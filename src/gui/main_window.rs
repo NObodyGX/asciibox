@@ -1,4 +1,3 @@
-use adw::{ColorScheme, StyleManager};
 use glib::subclass::InitializingObject;
 use glib::Object;
 use gtk::subclass::prelude::*;
