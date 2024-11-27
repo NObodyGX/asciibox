@@ -17,14 +17,17 @@ run `sh build.sh` in project root dir
 
 ## roadmap
 
-- [ ] svgbob
+- [ ] flowchart(svgbob impl)
     - [x] zh-cn support
     - [x] basic arrow(left/down/up/right) support
     - [ ] subgraph support
     - [ ] multi arrow support
     - [x] preview
-- [x] asciidoc
-    - [x] beautify table
+- [ ] table
+    - [ ] beautify table
+    - [ ] output table
+    - [ ] op table
+- [ ] asciidoc
     - [ ] beautify code
     - [ ] transform from markdown
     - [ ] preview

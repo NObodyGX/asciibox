@@ -6,7 +6,7 @@ data/com.github.nobodygx.asciibox.desktop.in
 data/com.github.nobodygx.asciibox.metainfo.xml.in
 # UI files
 data/ui/main_window.ui
-data/ui/page_svgbob.ui
+data/ui/page_flowchart.ui
 data/ui/page_table.ui
 data/ui/preferences.ui
 data/ui/shortcuts.ui

@@ -6,7 +6,7 @@ use gtk::{gio, glib, prelude::*, CompositeTemplate, MenuButton};
 use std::cell::OnceCell;
 
 use crate::application::AsciiboxApplication;
-use crate::gui::{SvgbobPage, TablePage};
+use crate::gui::{FlowchartPage, TablePage};
 use crate::APP_ID;
 
 mod imp {
@@ -24,7 +24,7 @@ mod imp {
         #[template_child]
         pub stack: TemplateChild<adw::ViewStack>,
         #[template_child]
-        pub svgbob: TemplateChild<SvgbobPage>,
+        pub flowchart: TemplateChild<FlowchartPage>,
         #[template_child]
         pub table: TemplateChild<TablePage>,
     }
@@ -118,8 +118,8 @@ impl MainWindow {
         let s = imp.stack.visible_child_name();
         match s {
             Some(name) => {
-                if name.as_str() == "svgbob" {
-                    let _ = imp.svgbob.activate_action("svgbob.do_transform", None);
+                if name.as_str() == "flowchart" {
+                    let _ = imp.flowchart.activate_action("flowchart.do_transform", None);
                 } else if name.as_str() == "table" {
                     let _ = imp.table.activate_action("table.do_transform", None);
                 }
@@ -133,8 +133,8 @@ impl MainWindow {
         let s = imp.stack.visible_child_name();
         match s {
             Some(name) => {
-                if name.as_str() == "svgbob" {
-                    let _ = imp.svgbob.activate_action("svgbob.do_clear", None);
+                if name.as_str() == "flowchart" {
+                    let _ = imp.flowchart.activate_action("flowchart.do_clear", None);
                 } else if name.as_str() == "table" {
                     let _ = imp.table.activate_action("table.do_clear", None);
                 }
@@ -145,7 +145,7 @@ impl MainWindow {
 
     fn switch_tab(&self) {
         let mut names: Vec<&str> = Vec::new();
-        names.push("svgbob");
+        names.push("flowchart");
         names.push("table");
         names.push(names[0]);
         let s = self.imp().stack.visible_child_name();

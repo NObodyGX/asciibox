@@ -2,7 +2,7 @@
 <interface>
   <requires lib="gtk" version="4.0" />
   <requires lib="libadwaita" version="1.0" />
-  <template class="SvgbobPage" parent="GtkBox">
+  <template class="FlowchartPage" parent="GtkBox">
     <property name="orientation">vertical</property>
     <child>
       <object class="GtkPaned" id="paned">
@@ -45,7 +45,7 @@
             <property name="orientation">vertical</property>
             <property name="position">200</property>
             <property name="position-set">True</property>
-            <!-- the svgbob output image paned -->
+            <!-- the flowchart output image paned -->
             <child>
               <object class="GtkOverlay">
                 <property name="visible">True</property>
@@ -76,7 +76,7 @@
                         <property name="margin_end">2</property>
                         <property name="tooltip_text" translatable="yes">Copy Svg</property>
                         <property name="icon-name">file-copy-symbolic</property>
-                        <property name="action-name">svgbob.do_svg_copy</property>
+                        <property name="action-name">flowchart.do_svg_copy</property>
                       </object>
                     </child>
                     <child>
@@ -86,7 +86,7 @@
                         <property name="margin_end">2</property>
                         <property name="tooltip_text" translatable="yes">Save Svg</property>
                         <property name="icon-name">file-save-symbolic</property>
-                        <property name="action-name">svgbob.do_svg_save</property>
+                        <property name="action-name">flowchart.do_svg_save</property>
                       </object>
                     </child>
                   </object>
@@ -94,7 +94,7 @@
               </object>
             </child>
 
-            <!-- the svgbob transform text paned -->
+            <!-- the flowchart transform text paned -->
             <child>
               <object class="GtkOverlay">
                 <property name="visible">True</property>
@@ -130,7 +130,7 @@
                         <property name="margin_end">2</property>
                         <property name="tooltip_text" translatable="yes">Copy Svgbob Text</property>
                         <property name="icon-name">file-copy-symbolic</property>
-                        <property name="action-name">svgbob.do_transform_copy</property>
+                        <property name="action-name">flowchart.do_transform_copy</property>
                       </object>
                     </child>
                     <child>
@@ -140,7 +140,7 @@
                         <property name="margin_end">2</property>
                         <property name="tooltip_text" translatable="yes">Transform Svgbob To Svg</property>
                         <property name="icon-name">transform-symbolic</property>
-                        <property name="action-name">svgbob.do_transform_to_svg</property>
+                        <property name="action-name">flowchart.do_transform_to_svg</property>
                       </object>
                     </child>
                   </object>
@@ -156,7 +156,7 @@
       <object class="GtkButton">
         <property name="label">---- run ----</property>
         <property name="focus-on-click">True</property>
-        <property name="action-name">svgbob.do_transform</property>
+        <property name="action-name">flowchart.do_transform</property>
       </object>
     </child>
   </template>

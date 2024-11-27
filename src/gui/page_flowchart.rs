@@ -9,7 +9,7 @@ use std::fs::OpenOptions;
 use std::io::Write;
 use svgbob::to_svg;
 
-use crate::core::svgbob::AMap;
+use crate::core::flowchart::AMap;
 
 mod imp {
 
@@ -18,8 +18,8 @@ mod imp {
     use super::*;
 
     #[derive(Debug, Default, CompositeTemplate)]
-    #[template(resource = "/com/github/nobodygx/asciibox/ui/page_svgbob.ui")]
-    pub struct SvgbobPage {
+    #[template(resource = "/com/github/nobodygx/asciibox/ui/page_flowchart.ui")]
+    pub struct FlowchartPage {
         #[template_child]
         pub in_view: TemplateChild<gtk::TextView>,
         #[template_child]
@@ -31,9 +31,9 @@ mod imp {
     }
 
     #[glib::object_subclass]
-    impl ObjectSubclass for SvgbobPage {
-        const NAME: &'static str = "SvgbobPage";
-        type Type = super::SvgbobPage;
+    impl ObjectSubclass for FlowchartPage {
+        const NAME: &'static str = "FlowchartPage";
+        type Type = super::FlowchartPage;
         type ParentType = gtk::Box;
 
         fn class_init(klass: &mut Self::Class) {
@@ -41,19 +41,19 @@ mod imp {
             klass.bind_template_callbacks();
             load_css();
 
-            klass.install_action("svgbob.do_transform", None, move |obj, _, _| {
+            klass.install_action("flowchart.do_transform", None, move |obj, _, _| {
                 obj.do_transform();
             });
-            klass.install_action("svgbob.do_clear", None, move |obj, _, _| {
+            klass.install_action("flowchart.do_clear", None, move |obj, _, _| {
                 obj.do_clear();
             });
 
-            klass.install_action("svgbob.do_svg_copy", None, move |obj, _, _| {
+            klass.install_action("flowchart.do_svg_copy", None, move |obj, _, _| {
                 obj.do_copy_svg_file();
             });
 
             klass.install_action_async(
-                "svgbob.do_svg_save",
+                "flowchart.do_svg_save",
                 None,
                 |win, _action_name, _action_target| async move {
                     if let Err(error) = win.do_save_svg_file().await {
@@ -62,11 +62,11 @@ mod imp {
                 },
             );
 
-            klass.install_action("svgbob.do_transform_copy", None, move |obj, _, _| {
+            klass.install_action("flowchart.do_transform_copy", None, move |obj, _, _| {
                 obj.do_transform_copy();
             });
 
-            klass.install_action("svgbob.do_transform_to_svg", None, move |obj, _, _| {
+            klass.install_action("flowchart.do_transform_to_svg", None, move |obj, _, _| {
                 obj.do_transform_to_svg();
             });
         }
@@ -76,7 +76,7 @@ mod imp {
         }
     }
 
-    impl ObjectImpl for SvgbobPage {
+    impl ObjectImpl for FlowchartPage {
         fn constructed(&self) {
             self.parent_constructed();
 
@@ -84,13 +84,13 @@ mod imp {
             obj.setup_text_view();
         }
     }
-    impl WidgetImpl for SvgbobPage {}
-    impl WindowImpl for SvgbobPage {}
-    impl AdwWindowImpl for SvgbobPage {}
-    impl BoxImpl for SvgbobPage {}
+    impl WidgetImpl for FlowchartPage {}
+    impl WindowImpl for FlowchartPage {}
+    impl AdwWindowImpl for FlowchartPage {}
+    impl BoxImpl for FlowchartPage {}
 
     #[gtk::template_callbacks]
-    impl SvgbobPage {
+    impl FlowchartPage {
         #[template_callback]
         fn svgbob_svg_copy(&self) {
             println!("copy svg");
@@ -100,20 +100,20 @@ mod imp {
 }
 
 glib::wrapper! {
-    pub struct SvgbobPage(ObjectSubclass<imp::SvgbobPage>)
+    pub struct FlowchartPage(ObjectSubclass<imp::FlowchartPage>)
         @extends gtk::Widget, gtk::Window, adw::Window, gtk::Box,
         @implements gtk::Accessible, gtk::Buildable,gtk::ConstraintTarget, gtk::Native, gtk::Root, gtk::ShortcutManager;
 }
 
-impl Default for SvgbobPage {
+impl Default for FlowchartPage {
     fn default() -> Self {
         Self::new()
     }
 }
 
-impl SvgbobPage {
+impl FlowchartPage {
     pub fn new() -> Self {
-        let page: SvgbobPage = glib::Object::new();
+        let page: FlowchartPage = glib::Object::new();
         page
     }
 
@@ -122,7 +122,7 @@ impl SvgbobPage {
     }
 }
 
-impl SvgbobPage {
+impl FlowchartPage {
     // 配置默认的 placeholdtext
     fn setup_text_view(&self) {}
 

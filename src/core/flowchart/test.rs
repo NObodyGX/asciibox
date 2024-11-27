@@ -1,7 +1,7 @@
 #[cfg(test)]
 mod tests {
 
-    use crate::core::svgbob::AMap;
+    use crate::core::flowchart::AMap;
 
     #[test]
     fn test_map_render() {

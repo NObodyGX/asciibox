@@ -56,11 +56,11 @@
             <child>
               <object class="AdwViewStackPage">
                 <property name="visible">true</property>
-                <property name="name">svgbob</property>
-                <property name="title" translatable="yes">Svgbob</property>
+                <property name="name">flowchart</property>
+                <property name="title" translatable="yes">Flowchart</property>
                 <property name="icon-name">logo-symbolic</property>
                 <property name="child">
-                  <object class="SvgbobPage" id="svgbob" />
+                  <object class="FlowchartPage" id="flowchart" />
                 </property>
               </object>
             </child>
