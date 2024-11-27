@@ -1,5 +1,4 @@
 use adw::{ColorScheme, StyleManager};
-use gio::Settings;
 use glib::subclass::InitializingObject;
 use glib::Object;
 use gtk::subclass::prelude::*;
@@ -28,7 +27,6 @@ mod imp {
         pub svgbob: TemplateChild<SvgbobPage>,
         #[template_child]
         pub table: TemplateChild<TablePage>,
-        pub settings: OnceCell<Settings>,
     }
 
     impl MainWindow {
@@ -71,7 +69,6 @@ mod imp {
             self.parent_constructed();
 
             let obj = self.obj();
-            obj.setup_settings();
             obj.setup_widget();
             obj.setup_actions();
         }
@@ -102,36 +99,6 @@ impl MainWindow {
         Object::builder().property("application", app).build()
     }
 
-    pub fn settings(&self) -> &Settings {
-        self.imp().settings.get().expect("Could not get settings.")
-    }
-
-    fn setup_settings(&self) {
-        let settings = Settings::new(APP_ID);
-        self.imp()
-            .settings
-            .set(settings)
-            .expect("`settings` should not be set before calling `setup_settings`.");
-
-        // bind theme settings
-        let style = StyleManager::default();
-        self.settings()
-            .bind("theme-style", &style, "color-scheme")
-            .mapping(|themes, _| {
-                let themes = themes
-                    .get::<String>()
-                    .expect("The variant needs to be of type `String`.");
-                let scheme = match themes.as_str() {
-                    "system" => ColorScheme::Default,
-                    "light" => ColorScheme::ForceLight,
-                    "dark" => ColorScheme::ForceDark,
-                    _ => ColorScheme::Default,
-                };
-                Some(scheme.to_value())
-            })
-            .build();
-    }
-
     fn setup_widget(&self) {
         let imp = self.imp();
         let popover = imp.main_menu_button.popover().unwrap();
@@ -142,8 +109,8 @@ impl MainWindow {
 
     fn setup_actions(&self) {
         // 绑定设置与主题
-        let action_style = self.settings().create_action("theme-style");
-        self.add_action(&action_style);
+        // let action_style = self.settings().create_action("theme-style");
+        // self.add_action(&action_style);
     }
 
     fn execute(&self) {

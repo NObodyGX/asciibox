@@ -1,13 +1,11 @@
 #!/bin/bash
 
-
-
 is_clean=0
 while getopts "rf" opt_sg; do
   case $opt_sg in
-    f) is_clean=2 ;;
-    r) is_clean=1 ;;
-    ?) echo "unknown option: $opt_sg" ;;
+  f) is_clean=2 ;;
+  r) is_clean=1 ;;
+  ?) echo "unknown option: $opt_sg" ;;
   esac
 done
 
@@ -35,7 +33,7 @@ function sync_version() {
 
 function rm_target() {
   local target="$pwd/$bdir/src/asciibox"
-  if [ -f "$target" ];then
+  if [ -f "$target" ]; then
     rm -f "$target"
   fi
 }
@@ -63,28 +61,17 @@ function link_target_resource() {
   ddir=$(grep "PKGDATA_DIR" "${pwd}/src/config.rs" | awk '{print $6}' | sed 's/;//g' | sed 's/"//g')
   dst="$ddir/asciibox.gresource"
 
-  if [ ! -d "$ddir" ];then
+  if [ ! -d "$ddir" ]; then
     sudo_run "mkdir -p $ddir"
   fi
-  if [ ! -h "$dst" ];then
+  if [ ! -h "$dst" ]; then
     sudo_run "ln -s $src $dst"
-  fi
-
-  sdir="$pwd/data"
-  src="$sdir/com.github.nobodygx.asciibox.gschema.xml"
-  ddir="/usr/share/glib-2.0/schemas"
-  dst="$ddir/com.github.nobodygx.asciibox.gschema.xml"
-  if [ ! -f "$dst" ];then
-    sudo_run "cp -f $src $dst"
-    cd $ddir || exit
-    sudo_run "glib-compile-schemas ."
-    cd - || exit
   fi
 }
 
 function run_target() {
   local target="$pwd/$bdir/src/asciibox"
-  if [ -f "$target" ];then
+  if [ -f "$target" ]; then
     cd "$pwd/$bdir/src" || exit
     ./asciibox
     cd - || exit

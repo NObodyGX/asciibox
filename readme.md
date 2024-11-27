@@ -64,7 +64,6 @@ rustup default stable-gnu
 
 # before cargo run
 # sh build.sh  # --> to build asciibox, but without install
-# cp data/com.github.nobodygx.asciibox.gschema.xml /usr/share/glib-2.0/schemas/
 # cp _build/data/asciibox.gresource /mingw/share/asciibox/
 # cargo run to enjoy
 ```

@@ -2,7 +2,6 @@ use crate::core::table::{MarkdownStyle, TableFormator, TableMode};
 use adw::prelude::*;
 use adw::subclass::prelude::*;
 use gtk::gdk;
-use gtk::gio::Settings;
 use gtk::glib;
 use gtk::pango::Weight;
 use gtk::prelude::{TextBufferExt, TextViewExt};
@@ -109,14 +108,9 @@ impl TablePage {
 
         // 当输入为 0 的时候不覆盖，这样可以编辑 svgbob 窗口并转换
         if content.len() != 0 {
-            let settings = Settings::new(crate::APP_ID);
-            let cellw = settings.int("cell-max-width");
-            let linew = settings.int("line-max-width");
-            let gfm_style = if settings.boolean("gfm-table-enable") {
-                MarkdownStyle::Github
-            } else {
-                MarkdownStyle::Normal
-            };
+            let cellw = 99;
+            let linew = 999;
+            let gfm_style = MarkdownStyle::Github;
 
             let mut formator: TableFormator = TableFormator::new(cellw as usize, linew as usize);
             let otext: String = formator.do_format(content.as_str(), &omode, gfm_style);
@@ -148,32 +142,30 @@ impl TablePage {
         // TODO: 目前会改动全局 textview 配置
         let imp = self.imp();
         // update font show
-        let settings = Settings::new(crate::APP_ID);
-
-        let use_custom_font = settings.boolean("use-custom-font");
-        if use_custom_font {
-            let custom_font = settings.string("custom-font");
-            let fontdesc = gtk::pango::FontDescription::from_string(custom_font.as_str());
-            let mut css = String::new();
-            css.push_str("textview {\n");
-            let family = fontdesc.family().expect("error in family");
-            css.push_str(format!("font-family: {};", family).as_str());
-            // // todo: add font scale
-            let size = fontdesc.size() / gtk::pango::SCALE;
-            css.push_str(format!("font-size: {}px;", size).as_str());
-            let weight = fontdesc.weight();
-            match weight {
-                Weight::Bold => {
-                    css.push_str("font-weight: bold;");
-                }
-                _ => {
-                    css.push_str("font-weight: normal;");
-                }
-            }
-            // 看 gnome-text-view 是不需要加 } 的，很奇怪
-            css.push_str("}\n");
-            imp.provider.load_from_string(css.as_str());
-        }
+        // let use_custom_font = settings.boolean("use-custom-font");
+        // if use_custom_font {
+        //     let custom_font = settings.string("custom-font");
+        //     let fontdesc = gtk::pango::FontDescription::from_string(custom_font.as_str());
+        //     let mut css = String::new();
+        //     css.push_str("textview {\n");
+        //     let family = fontdesc.family().expect("error in family");
+        //     css.push_str(format!("font-family: {};", family).as_str());
+        //     // // todo: add font scale
+        //     let size = fontdesc.size() / gtk::pango::SCALE;
+        //     css.push_str(format!("font-size: {}px;", size).as_str());
+        //     let weight = fontdesc.weight();
+        //     match weight {
+        //         Weight::Bold => {
+        //             css.push_str("font-weight: bold;");
+        //         }
+        //         _ => {
+        //             css.push_str("font-weight: normal;");
+        //         }
+        //     }
+        //     // 看 gnome-text-view 是不需要加 } 的，很奇怪
+        //     css.push_str("}\n");
+        //     imp.provider.load_from_string(css.as_str());
+        // }
     }
 }
 
