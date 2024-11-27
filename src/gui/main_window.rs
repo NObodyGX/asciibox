@@ -3,11 +3,10 @@ use glib::subclass::InitializingObject;
 use glib::Object;
 use gtk::subclass::prelude::*;
 use gtk::{gio, glib, prelude::*, CompositeTemplate, MenuButton};
-use std::cell::OnceCell;
 
 use crate::application::AsciiboxApplication;
+use crate::core::config;
 use crate::gui::{FlowchartPage, TablePage};
-use crate::APP_ID;
 
 mod imp {
 
@@ -27,6 +26,7 @@ mod imp {
         pub flowchart: TemplateChild<FlowchartPage>,
         #[template_child]
         pub table: TemplateChild<TablePage>,
+        pub config: config::Config,
     }
 
     impl MainWindow {
@@ -119,7 +119,9 @@ impl MainWindow {
         match s {
             Some(name) => {
                 if name.as_str() == "flowchart" {
-                    let _ = imp.flowchart.activate_action("flowchart.do_transform", None);
+                    let _ = imp
+                        .flowchart
+                        .activate_action("flowchart.do_transform", None);
                 } else if name.as_str() == "table" {
                     let _ = imp.table.activate_action("table.do_transform", None);
                 }

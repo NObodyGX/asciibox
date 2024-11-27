@@ -1,3 +1,6 @@
+use std::borrow::Borrow;
+
+use crate::core::config::Config;
 use crate::core::table::{MarkdownStyle, TableFormator, TableMode};
 use adw::prelude::*;
 use adw::subclass::prelude::*;
@@ -8,6 +11,10 @@ use gtk::prelude::{TextBufferExt, TextViewExt};
 use gtk::CompositeTemplate;
 
 mod imp {
+    use std::cell::OnceCell;
+
+    use crate::core::config::Config;
+
     use super::*;
 
     #[derive(Debug, Default, CompositeTemplate)]
@@ -21,6 +28,7 @@ mod imp {
         pub table_mode: TemplateChild<gtk::DropDown>,
 
         pub provider: gtk::CssProvider,
+        pub config: OnceCell<Config>,
     }
 
     #[glib::object_subclass]
@@ -72,6 +80,7 @@ mod imp {
             let obj = self.obj();
             self.parent_constructed();
 
+            obj.setup_config();
             obj.setup_font_setting();
         }
     }
@@ -100,17 +109,25 @@ impl TablePage {
     fn do_transform(&self) {
         let ibuffer: gtk::TextBuffer = self.imp().in_view.get().buffer();
         let content = ibuffer.text(&ibuffer.bounds().0, &ibuffer.bounds().1, false);
-        let omode = match self.imp().table_mode.get().selected() {
-            0 => TableMode::Asciidoc,
-            1 => TableMode::Markdown,
-            _ => TableMode::Asciidoc,
-        };
 
         // 当输入为 0 的时候不覆盖，这样可以编辑 svgbob 窗口并转换
         if content.len() != 0 {
-            let cellw = 99;
-            let linew = 999;
-            let gfm_style = MarkdownStyle::Github;
+            let omode = match self.imp().table_mode.get().selected() {
+                0 => TableMode::Asciidoc,
+                1 => TableMode::Markdown,
+                2 => TableMode::Markdown,
+                _ => TableMode::Asciidoc,
+            };
+            let gfm_style = match self.imp().table_mode.get().selected() {
+                0 => MarkdownStyle::Normal,
+                1 => MarkdownStyle::Normal,
+                2 => MarkdownStyle::Github,
+                _ => MarkdownStyle::Normal,
+            };
+
+            let config = self.imp().config.get().unwrap();
+            let cellw = config.table.cell_max_width;
+            let linew = config.table.line_max_width;
 
             let mut formator: TableFormator = TableFormator::new(cellw as usize, linew as usize);
             let otext: String = formator.do_format(content.as_str(), &omode, gfm_style);
@@ -123,6 +140,14 @@ impl TablePage {
     fn do_clear(&self) {
         let ibuffer: gtk::TextBuffer = self.imp().in_view.get().buffer();
         ibuffer.set_text("");
+    }
+
+    fn setup_config(&self) {
+        let config = Config::new();
+        self.imp()
+            .config
+            .set(config)
+            .expect("could not init config");
     }
 
     fn setup_font_setting(&self) {
@@ -142,30 +167,30 @@ impl TablePage {
         // TODO: 目前会改动全局 textview 配置
         let imp = self.imp();
         // update font show
-        // let use_custom_font = settings.boolean("use-custom-font");
-        // if use_custom_font {
-        //     let custom_font = settings.string("custom-font");
-        //     let fontdesc = gtk::pango::FontDescription::from_string(custom_font.as_str());
-        //     let mut css = String::new();
-        //     css.push_str("textview {\n");
-        //     let family = fontdesc.family().expect("error in family");
-        //     css.push_str(format!("font-family: {};", family).as_str());
-        //     // // todo: add font scale
-        //     let size = fontdesc.size() / gtk::pango::SCALE;
-        //     css.push_str(format!("font-size: {}px;", size).as_str());
-        //     let weight = fontdesc.weight();
-        //     match weight {
-        //         Weight::Bold => {
-        //             css.push_str("font-weight: bold;");
-        //         }
-        //         _ => {
-        //             css.push_str("font-weight: normal;");
-        //         }
-        //     }
-        //     // 看 gnome-text-view 是不需要加 } 的，很奇怪
-        //     css.push_str("}\n");
-        //     imp.provider.load_from_string(css.as_str());
-        // }
+        let config = imp.config.get().expect("could not get page table config");
+        if config.use_custom_font {
+            let custom_font = config.custom_font.clone();
+            let fontdesc = gtk::pango::FontDescription::from_string(custom_font.as_str());
+            let mut css = String::new();
+            css.push_str("textview {\n");
+            let family = fontdesc.family().expect("error in family");
+            css.push_str(format!("font-family: {};", family).as_str());
+            // // todo: add font scale
+            let size = fontdesc.size() / gtk::pango::SCALE;
+            css.push_str(format!("font-size: {}px;", size).as_str());
+            let weight = fontdesc.weight();
+            match weight {
+                Weight::Bold => {
+                    css.push_str("font-weight: bold;");
+                }
+                _ => {
+                    css.push_str("font-weight: normal;");
+                }
+            }
+            // 看 gnome-text-view 是不需要加 } 的，很奇怪
+            css.push_str("}\n");
+            imp.provider.load_from_string(css.as_str());
+        }
     }
 }
 

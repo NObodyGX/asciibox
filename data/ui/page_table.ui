@@ -84,6 +84,7 @@
                         <items>
                           <item translatable="false">Asciidoc</item>
                           <item translatable="false">Markdown</item>
+                          <item translatable="false">Markdown-GFM</item>
                         </items>
                       </object>
                     </property>

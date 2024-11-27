@@ -9,6 +9,7 @@ use std::fs::OpenOptions;
 use std::io::Write;
 use svgbob::to_svg;
 
+use crate::core::config::Config;
 use crate::core::flowchart::AMap;
 
 mod imp {
@@ -28,6 +29,7 @@ mod imp {
         pub out_image: TemplateChild<gtk::Image>,
 
         pub icon_str_backup: RefCell<String>,
+        pub config: OnceCell<Config>,
     }
 
     #[glib::object_subclass]
@@ -39,7 +41,6 @@ mod imp {
         fn class_init(klass: &mut Self::Class) {
             klass.bind_template();
             klass.bind_template_callbacks();
-            load_css();
 
             klass.install_action("flowchart.do_transform", None, move |obj, _, _| {
                 obj.do_transform();
@@ -82,6 +83,7 @@ mod imp {
 
             let obj = self.obj();
             obj.setup_text_view();
+            obj.setup_config();
         }
     }
     impl WidgetImpl for FlowchartPage {}
@@ -126,13 +128,22 @@ impl FlowchartPage {
     // 配置默认的 placeholdtext
     fn setup_text_view(&self) {}
 
+    fn setup_config(&self) {
+        let config = Config::new();
+        self.imp()
+            .config
+            .set(config)
+            .expect("could not init config");
+    }
+
     fn do_transform(&self) {
         let ibuffer: gtk::TextBuffer = self.imp().in_view.get().buffer();
         let content = ibuffer.text(&ibuffer.bounds().0, &ibuffer.bounds().1, false);
 
         // 当输入为 0 的时候不覆盖，这样可以编辑 svgbob 窗口并转换
+        let config = self.imp().config.get().unwrap();
         if content.len() != 0 {
-            let expand_mode = false;
+            let expand_mode = config.flowchart.expand_mode;
             let mut mmap: AMap = AMap::new(expand_mode);
             let otext: String = mmap.load_content(content.as_str());
 
@@ -191,17 +202,4 @@ impl FlowchartPage {
 
         self.imp().icon_str_backup.replace(svg_content);
     }
-}
-
-fn load_css() {
-    // Load the CSS file and add it to the provider
-    // let provider = CssProvider::new();
-    // provider.load_from_resource("/com/gitee/gmg137/NeteaseCloudMusicGtk4/themes/discover.css");
-
-    // // Add the provider to the default screen
-    // style_context_add_provider_for_display(
-    //     &gdk::Display::default().expect("Could not connect to a display."),
-    //     &provider,
-    //     gtk::STYLE_PROVIDER_PRIORITY_APPLICATION,
-    // );
 }

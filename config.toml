@@ -1,0 +1,10 @@
+theme_style = "haha"
+use_custom_font = false
+custom_font = "hel"
+
+[flowchart]
+expand_mode = false
+
+[table]
+cell_max_width = 33
+line_max_width = 177
