@@ -48,7 +48,7 @@ impl Default for Config {
 impl Config {
     fn get_filename() -> PathBuf {
         let home = homedir::my_home().unwrap().unwrap();
-        let filename = home.join(".config").join("asciibox").join("config.toml");
+        let filename = home.join(".config").join("asciibox").join("asciibox.toml");
         return filename;
     }
 
@@ -58,7 +58,7 @@ impl Config {
             return Config::default();
         }
 
-        let mut file: std::fs::File = OpenOptions::new().read(true).open("config.toml").unwrap();
+        let mut file: std::fs::File = OpenOptions::new().read(true).open(filename).unwrap();
         let mut contents = String::new();
         file.read_to_string(&mut contents).unwrap();
         let config: Config = toml::from_str(&contents).unwrap();
@@ -75,6 +75,7 @@ impl Config {
 
         let mut file: std::fs::File = OpenOptions::new()
             .write(true)
+            .truncate(true)
             .create(true)
             .open(filename)
             .unwrap();

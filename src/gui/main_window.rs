@@ -1,12 +1,13 @@
+use adw::{ColorScheme, StyleManager};
 use glib::subclass::InitializingObject;
 use glib::Object;
 use gtk::subclass::prelude::*;
 use gtk::{gio, glib, prelude::*, CompositeTemplate, MenuButton};
 
 use crate::application::AsciiboxApplication;
-use crate::core::config;
+use crate::core::config::Config;
 use crate::gui::{FlowchartPage, TablePage};
-
+use std::cell::RefCell;
 mod imp {
 
     use super::*;
@@ -25,7 +26,8 @@ mod imp {
         pub flowchart: TemplateChild<FlowchartPage>,
         #[template_child]
         pub table: TemplateChild<TablePage>,
-        pub config: config::Config,
+
+        pub config: RefCell<Config>,
     }
 
     impl MainWindow {
@@ -68,6 +70,7 @@ mod imp {
             self.parent_constructed();
 
             let obj = self.obj();
+            obj.setup_config();
             obj.setup_widget();
             obj.setup_actions();
         }
@@ -96,6 +99,24 @@ impl MainWindow {
     pub fn new(app: &AsciiboxApplication) -> Self {
         // Create new window
         Object::builder().property("application", app).build()
+    }
+
+    fn setup_config(&self) {
+        let iconfig = Config::new();
+        let mut config = self.imp().config.borrow_mut();
+        config.clone_from(&iconfig);
+
+        // bind theme settings
+        let stylemgr = StyleManager::default();
+        if stylemgr.system_supports_color_schemes() {
+            let scheme = match config.theme_style.as_str() {
+                "system" => ColorScheme::Default,
+                "light" => ColorScheme::ForceLight,
+                "dark" => ColorScheme::ForceDark,
+                _ => ColorScheme::Default,
+            };
+            stylemgr.set_color_scheme(scheme);
+        }
     }
 
     fn setup_widget(&self) {

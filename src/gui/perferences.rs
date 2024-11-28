@@ -51,7 +51,6 @@ mod imp {
             self.parent_constructed();
 
             obj.setup_config();
-            obj.setup_font();
             obj.bind_settings();
         }
 
@@ -87,10 +86,10 @@ impl MainPreferences {
         let mut config = self.imp().config.borrow_mut();
         config.clone_from(&iconfig);
     }
-
-    fn setup_font(&self) {
+    fn bind_settings(&self) {
+        // 注意: schema 里不能使用 _ 而是需要使用 - 才符合格式
         let imp = self.imp();
-        let fdesc = self.imp().config.borrow().custom_font.clone();
+        let fdesc = imp.config.borrow().custom_font.clone();
         imp.font
             .set_font_desc(&gtk::pango::FontDescription::from_string(fdesc.as_str()));
         imp.font.connect_font_desc_notify(clone!(
@@ -106,12 +105,8 @@ impl MainPreferences {
                 imp.obj().emit_by_name::<()>("font-changed", &[]);
             },
         ));
-    }
 
-    fn bind_settings(&self) {
-        // 注意: schema 里不能使用 _ 而是需要使用 - 才符合格式
-        let imp = self.imp();
-        let use_custom_font = self.imp().use_custom_font.get();
+        let use_custom_font = imp.use_custom_font.get();
         use_custom_font.connect_active_notify(clone!(
             #[weak]
             imp,
@@ -122,7 +117,7 @@ impl MainPreferences {
             },
         ));
 
-        let expand_mode = self.imp().expand_mode.get();
+        let expand_mode = imp.expand_mode.get();
         expand_mode.connect_active_notify(clone!(
             #[weak]
             imp,
@@ -133,7 +128,7 @@ impl MainPreferences {
             },
         ));
 
-        let cell_max_width = self.imp().cell_max_width.get();
+        let cell_max_width = imp.cell_max_width.get();
         cell_max_width.connect_value_notify(clone!(
             #[weak]
             imp,
@@ -144,7 +139,7 @@ impl MainPreferences {
             },
         ));
 
-        let line_max_width = self.imp().line_max_width.get();
+        let line_max_width = imp.line_max_width.get();
         line_max_width.connect_value_notify(clone!(
             #[weak]
             imp,
