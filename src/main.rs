@@ -6,13 +6,31 @@ use application::AsciiboxApplication;
 use gettextrs::LocaleCategory;
 use gtk::prelude::*;
 use gtk::{gio, glib};
+use rust_embed::Embed;
+
+#[derive(Embed)]
+#[folder = "data"]
+struct Asset;
 
 use config::{APP_ID, PKGDATA_DIR};
 
+fn load_resource() -> gio::Resource {
+    let fname = "asciibox.gresource";
+    let resource = if Asset::get(fname).is_some() {
+        let emfile = Asset::get(fname).unwrap();
+        let emdata = emfile.data.into_owned();
+        let data = glib::Bytes::from_owned(emdata);
+        gio::Resource::from_data(&data).unwrap()
+    } else {
+        gio::Resource::load(PKGDATA_DIR.to_owned() + "/" + fname).unwrap()
+    };
+    return resource;
+}
+
 fn main() -> glib::ExitCode {
     // Register and include resources
-    let resources = gio::Resource::load(PKGDATA_DIR.to_owned() + "/asciibox.gresource")
-        .expect("Could not load resources");
+
+    let resources = load_resource();
     gio::resources_register(&resources);
 
     // Prepare i18n

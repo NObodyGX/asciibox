@@ -1,9 +1,10 @@
 gnome = import('gnome')
 
+# not need build resource to target dir
 gnome.compile_resources('asciibox',
   'asciibox.gresource.xml',
   gresource_bundle: true,
-  install: true,
+  install: false,
   install_dir: pkg_dir,
 )
 

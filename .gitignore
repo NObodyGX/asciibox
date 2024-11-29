@@ -18,4 +18,4 @@ _build
 
 test/pkg_build/
 asciibox
-
+asciibox.gresource

@@ -31,6 +31,12 @@ function sync_version() {
   fi
 }
 
+function build_resource() {
+  cd "${pwd}/data" || exit
+  glib-compile-resources asciibox.gresource.xml
+  cd - || exit
+}
+
 function rm_target() {
   local target="$pwd/$bdir/src/asciibox"
   if [ -f "$target" ]; then
@@ -82,9 +88,10 @@ function run_target() {
 
 function main() {
   sync_version
+  build_resource
 
   build_target
-  link_target_resource
+  # link_target_resource
   run_target
 }
 

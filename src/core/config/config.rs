@@ -72,7 +72,7 @@ impl Config {
         if !filename.parent().unwrap().exists() {
             fs::create_dir_all(filename.parent().unwrap()).unwrap();
         }
-
+        // 注意不truncate会导致覆盖不完全
         let mut file: std::fs::File = OpenOptions::new()
             .write(true)
             .truncate(true)
