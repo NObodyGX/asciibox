@@ -3,6 +3,7 @@ mod config;
 mod core;
 mod gui;
 use application::AsciiboxApplication;
+use fork::{daemon, Fork};
 use gettextrs::LocaleCategory;
 use gtk::prelude::*;
 use gtk::{gio, glib};
@@ -14,7 +15,7 @@ struct Asset;
 
 use config::{APP_ID, PKGDATA_DIR};
 
-fn load_resource() -> gio::Resource {
+fn load_resource() -> bool {
     let fname = "asciibox.gresource";
     let resource = if Asset::get(fname).is_some() {
         let emfile = Asset::get(fname).unwrap();
@@ -24,15 +25,12 @@ fn load_resource() -> gio::Resource {
     } else {
         gio::Resource::load(PKGDATA_DIR.to_owned() + "/" + fname).unwrap()
     };
-    return resource;
+    gio::resources_register(&resource);
+    return true;
 }
 
-fn main() -> glib::ExitCode {
-    // Register and include resources
-
-    let resources = load_resource();
-    gio::resources_register(&resources);
-
+fn do_main_run() -> glib::ExitCode {
+    load_resource();
     // Prepare i18n
     gettextrs::setlocale(LocaleCategory::LcAll, "");
     gettextrs::bindtextdomain(config::APP_NAME, config::LOCALE_DIR)
@@ -47,6 +45,20 @@ fn main() -> glib::ExitCode {
     });
 
     app.run()
+}
+
+fn main() -> glib::ExitCode {
+    match daemon(false, true) {
+        Ok(Fork::Child) => do_main_run(),
+        Ok(Fork::Parent(pid)) => {
+            println!("daemon pid: {}", pid);
+            return glib::ExitCode::from(0);
+        }
+        Err(_) => {
+            println!("Fork failed");
+            return glib::ExitCode::from(1);
+        }
+    }
 }
 
 fn setup_shortcuts(app: &AsciiboxApplication) {

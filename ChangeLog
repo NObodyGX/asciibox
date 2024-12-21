@@ -1,5 +1,10 @@
 # ChangeLog
 
+## v1.0.0
+
+reImp settings logic, it will not depend on gtk settings
+reImp resource logic, it will not depend on asciibox.resource in $pkg_dir
+
 ## v0.9.1
 
 Fixed table format bug

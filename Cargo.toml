@@ -15,3 +15,4 @@ serde = { version = "1.0", features = ["derive"] }
 toml = { version = "0.8.19"}
 homedir = "0.3.4"
 rust-embed = "8.5.0"
+fork = "0.2.0"
