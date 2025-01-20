@@ -85,6 +85,63 @@ impl TableData {
         return cell_widths;
     }
 
+    fn trim_start(&mut self) {
+        // 清理首部连续空行
+        let mut to_del: Vec<usize> = Vec::new();
+        for (i, line) in self.data.iter().enumerate() {
+            let mut flag = false;
+            for text in line.iter() {
+                if text.len() > 0 {
+                    flag = true;
+                    break;
+                }
+            }
+            if !flag {
+                to_del.push(i);
+            } else {
+                break;
+            }
+        }
+        for i in to_del.iter().rev() {
+            let _ = self.data.remove(*i);
+        }
+        self.h = self.data.len();
+    }
+
+    fn trim_end(&mut self) {
+        let mut to_del: Vec<usize> = Vec::new();
+
+        // 清理尾部连续空行
+        for i in (0..self.data.len()).rev() {
+            let line = &self.data[i];
+            println!("line: {:?}", line);
+            let mut flag = false;
+            for text in line.iter() {
+                if text.len() > 0 {
+                    flag = true;
+                    break;
+                }
+            }
+            if !flag {
+                to_del.push(i);
+            } else {
+                break;
+            }
+        }
+        println!("data: {:?}", self.data);
+        println!("end size:{:?}", to_del);
+
+        for i in to_del.iter() {
+            let _ = self.data.remove(*i);
+        }
+        self.h = self.data.len();
+    }
+
+    pub fn trim(&mut self) {
+        self.trim_start();
+        self.trim_end();
+    }
+
     pub fn to_markdown_table(&self, style: MarkdownStyle) -> String {
         let cell_widths = self.cell_line_widths(true);
 

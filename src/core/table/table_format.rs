@@ -208,6 +208,7 @@ impl TableFormator {
                 }
             }
         }
+        data.trim();
         return Some(data);
     }
 
