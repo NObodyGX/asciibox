@@ -11,6 +11,7 @@ done
 
 pwd=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 bdir="_build"
+name="asciibox"
 
 # todo, add into meson.build
 # only for test, need sudo
@@ -33,12 +34,16 @@ function sync_version() {
 
 function build_resource() {
   cd "${pwd}/data" || exit
-  glib-compile-resources asciibox.gresource.xml
+  glib-compile-resources ${name}.gresource.xml
+  if [ ! -d "${pwd}/data/bin" ];then
+    mkdir -p "${pwd}/data/bin"
+  fi
+  mv "${name}.gresource" "${pwd}/data/bin/${name}.gresource"
   cd - || exit
 }
 
 function rm_target() {
-  local target="$pwd/$bdir/src/asciibox"
+  local target="$pwd/$bdir/src/$name"
   if [ -f "$target" ]; then
     rm -f "$target"
   fi
@@ -60,26 +65,11 @@ function build_target() {
   cd - || exit
 }
 
-function link_target_resource() {
-  local sdir="$pwd/$bdir/data" ddir="" src="" dst=""
-
-  src="$sdir/asciibox.gresource"
-  ddir=$(grep "PKGDATA_DIR" "${pwd}/src/config.rs" | awk '{print $6}' | sed 's/;//g' | sed 's/"//g')
-  dst="$ddir/asciibox.gresource"
-
-  if [ ! -d "$ddir" ]; then
-    sudo_run "mkdir -p $ddir"
-  fi
-  if [ ! -h "$dst" ]; then
-    sudo_run "ln -s $src $dst"
-  fi
-}
-
 function run_target() {
-  local target="$pwd/$bdir/src/asciibox"
+  local target="$pwd/$bdir/src/$name"
   if [ -f "$target" ]; then
     cd "$pwd/$bdir/src" || exit
-    ./asciibox
+    ./$name
     cd - || exit
   else
     echo "[error]: build failed."
@@ -91,7 +81,6 @@ function main() {
   build_resource
 
   build_target
-  # link_target_resource
   run_target
 }
 

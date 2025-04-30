@@ -10,34 +10,37 @@ use gtk::{gio, glib};
 use rust_embed::Embed;
 
 #[derive(Embed)]
-#[folder = "data"]
+#[folder = "data/bin"]
 struct Asset;
 
-use config::{APP_ID, PKGDATA_DIR};
+use config::{APP_ID, APP_NAME, PKGDATA_DIR};
 
-fn load_resource() -> bool {
-    let fname = "asciibox.gresource";
-    let resource = if Asset::get(fname).is_some() {
-        let emfile = Asset::get(fname).unwrap();
+fn init_resource() -> bool {
+    let res_name = format!("{}.gresource", APP_NAME);
+    let res_name = &res_name;
+    let resource = if Asset::get(res_name).is_some() {
+        let emfile = Asset::get(res_name).unwrap();
         let emdata = emfile.data.into_owned();
         let data = glib::Bytes::from_owned(emdata);
         gio::Resource::from_data(&data).unwrap()
     } else {
-        gio::Resource::load(PKGDATA_DIR.to_owned() + "/" + fname).unwrap()
+        gio::Resource::load(PKGDATA_DIR.to_owned() + "/" + res_name).unwrap()
     };
     gio::resources_register(&resource);
     return true;
 }
 
-fn do_main_run() -> glib::ExitCode {
-    load_resource();
-    // Prepare i18n
+fn init_i18n() {
     gettextrs::setlocale(LocaleCategory::LcAll, "");
     gettextrs::bindtextdomain(config::APP_NAME, config::LOCALE_DIR)
         .expect("Unable to bind the text domain");
     gettextrs::textdomain(config::APP_NAME).expect("Unable to switch to the text domain");
+}
 
-    // Create a new application
+fn do_main_run() -> glib::ExitCode {
+    init_resource();
+    init_i18n();
+
     let app = AsciiboxApplication::new(APP_ID, &gio::ApplicationFlags::empty());
 
     app.connect_startup(|app| {

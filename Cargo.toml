@@ -14,3 +14,6 @@ homedir = "0.3.4"
 rust-embed = "8.7.0"
 fork = "0.2.0"
 svgbob = "0.7.6"
+
+[build-dependencies]
+glib-build-tools = "0.20.0"
