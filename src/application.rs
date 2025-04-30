@@ -67,7 +67,7 @@ impl AsciiboxApplication {
 
     fn setup_gactions(&self) {
         let preferences_action = gio::SimpleAction::new("preferences", None);
-        preferences_action.connect_activate(glib::clone!(
+        preferences_action.connect_activate(clone!(
             #[weak(rename_to = app)]
             self,
             move |_action, _parameter| {

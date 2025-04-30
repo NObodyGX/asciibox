@@ -4,15 +4,13 @@ version = "0.10.0"
 authors = ["nobodygx"]
 edition = "2021"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
 [dependencies]
-gtk = { version = "0.9.2", package = "gtk4", features = ["v4_12"] }
-adw = { version = "0.7.0", package = "libadwaita", features = ["v1_5"] }
-svgbob = "0.7.2"
+gtk = { version = "0.9.6", package = "gtk4", features = ["v4_12"] }
+adw = { version = "0.7.2", package = "libadwaita", features = ["v1_5"] }
 gettext-rs = {version="0.7.2", features = ["gettext-system"]}
 serde = { version = "1.0", features = ["derive"] }
-toml = { version = "0.8.19"}
+toml = { version = "0.8.22"}
 homedir = "0.3.4"
-rust-embed = "8.5.0"
+rust-embed = "8.7.0"
 fork = "0.2.0"
+svgbob = "0.7.6"

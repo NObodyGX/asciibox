@@ -7,7 +7,8 @@ use gtk::prelude::{TextBufferExt, TextViewExt};
 use gtk::CompositeTemplate;
 use std::fs::OpenOptions;
 use std::io::Write;
-use svgbob::to_svg;
+use svgbob::to_svg_string_pretty;
+
 
 use crate::core::config::Config;
 use crate::core::flowchart::AMap;
@@ -193,7 +194,7 @@ impl FlowchartPage {
     fn do_transform_to_svg(&self) {
         let buffer = self.imp().out_view.get().buffer();
         let content = buffer.text(&buffer.bounds().0, &buffer.bounds().1, false);
-        let svg_content = to_svg(content.as_str());
+        let svg_content = to_svg_string_pretty(content.as_str());
 
         let texture: gdk::Texture =
             gdk::Texture::from_bytes(&glib::Bytes::from(svg_content.as_bytes()))
