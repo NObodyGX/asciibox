@@ -3,11 +3,13 @@ use adw::ViewStack;
 use adw::subclass::prelude::*;
 use glib::Object;
 use glib::subclass::InitializingObject;
-use gtk::{CompositeTemplate, gio, glib};
+use gtk::{Button, CompositeTemplate, gio, glib, prelude::WidgetExt};
 
 use crate::gui::{FlowchartPage, TablePage};
 
 mod imp {
+
+    use std::cell::Cell;
 
     use super::*;
 
@@ -20,7 +22,12 @@ mod imp {
         pub flowchart: TemplateChild<FlowchartPage>,
         #[template_child]
         pub table: TemplateChild<TablePage>,
+        #[template_child]
+        pub dock_button_01: TemplateChild<Button>,
+        #[template_child]
+        pub dock_button_02: TemplateChild<Button>,
 
+        pub dock_index: Cell<usize>,
     }
 
     impl MainWindow {}
@@ -77,7 +84,9 @@ glib::wrapper! {
 impl MainWindow {
     fn setup_config(&self) {}
 
-    fn setup_widget(&self) {}
+    fn setup_widget(&self) {
+        self.click_dock_button(1);
+    }
 
     fn setup_actions(&self) {}
 }
@@ -88,13 +97,47 @@ impl MainWindow {
         Object::builder().property("application", app).build()
     }
 
-    #[template_callback]
-    pub fn switch_pagea(&self, _: gtk::Button) {
-        self.imp().stack.set_visible_child_name("flowchart");
+    fn set_dock_button_state(&self, index: usize, is_clicked: bool) {
+        let imp = self.imp();
+        let key = format!("page{:02}", index);
+        if is_clicked {
+            imp.stack.set_visible_child_name(&key);
+        }
+
+        let button = match index {
+            1 => imp.dock_button_01.get(),
+            2 => imp.dock_button_02.get(),
+            _ => {
+                return;
+            }
+        };
+        if is_clicked {
+            button.remove_css_class("dock-button");
+            button.add_css_class("clicked-dock-button");
+        } else {
+            button.remove_css_class("clicked-dock-button");
+            button.add_css_class("dock-button");
+        }
+    }
+
+    fn click_dock_button(&self, index: usize) {
+        let imp = self.imp();
+        if imp.dock_index.get() == index {
+            return;
+        }
+
+        self.set_dock_button_state(imp.dock_index.get(), false);
+        self.set_dock_button_state(index, true);
+        imp.dock_index.set(index);
     }
 
     #[template_callback]
-    pub fn switch_pageb(&self, _: gtk::Button) {
-        self.imp().stack.set_visible_child_name("table");
+    pub fn switch_page_01(&self, _: gtk::Button) {
+        self.click_dock_button(1);
+    }
+
+    #[template_callback]
+    pub fn switch_page_02(&self, _: gtk::Button) {
+        self.click_dock_button(2);
     }
 }

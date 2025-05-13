@@ -17,4 +17,5 @@
         <file preprocess="xml-stripblanks" alias="file-save-symbolic.svg">icons/hicolor/symbolic/apps/file-save-symbolic.svg</file>
         <file preprocess="xml-stripblanks" alias="table-export-symbolic.svg">icons/hicolor/symbolic/apps/table-export-symbolic.svg</file>
         <file preprocess="xml-stripblanks" alias="transform-symbolic.svg">icons/hicolor/symbolic/apps/transform-symbolic.svg</file>
+    </gresource>
 </gresources>

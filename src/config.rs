@@ -1,4 +1,4 @@
-pub const VERSION: &str = "1.0.0";
+pub const VERSION: &str = "0.11.0";
 pub const PKGDATA_DIR: &str = "/usr/local/share/asciibox";
 pub const LOCALE_DIR: &str = "/usr/local/share/locale";
 pub const APP_ID: &str = "com.github.nobodygx.asciibox";

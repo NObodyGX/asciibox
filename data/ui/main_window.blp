@@ -35,26 +35,26 @@ template $MainWindow: Adw.ApplicationWindow {
           orientation: vertical;
           spacing: 0;
 
-          Gtk.Button back_button {
+          Gtk.Button dock_button_01 {
             styles [
               "dock-button",
             ]
 
             width-request: 48;
             height-request: 48;
-            icon-name: "home-outline";
-            clicked => $switch_pagea() swapped;
+            icon-name: "logo-symbolic";
+            clicked => $switch_page_01() swapped;
           }
 
-          Gtk.Button forward_button {
+          Gtk.Button dock_button_02 {
             styles [
               "dock-button",
             ]
 
             width-request: 48;
             height-request: 48;
-            icon-name: "heart-outline";
-            clicked => $switch_pageb() swapped;
+            icon-name: "logo-symbolic";
+            clicked => $switch_page_02() swapped;
           }
         }
 
@@ -63,16 +63,16 @@ template $MainWindow: Adw.ApplicationWindow {
           vexpand: true;
 
           Adw.ViewStackPage {
-            name: "flowchart";
-            icon-name: "speedometer-symbolic";
+            name: "page01";
+            icon-name: "logo-symbolic";
             title: _("flowchart");
 
             child: $FlowchartPage flowchart{};
           }
 
           Adw.ViewStackPage {
-            name: "table";
-            icon-name: "speedometer-symbolic";
+            name: "page02";
+            icon-name: "logo-symbolic";
             title: _("table");
 
             child: $TablePage table{};

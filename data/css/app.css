@@ -11,3 +11,9 @@
 .dock-button:active {
     background-color:#E7E8E4;
 }
+
+.clicked-dock-button {
+    background-color: @view_bg_color;
+    border-left: 2px solid #2f972b;
+    border-radius: 0px;
+}
