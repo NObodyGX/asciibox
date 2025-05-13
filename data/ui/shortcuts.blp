@@ -13,7 +13,7 @@ template $ShortcutsWindow: Adw.Dialog {
       [top]
       Adw.HeaderBar {}
 
-      Box {
+      Gtk.Box {
         orientation: vertical;
         spacing: 15;
         margin-end: 10;
@@ -21,7 +21,7 @@ template $ShortcutsWindow: Adw.Dialog {
         margin-top: 5;
         margin-bottom: 15;
 
-        ListBox {
+        Gtk.ListBox {
           styles [
             "boxed-list",
           ]
@@ -30,8 +30,7 @@ template $ShortcutsWindow: Adw.Dialog {
 
           Adw.ActionRow {
             title: "Show help overlay";
-
-            Button {
+            Gtk.Button {
               margin-start: 6;
               margin-end: 6;
               valign: center;
@@ -41,7 +40,7 @@ template $ShortcutsWindow: Adw.Dialog {
 
           Adw.ActionRow {
             title: "Application Quit";
-            Button {
+            Gtk.Button {
               margin-start: 6;
               margin-end: 6;
               valign: center;

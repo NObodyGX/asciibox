@@ -12,7 +12,7 @@ template $MainPreferences: Adw.PreferencesDialog {
         title: _("Language");
         subtitle: _("Choose your language");
 
-        model: StringList {
+        model: Gtk.StringList {
           strings [
             "english",
             "简体中文",
@@ -30,7 +30,7 @@ template $MainPreferences: Adw.PreferencesDialog {
         use-underline: true;
         activatable-widget: expand_mode;
 
-        Switch expand_mode {
+        Gtk.Switch expand_mode {
           valign: center;
           active: false;
         }

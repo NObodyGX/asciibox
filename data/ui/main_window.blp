@@ -19,7 +19,7 @@ template $MainWindow: Adw.ApplicationWindow {
       };
 
       [end]
-      MenuButton {
+      Gtk.MenuButton {
         icon-name: "open-menu-symbolic";
         primary: true;
         menu-model: main-menu;
@@ -27,15 +27,15 @@ template $MainWindow: Adw.ApplicationWindow {
     }
 
     Adw.ToastOverlay toaster {
-      Box {
+      Gtk.Box {
         orientation: horizontal;
         spacing: 0;
 
-        Box {
+        Gtk.Box {
           orientation: vertical;
           spacing: 0;
 
-          Button back_button {
+          Gtk.Button back_button {
             styles [
               "dock-button",
             ]
@@ -46,7 +46,7 @@ template $MainWindow: Adw.ApplicationWindow {
             clicked => $switch_pagea() swapped;
           }
 
-          Button forward_button {
+          Gtk.Button forward_button {
             styles [
               "dock-button",
             ]
