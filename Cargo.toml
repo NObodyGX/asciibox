@@ -2,18 +2,22 @@
 name = "asciibox"
 version = "0.10.0"
 authors = ["nobodygx"]
-edition = "2021"
+edition = "2024"
+homepage = "https://github.com/nobodygx/asciibox"
+repository = "https://github.com/nobodygx/asciibox"
 
 [dependencies]
-gtk = { version = "0.9.6", package = "gtk4", features = ["v4_12"] }
 adw = { version = "0.7.2", package = "libadwaita", features = ["v1_5"] }
-gettext-rs = {version="0.7.2", features = ["gettext-system"]}
-serde = { version = "1.0", features = ["derive"] }
-toml = { version = "0.8.22"}
-homedir = "0.3.4"
-rust-embed = "8.7.0"
 fork = "0.2.0"
+gettext-rs = { version = "0.7.2", features = ["gettext-system"] }
+gtk = { version = "0.9.6", package = "gtk4", features = ["v4_12"] }
+homedir = "0.3.4"
+indexmap = "2.9.0"
+rust-embed = "8.7.1"
+serde = { version = "1.0", features = ["derive"] }
 svgbob = "0.7.6"
+toml = { version = "0.8.22" }
+
 
 [build-dependencies]
 glib-build-tools = "0.20.0"
