@@ -1,0 +1,55 @@
+using Gtk 4.0;
+using Adw 1;
+
+template $ShortcutsWindow: Adw.Dialog {
+  title: "Shortcuts";
+  content-width: 960;
+  content-height: 640;
+  width-request: 360;
+  height-request: 200;
+
+  Adw.ToastOverlay {
+    Adw.ToolbarView {
+      [top]
+      Adw.HeaderBar {}
+
+      Box {
+        orientation: vertical;
+        spacing: 15;
+        margin-end: 10;
+        margin-start: 10;
+        margin-top: 5;
+        margin-bottom: 15;
+
+        ListBox {
+          styles [
+            "boxed-list",
+          ]
+
+          selection-mode: none;
+
+          Adw.ActionRow {
+            title: "Show help overlay";
+
+            Button {
+              margin-start: 6;
+              margin-end: 6;
+              valign: center;
+              label: "Ctrl+h";
+            }
+          }
+
+          Adw.ActionRow {
+            title: "Application Quit";
+            Button {
+              margin-start: 6;
+              margin-end: 6;
+              valign: center;
+              label: "Ctrl+q";
+            }
+          }
+        }
+      }
+    }
+  }
+}

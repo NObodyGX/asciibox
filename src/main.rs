@@ -2,8 +2,13 @@ mod application;
 mod config;
 mod core;
 mod gui;
-use application::AsciiboxApplication;
-use fork::{daemon, Fork};
+mod utils;
+
+use core::AppSettings;
+
+use application::BasicApplication;
+#[allow(unused_imports)]
+use fork::{Fork, daemon};
 use gettextrs::LocaleCategory;
 use gtk::prelude::*;
 use gtk::{gio, glib};
@@ -31,17 +36,23 @@ fn init_resource() -> bool {
 }
 
 fn init_i18n() {
-    gettextrs::setlocale(LocaleCategory::LcAll, "");
+    let settings = AppSettings::new();
+
+    gettextrs::setlocale(LocaleCategory::LcAll, settings.lang);
+    gettextrs::bind_textdomain_codeset(config::APP_NAME, "utf-8")
+        .expect("Unable to bind utf-8 codeset");
     gettextrs::bindtextdomain(config::APP_NAME, config::LOCALE_DIR)
         .expect("Unable to bind the text domain");
     gettextrs::textdomain(config::APP_NAME).expect("Unable to switch to the text domain");
 }
 
 fn do_main_run() -> glib::ExitCode {
+    gtk::init().expect("can not init gtk");
+
     init_resource();
     init_i18n();
 
-    let app = AsciiboxApplication::new(APP_ID, &gio::ApplicationFlags::empty());
+    let app = BasicApplication::new(APP_ID, &gio::ApplicationFlags::empty());
 
     app.connect_startup(|app| {
         setup_shortcuts(app);
@@ -51,6 +62,14 @@ fn do_main_run() -> glib::ExitCode {
 }
 
 fn main() -> glib::ExitCode {
+    let _is_release = true;
+    #[cfg(debug_assertions)]
+    let _is_release = false;
+
+    if !_is_release {
+        return do_main_run();
+    }
+
     match daemon(false, true) {
         Ok(Fork::Child) => do_main_run(),
         Ok(Fork::Parent(pid)) => {
@@ -64,9 +83,7 @@ fn main() -> glib::ExitCode {
     }
 }
 
-fn setup_shortcuts(app: &AsciiboxApplication) {
+fn setup_shortcuts(app: &BasicApplication) {
     app.set_accels_for_action("app.quit", &["<Ctrl>q"]);
-    app.set_accels_for_action("win.execute", &["<Ctrl>r"]);
-    app.set_accels_for_action("win.clear_all", &["<Ctrl>BackSpace"]);
-    app.set_accels_for_action("win.switch_tab", &["<Ctrl>h"]);
+    app.set_accels_for_action("app.show-shortcuts", &["<Ctrl>h"]);
 }

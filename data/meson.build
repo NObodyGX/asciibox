@@ -1,17 +1,16 @@
 gnome = import('gnome')
 
-# not need build resource to target dir
-gnome.compile_resources('asciibox',
-  'asciibox.gresource.xml',
+gnome.compile_resources(app_name,
+  app_name + '.gresource.xml',
   gresource_bundle: true,
-  install: false,
+  install: true,
   install_dir: pkg_dir,
 )
 
 # desktop file
 desktop_file = i18n.merge_file(
-  input: f'@app_id@.desktop.in',
-  output: f'@app_id@.desktop',
+  input: app_id + '.desktop.in',
+  output: app_id + '.desktop',
   type: 'desktop',
   po_dir: podir,
   install: true,
@@ -27,7 +26,11 @@ endif
 
 # appdata
 appstream_file = i18n.merge_file(
-  input: f'@app_id@.metainfo.xml.in',
+  input: configure_file(
+    input: f'@app_id@.metainfo.xml.in.in',
+    output: f'@app_id@.metainfo.xml.in',
+    configuration: conf,
+  ),
   output: f'@app_id@.metainfo.xml',
   po_dir: podir,
   install: true,

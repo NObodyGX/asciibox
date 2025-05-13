@@ -1,4 +1,7 @@
-pub mod flowchart;
-pub mod table;
-pub mod utils;
-pub mod config;
+mod flowchart;
+mod settings;
+mod table;
+
+pub use flowchart::AMap;
+pub use settings::AppSettings;
+pub use table::{MarkdownStyle, TableData, TableFormator, TableMode};

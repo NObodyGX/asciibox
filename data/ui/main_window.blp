@@ -1,0 +1,100 @@
+using Gtk 4.0;
+using Adw 1;
+
+template $MainWindow: Adw.ApplicationWindow {
+  default-width: 1280;
+  default-height: 720;
+  width-request: 400;
+  height-request: 200;
+  title: _("Asciibox");
+
+  [content]
+  Adw.ToolbarView {
+    top-bar-style: raised;
+
+    [top]
+    Adw.HeaderBar {
+      title-widget: Adw.WindowTitle window_title {
+        title: _("Asciibox");
+      };
+
+      [end]
+      MenuButton {
+        icon-name: "open-menu-symbolic";
+        primary: true;
+        menu-model: main-menu;
+      }
+    }
+
+    Adw.ToastOverlay toaster {
+      Box {
+        orientation: horizontal;
+        spacing: 0;
+
+        Box {
+          orientation: vertical;
+          spacing: 0;
+
+          Button back_button {
+            styles [
+              "dock-button",
+            ]
+
+            width-request: 48;
+            height-request: 48;
+            icon-name: "home-outline";
+            clicked => $switch_pagea() swapped;
+          }
+
+          Button forward_button {
+            styles [
+              "dock-button",
+            ]
+
+            width-request: 48;
+            height-request: 48;
+            icon-name: "heart-outline";
+            clicked => $switch_pageb() swapped;
+          }
+        }
+
+        Adw.ViewStack stack {
+          hexpand: true;
+          vexpand: true;
+
+          Adw.ViewStackPage {
+            name: "flowchart";
+            icon-name: "speedometer-symbolic";
+            title: _("flowchart");
+
+            child: $FlowchartPage flowchart{};
+          }
+
+          Adw.ViewStackPage {
+            name: "table";
+            icon-name: "speedometer-symbolic";
+            title: _("table");
+
+            child: $TablePage table{};
+          }
+        }
+      }
+    }
+  }
+}
+
+menu main-menu {
+  section {
+    item {
+      label: _("Preferences");
+      action: "app.preferences";
+      hidden-when: "action-disabled";
+    }
+  }
+
+  section {
+    item (_("Keyboard Shortcuts"), "app.show-shortcuts")
+    item (_("About"), "app.about")
+    item (_("Quit"), "app.quit")
+  }
+}

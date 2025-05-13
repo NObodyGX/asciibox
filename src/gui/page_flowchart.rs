@@ -9,9 +9,8 @@ use std::fs::OpenOptions;
 use std::io::Write;
 use svgbob::to_svg_string_pretty;
 
+use crate::core::AMap;
 
-use crate::core::config::Config;
-use crate::core::flowchart::AMap;
 
 mod imp {
 
@@ -30,7 +29,6 @@ mod imp {
         pub out_image: TemplateChild<gtk::Image>,
 
         pub icon_str_backup: RefCell<String>,
-        pub config: OnceCell<Config>,
     }
 
     #[glib::object_subclass]
@@ -130,11 +128,11 @@ impl FlowchartPage {
     fn setup_text_view(&self) {}
 
     fn setup_config(&self) {
-        let config = Config::new();
-        self.imp()
-            .config
-            .set(config)
-            .expect("could not init config");
+        // let config = Config::new();
+        // self.imp()
+        //     .config
+        //     .set(config)
+        //     .expect("could not init config");
     }
 
     fn do_transform(&self) {
@@ -142,10 +140,8 @@ impl FlowchartPage {
         let content = ibuffer.text(&ibuffer.bounds().0, &ibuffer.bounds().1, false);
 
         // 当输入为 0 的时候不覆盖，这样可以编辑 svgbob 窗口并转换
-        let config = self.imp().config.get().unwrap();
         if content.len() != 0 {
-            let expand_mode = config.flowchart.expand_mode;
-            let mut mmap: AMap = AMap::new(expand_mode);
+            let mut mmap: AMap = AMap::new(true);
             let otext: String = mmap.load_content(content.as_str());
 
             let obuffer = self.imp().out_view.get().buffer();

@@ -15,4 +15,3 @@ StartupWMClass=asciibox
 Terminal=false
 Type=Application
 StartupNotify=true
-

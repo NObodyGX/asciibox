@@ -1,4 +1,4 @@
-use crate::core::utils::cn_length;
+use crate::utils::cn_length;
 use std::{fmt, ops::Not};
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]

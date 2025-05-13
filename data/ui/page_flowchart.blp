@@ -1,0 +1,132 @@
+using Gtk 4.0;
+using Adw 1;
+
+template $FlowchartPage: Gtk.Box {
+  orientation: vertical;
+
+  Gtk.Paned paned {
+    visible: true;
+    resize-start-child: true;
+    resize-end-child: true;
+    shrink-start-child: false;
+    shrink-end-child: false;
+    vexpand: true;
+    wide-handle: true;
+
+    Gtk.ScrolledWindow {
+      hexpand: false;
+      vexpand: true;
+      min-content-width: 360;
+      margin-start: 12;
+
+      Gtk.TextView in_view {
+        hscroll-policy: natural;
+        vscroll-policy: natural;
+        pixels-below-lines: 1;
+        editable: true;
+        justification: left;
+        left-margin: 8;
+        accepts-tab: true;
+      }
+    }
+
+    Gtk.Paned paned2 {
+      visible: true;
+      resize-start-child: true;
+      resize-end-child: true;
+      shrink-start-child: false;
+      shrink-end-child: false;
+      wide-handle: true;
+      orientation: vertical;
+      position: 200;
+      position-set: true;
+
+      Gtk.Overlay {
+        visible: true;
+        can-focus: false;
+
+        Gtk.ScrolledWindow {
+          hexpand: false;
+          vexpand: true;
+
+          Gtk.Image out_image {
+            focusable: false;
+            margin-end: 1;
+            margin-start: 1;
+          }
+        }
+
+        [overlay]
+        Gtk.Box {
+          orientation: vertical;
+          valign: end;
+          halign: end;
+
+          Gtk.Button {
+            visible: true;
+            margin-bottom: 2;
+            margin-end: 2;
+            tooltip-text: _("Copy Svg");
+            icon-name: "file-copy-symbolic";
+            action-name: "flowchart.do_svg_copy";
+          }
+
+          Gtk.Button {
+            visible: true;
+            margin-bottom: 2;
+            margin-end: 2;
+            tooltip-text: _("Save Svg");
+            icon-name: "file-save-symbolic";
+            action-name: "flowchart.do_svg_save";
+          }
+        }
+      }
+
+      Gtk.Overlay {
+        visible: true;
+        can-focus: false;
+
+        Gtk.ScrolledWindow {
+          hexpand: false;
+          vexpand: false;
+
+          Gtk.TextView out_view {
+            hscroll-policy: natural;
+            vscroll-policy: natural;
+            pixels-below-lines: 1;
+            editable: true;
+            justification: left;
+            left-margin: 8;
+            accepts-tab: true;
+            can-focus: true;
+          }
+        }
+
+        [overlay]
+        Gtk.Box {
+          orientation: vertical;
+          valign: end;
+          halign: end;
+
+          Gtk.Button {
+            visible: true;
+            margin-bottom: 2;
+            margin-end: 2;
+            tooltip-text: _("Copy Svgbob Text");
+            icon-name: "file-copy-symbolic";
+            action-name: "flowchart.do_transform";
+          }
+
+          Gtk.Button {
+            visible: true;
+            margin-bottom: 2;
+            margin-end: 2;
+            tooltip-text: _("Transform Svgbob to Svg");
+            icon-name: "transform-symbolic";
+            action-name: "flowchart.do_transform_to_svg";
+          }
+        }
+      }
+    }
+  }
+}

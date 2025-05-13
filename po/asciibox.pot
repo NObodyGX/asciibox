@@ -1,73 +1,70 @@
-# Chinese translations for asciibox package.
-# Copyright (C) 2025 THE asciibox'S COPYRIGHT HOLDER
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the asciibox package.
-#  <nobodygx@163.com>, 2025.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
+#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: asciibox\n"
 "Report-Msgid-Bugs-To: https://github.com/nobodygx/asciibox/issues/\n"
-"POT-Creation-Date: 2025-05-12 14:47+0800\n"
-"PO-Revision-Date: 2025-05-08 19:02+0800\n"
-"Last-Translator: NObodyGX<nobodygx@163.com>\n"
-"Language-Team: NObodyGX<nobodygx@163.com>\n"
-"Language: zh_CN\n"
+"POT-Creation-Date: 2025-05-13 14:56+0800\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
 #: data/ui/main_window.ui:14 data/ui/main_window.ui:22 src/application.rs:141
 msgid "Asciibox"
-msgstr "Asciibox"
+msgstr ""
 
 #: data/ui/main_window.ui:76
 msgid "Pa"
-msgstr "Pa"
+msgstr ""
 
 #: data/ui/main_window.ui:92
 msgid "Pb"
-msgstr "Pb"
+msgstr ""
 
 #: data/ui/main_window.ui:116 data/ui/preferences.ui:10
 msgid "Preferences"
-msgstr "配置"
+msgstr ""
 
 #: data/ui/main_window.ui:123
 msgid "Keyboard Shortcuts"
-msgstr "快捷键"
+msgstr ""
 
 #: data/ui/main_window.ui:127
 msgid "About"
-msgstr "关于"
+msgstr ""
 
 #: data/ui/main_window.ui:131
 msgid "Quit"
-msgstr "退出"
+msgstr ""
 
 #: data/ui/preferences.ui:15
 msgid "General"
-msgstr "常规"
+msgstr ""
 
 #: data/ui/preferences.ui:18
 msgid "Language"
-msgstr "语言"
+msgstr ""
 
 #: data/ui/preferences.ui:19
 msgid "Choose your language"
-msgstr "请选择你的语言"
+msgstr ""
 
 #: src/gui/preference_window.rs:114
-#, fuzzy
 msgid "Please restart the application for the changes to take effect"
-msgstr "配置已经改变，请重启生效"
+msgstr ""
 
 #: src/gui/preference_window.rs:118
 msgid "ok"
-msgstr "好的"
+msgstr ""
 
 #: src/application.rs:143
 msgid "asciibox is a example gtk4-rs demo for rust"
-msgstr "mdock是一个gtk4rs的样例程序"
-
-#~ msgid "asciibox"
-#~ msgstr "asciibox"
+msgstr ""

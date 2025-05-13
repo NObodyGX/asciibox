@@ -10,13 +10,14 @@ while getopts "rf" opt_sg; do
 done
 
 pwd=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
-bdir="_build"
-name="asciibox"
+bdir="${pwd}/target/__build"
+name=$(grep 'name =' "$pwd/Cargo.toml" | awk -F'"' '{print $2}')
 
-# todo, add into meson.build
-# only for test, need sudo
-# cp $pwd/data/asciibox.gschema.xml /usr/share/glib-2.0/schemas/
-# glib-compile-schemas /usr/share/glib-2.0/schemas/
+function check_dirs() {
+  if [ ! -d "$bdir" ]; then
+    mkdir -p "$bdir"
+  fi
+}
 
 function sudo_run() {
   sudo -u root -H sh -c "$1"
@@ -24,17 +25,30 @@ function sudo_run() {
 
 function sync_version() {
   local ver_o="" ver_n=""
-  ver_o=$(sed -n '2p' meson.build | grep -Eo "[0-9]+\.[0-9]+\.+[0-9]")
-  ver_n=$(sed -n '3p' Cargo.toml | grep -Eo "[0-9]+\.[0-9]+\.+[0-9]")
+  ver_o=$(sed -n '2p' "$pwd/meson.build" | grep -Eo "[0-9]+\.[0-9]+\.+[0-9]")
+  ver_n=$(sed -n '3p' "$pwd/Cargo.toml" | grep -Eo "[0-9]+\.[0-9]+\.+[0-9]")
   if [ "$ver_o" != "$ver_n" ]; then
     echo "change Cargo: $ver_n --> $ver_o"
     sed -i "3s/${ver_n}/${ver_o}/g" Cargo.toml
   fi
 }
 
+function prepare_ui() {
+  cd "${pwd}/data/ui" || exit
+
+  for file in *.blp; do
+    if [ -f "$file" ]; then
+      nfile="${file%.blp}.ui"
+      echo "$file --> $nfile"
+      blueprint-compiler compile --output "$nfile" "$file"
+    fi
+  done
+  cd - || exit
+}
+
 function build_resource() {
   cd "${pwd}/data" || exit
-  glib-compile-resources ${name}.gresource.xml
+  glib-compile-resources "${name}.gresource.xml"
   if [ ! -d "${pwd}/data/bin" ];then
     mkdir -p "${pwd}/data/bin"
   fi
@@ -43,7 +57,7 @@ function build_resource() {
 }
 
 function rm_target() {
-  local target="$pwd/$bdir/src/$name"
+  local target="$bdir/src/$name"
   if [ -f "$target" ]; then
     rm -f "$target"
   fi
@@ -52,24 +66,24 @@ function rm_target() {
 function build_target() {
   cd "$pwd" || exit
   if [ $is_clean -eq 1 ]; then
-    meson setup $bdir --reconfigure
+    meson setup "$bdir" --reconfigure
   elif [ $is_clean -eq 2 ]; then
-    rm -rf $bdir
-    meson setup $bdir
+    rm -rf "$bdir"
+    meson setup "$bdir"
   else
-    meson setup $bdir
+    meson setup "$bdir"
   fi
-  cd "${pwd}/${bdir}" || exit
+  cd "${bdir}" || exit
   meson compile
   cd - || exit
   cd - || exit
 }
 
 function run_target() {
-  local target="$pwd/$bdir/src/$name"
+  local target="$bdir/src/$name"
   if [ -f "$target" ]; then
-    cd "$pwd/$bdir/src" || exit
-    ./$name
+    cd "$bdir/src" || exit
+    ./"$name"
     cd - || exit
   else
     echo "[error]: build failed."
@@ -77,11 +91,35 @@ function run_target() {
 }
 
 function main() {
-  sync_version
-  build_resource
+  local mode="$1"
+  local force="$2"
 
-  build_target
-  run_target
+  if [[ "$force" == "-f" ]]; then
+    rm -rf "$bdir"
+  fi
+
+  if [[ "$mode" == "prepare" ]];then
+    echo "------------------------start prepare ${mode} ${force}"
+    check_dirs
+    sync_version
+    prepare_ui
+    build_resource
+  elif [[ "$mode" == "build" ]];then
+    echo "------------------------start build"
+    check_dirs
+    sync_version
+    prepare_ui
+    build_resource
+    build_target
+  else
+    echo "------------------------start run"
+    check_dirs
+    sync_version
+    prepare_ui
+    build_resource
+    build_target
+    run_target
+  fi
 }
 
 main "$@"

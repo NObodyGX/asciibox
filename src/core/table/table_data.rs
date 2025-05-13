@@ -1,6 +1,6 @@
 use std::cmp;
 
-use crate::core::utils;
+use crate::utils;
 
 use super::table_format::MarkdownStyle;
 

@@ -1,0 +1,13 @@
+.dock-button {
+    border: none;
+    border-radius: 0px;
+    background-color: @view_bg_color;
+}
+
+.dock-button:hover {
+    background-color:#D7D8D4;
+}
+
+.dock-button:active {
+    background-color:#E7E8E4;
+}

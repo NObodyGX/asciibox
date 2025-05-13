@@ -1,7 +1,6 @@
-use crate::core::config::Config;
-use crate::core::table::{MarkdownStyle, TableFormator, TableMode};
 use adw::prelude::*;
 use adw::subclass::prelude::*;
+use crate::core::{MarkdownStyle, TableFormator, TableMode};
 use gtk::gdk;
 use gtk::glib;
 use gtk::pango::Weight;
@@ -11,7 +10,6 @@ use gtk::CompositeTemplate;
 mod imp {
     use std::cell::OnceCell;
 
-    use crate::core::config::Config;
 
     use super::*;
 
@@ -26,7 +24,6 @@ mod imp {
         pub table_mode: TemplateChild<gtk::DropDown>,
 
         pub provider: gtk::CssProvider,
-        pub config: OnceCell<Config>,
     }
 
     #[glib::object_subclass]
@@ -123,9 +120,8 @@ impl TablePage {
                 _ => MarkdownStyle::Normal,
             };
 
-            let config = self.imp().config.get().unwrap();
-            let cellw = config.table.cell_max_width;
-            let linew = config.table.line_max_width;
+            let cellw = 40;
+            let linew = 99;
 
             let mut formator: TableFormator = TableFormator::new(cellw as usize, linew as usize);
             let otext: String = formator.do_format(content.as_str(), &omode, gfm_style);
@@ -141,11 +137,7 @@ impl TablePage {
     }
 
     fn setup_config(&self) {
-        let config = Config::new();
-        self.imp()
-            .config
-            .set(config)
-            .expect("could not init config");
+
     }
 
     fn setup_font_setting(&self) {
@@ -162,33 +154,6 @@ impl TablePage {
     }
 
     fn refresh_font(&self) {
-        // TODO: 目前会改动全局 textview 配置
-        let imp = self.imp();
-        // update font show
-        let config = imp.config.get().expect("could not get page table config");
-        if config.use_custom_font {
-            let custom_font = config.custom_font.clone();
-            let fontdesc = gtk::pango::FontDescription::from_string(custom_font.as_str());
-            let mut css = String::new();
-            css.push_str("textview {\n");
-            let family = fontdesc.family().expect("error in family");
-            css.push_str(format!("font-family: {};", family).as_str());
-            // // todo: add font scale
-            let size = fontdesc.size() / gtk::pango::SCALE;
-            css.push_str(format!("font-size: {}px;", size).as_str());
-            let weight = fontdesc.weight();
-            match weight {
-                Weight::Bold => {
-                    css.push_str("font-weight: bold;");
-                }
-                _ => {
-                    css.push_str("font-weight: normal;");
-                }
-            }
-            // 看 gnome-text-view 是不需要加 } 的，很奇怪
-            css.push_str("}\n");
-            imp.provider.load_from_string(css.as_str());
-        }
     }
 }
 

@@ -1,6 +1,6 @@
 [package]
 name = "asciibox"
-version = "0.10.0"
+version = "0.11.0"
 authors = ["nobodygx"]
 edition = "2024"
 homepage = "https://github.com/nobodygx/asciibox"

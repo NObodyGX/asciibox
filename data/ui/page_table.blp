@@ -1,0 +1,84 @@
+using Gtk 4.0;
+using Adw 1;
+
+template $TablePage: Gtk.Box {
+    orientation: vertical;
+
+    Gtk.Paned paned {
+        visible: true;
+        resize-start-child: true;
+        resize-end-child: true;
+        shrink-start-child: false;
+        shrink-end-child: false;
+        vexpand: true;
+        wide-handle: true;
+
+        Gtk.ScrolledWindow {
+            hexpand: false;
+            vexpand: true;
+            min-content-width: 360;
+            margin-start: 12;
+
+            Gtk.TextView in_view {
+                hscroll-policy: natural;
+                vscroll-policy: natural;
+                pixels-below-lines: 1;
+                editable: true;
+                justification: left;
+                left-margin: 8;
+                accepts-tab: true;
+                can-focus: true;
+            }
+        }
+
+        Gtk.Overlay {
+            visible: true;
+            can-focus: false;
+
+            Gtk.ScrolledWindow {
+                hexpand: false;
+                vexpand: false;
+
+                Gtk.TextView out_view {
+                    hscroll-policy: natural;
+                    vscroll-policy: natural;
+                    pixels-below-lines: 1;
+                    editable: true;
+                    justification: left;
+                    left-margin: 8;
+                    accepts-tab: true;
+                    can-focus: true;
+                }
+            }
+
+            [overlay]
+            Gtk.Box {
+                orientation: vertical;
+                valign: end;
+                halign: end;
+
+                Gtk.Button {
+                    margin-bottom: 2;
+                    margin-end: 2;
+                    tooltip-text: _("Copy Table Text");
+                    icon-name: "file-copy-symbolic";
+                    action-name: "table.do_transform_copy";
+                }
+
+                Gtk.DropDown table_mode {
+                    margin-end: 2;
+                    valign: center;
+                    width-request: 60;
+
+                    model: Gtk.StringList {
+                        strings [
+                            "Asciidoc",
+                            "Markdown",
+                            "Markdown-GFM",
+                        ]
+                    };
+                }
+            }
+        }
+    }
+}

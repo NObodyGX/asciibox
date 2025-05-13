@@ -1,0 +1,70 @@
+using Gtk 4.0;
+using Adw 1;
+
+template $MainPreferences: Adw.PreferencesDialog {
+  title: _("Preferences");
+
+  Adw.PreferencesPage {
+    Adw.PreferencesGroup {
+      title: _("General");
+
+      Adw.ComboRow lang_combox {
+        title: _("Language");
+        subtitle: _("Choose your language");
+
+        model: StringList {
+          strings [
+            "english",
+            "简体中文",
+          ]
+        };
+      }
+    }
+
+    Adw.PreferencesGroup {
+      title: _("Flowchart");
+
+      Adw.ActionRow {
+        title: _("Expand Mode");
+        subtitle: _("Is asciibox will expand auto");
+        use-underline: true;
+        activatable-widget: expand_mode;
+
+        Switch expand_mode {
+          valign: center;
+          active: false;
+        }
+      }
+    }
+
+    Adw.PreferencesGroup {
+      title: _("Table");
+
+      Adw.SpinRow cell_max_width {
+        title: _("Single Cell Max Width");
+        subtitle: _("default to 99");
+
+        adjustment: Gtk.Adjustment {
+          step-increment: 1;
+          page-increment: 10;
+          upper: 999;
+          lower: 12;
+          value: 99;
+        };
+      }
+
+      Adw.SpinRow line_max_width {
+        title: _("Total Line Max Width");
+        subtitle: _("default to 120");
+
+        adjustment: Gtk.Adjustment {
+          step-increment: 1;
+          page-increment: 10;
+          upper: 999;
+          lower: 40;
+          value: 120;
+        };
+      }
+    }
+  }
+}

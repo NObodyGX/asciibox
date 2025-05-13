@@ -4,7 +4,22 @@
 			"path": "."
 		}
 	],
-	"settings": {},
+	"settings": {
+		"[rust]": {
+			"editor.formatOnSave": true
+		},
+		"shellcheck.exclude": [
+			"SC1091"
+		],
+		"[blueprint-gtk]": {
+			"editor.tabSize": 2
+		},
+		"[shellscript]": {
+			"files.eol": "\n",
+			"editor.defaultColorDecorators": "never",
+			"editor.tabSize": 2
+		}
+	},
 	"launch": {
 		"version": "0.2.0",
 		"configurations": [],
@@ -13,7 +28,6 @@
 	"extensions": {
 		"recommendations": [
 			"rust-lang.rust-analyzer",
-			"serayuzgur.crates",
 			"vadimcn.vscode-lldb",
 			"naumovs.color-highlight",
 			"timonwong.shellcheck"

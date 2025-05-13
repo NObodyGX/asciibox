@@ -1,31 +1,30 @@
+
+conf_file = 'config.rs'
 configure_file(
-  input: 'config.rs.in',
-  output: 'config.rs',
+  input: conf_file + '.in',
+  output: conf_file,
   configuration: conf
 )
 
 # copy output
 run_command(
   'cp',
-  join_paths(meson.project_build_root(), 'src', 'config.rs'),
-  join_paths(meson.project_source_root(), 'src', 'config.rs'),
+  join_paths(meson.project_build_root(), 'src', conf_file),
+  join_paths(meson.project_source_root(), 'src', conf_file),
   check: true
 )
 
 
 rust_sources = files([
   'main.rs',
-  'application.rs',
-  'config.rs'
   ]
 )
-
-subdir('gui')
 subdir('core')
+subdir('gui')
 
 sources = [cargo_sources, rust_sources]
 
-cargo_script = find_program(join_paths(meson.project_source_root(), 'data/script/cargo.sh'))
+cargo_script = find_program(join_paths(meson.project_source_root(), 'data/scripts/cargo.sh'))
 cargo_release = custom_target(
   'cargo-build',
   build_by_default: true,

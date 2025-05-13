@@ -3,7 +3,7 @@
 <component type="desktop-application">
   <id>asciibox</id>
   <name>Asciibox</name>
-  <summary>A simple tools for svgbob/asciidoc</summary>
+  <summary>A simple tools for ascii work</summary>
   <metadata_license>CC0</metadata_license>
   <project_license>MIT</project_license>
   <description>
