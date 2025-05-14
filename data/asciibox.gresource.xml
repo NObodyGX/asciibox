@@ -17,5 +17,7 @@
         <file preprocess="xml-stripblanks" alias="file-copy-symbolic.svg">icons/hicolor/symbolic/apps/file-copy-line.svg</file>
         <file preprocess="xml-stripblanks" alias="play-symbolic.svg">icons/hicolor/symbolic/apps/play-mini-line.svg</file>
         <file preprocess="xml-stripblanks" alias="save-symbolic.svg">icons/hicolor/symbolic/apps/save-3-line.svg</file>
+        <file preprocess="xml-stripblanks" alias="icon-flowchart-symbolic.svg">icons/hicolor/symbolic/apps/shape-line.svg</file>
+        <file preprocess="xml-stripblanks" alias="icon-table-symbolic.svg">icons/hicolor/symbolic/apps/table-2.svg</file>
     </gresource>
 </gresources>
