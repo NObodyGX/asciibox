@@ -38,34 +38,24 @@ mod imp {
             klass.bind_template();
             klass.bind_template_callbacks();
 
-            klass.install_action("flowchart.do_transform", None, move |obj, _, _| {
-                obj.do_transform();
+            klass.install_action("flowchart.execute-transform", None, move |obj, _, _| {
+                obj.execute_transform();
             });
-            klass.install_action("flowchart.do_clear", None, move |obj, _, _| {
-                obj.do_clear();
-            });
-
-            klass.install_action("flowchart.do_svg_copy", None, move |obj, _, _| {
-                obj.do_copy_svg_file();
+            klass.install_action("flowchart.execute-clear", None, move |obj, _, _| {
+                obj.execute_clear();
             });
 
-            klass.install_action_async(
-                "flowchart.do_svg_save",
+            klass.install_action("flowchart.execute-clear-result", None, move |obj, _, _| {
+                obj.execute_clear_result();
+            });
+
+            klass.install_action(
+                "flowchart.execute-preview-svgbob",
                 None,
-                |win, _action_name, _action_target| async move {
-                    if let Err(error) = win.do_save_svg_file().await {
-                        println!("Error Save svg file: {error}");
-                    };
+                move |obj, _, _| {
+                    obj.execute_clear_result();
                 },
             );
-
-            klass.install_action("flowchart.do_transform_copy", None, move |obj, _, _| {
-                obj.do_transform_copy();
-            });
-
-            klass.install_action("flowchart.do_transform_to_svg", None, move |obj, _, _| {
-                obj.do_transform_to_svg();
-            });
         }
 
         fn instance_init(obj: &glib::subclass::InitializingObject<Self>) {
@@ -129,7 +119,7 @@ impl FlowchartPage {
         //     .expect("could not init config");
     }
 
-    fn do_transform(&self) {
+    fn execute_transform(&self) {
         let ibuffer: gtk::TextBuffer = self.imp().in_view.get().buffer();
         let content = ibuffer.text(&ibuffer.bounds().0, &ibuffer.bounds().1, false);
 
@@ -145,10 +135,17 @@ impl FlowchartPage {
         self.do_transform_to_svg();
     }
 
-    fn do_clear(&self) {
+    fn execute_clear(&self) {
         let ibuffer: gtk::TextBuffer = self.imp().in_view.get().buffer();
         ibuffer.set_text("");
     }
+
+    fn execute_clear_result(&self) {
+        let obuffer = self.imp().out_view.get().buffer();
+        obuffer.set_text("");
+    }
+
+    fn execute_preview_svgbob(&self) {}
 
     fn do_copy_svg_file(&self) {
         let clipboard = self.clipboard();

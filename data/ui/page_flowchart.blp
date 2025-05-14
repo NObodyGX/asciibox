@@ -44,17 +44,17 @@ template $FlowchartPage: Adw.Bin {
         Gtk.Button {
           margin-bottom: 2;
           margin-end: 2;
-          tooltip-text: _("Clear All");
+          tooltip-text: _("Clear all text");
           icon-name: "file-delete-symbolic";
-          action-name: "flowchart.do_transform";
+          action-name: "flowchart.execute-clear";
         }
 
         Gtk.Button {
           margin-bottom: 2;
           margin-end: 2;
-          tooltip-text: _("Transform");
+          tooltip-text: _("Transform to svgbob");
           icon-name: "play-symbolic";
-          action-name: "flowchart.do_transform_to_svg";
+          action-name: "flowchart.execute-transform";
         }
       }
     }
@@ -85,17 +85,17 @@ template $FlowchartPage: Adw.Bin {
         Gtk.Button {
           margin-bottom: 2;
           margin-end: 2;
-          tooltip-text: _("Copy Svgbob Text");
-          icon-name: "file-copy-symbolic";
-          action-name: "flowchart.do_transform";
+          tooltip-text: _("Clear all text");
+          icon-name: "file-delete-symbolic";
+          action-name: "flowchart.execute-clear-result";
         }
 
         Gtk.Button {
           margin-bottom: 2;
           margin-end: 2;
-          tooltip-text: _("Transform Svgbob to Svg");
+          tooltip-text: _("Preview svgbob");
           icon-name: "save-symbolic";
-          action-name: "flowchart.do_transform_to_svg";
+          action-name: "flowchart.execute-preview-svgbob";
         }
       }
     }
