@@ -13,11 +13,9 @@
     </gresource>
     <gresource prefix="/com/github/nobodygx/asciibox/icons/symbolic/apps/">
         <file preprocess="xml-stripblanks" alias="logo-symbolic.svg">icons/hicolor/symbolic/apps/asciibox-symbolic.svg</file>
-        <file preprocess="xml-stripblanks" alias="file-copy-symbolic.svg">icons/hicolor/symbolic/apps/file-copy-symbolic.svg</file>
-        <file preprocess="xml-stripblanks" alias="file-save-symbolic.svg">icons/hicolor/symbolic/apps/file-save-symbolic.svg</file>
-        <file preprocess="xml-stripblanks" alias="table-export-symbolic.svg">icons/hicolor/symbolic/apps/table-export-symbolic.svg</file>
-        <file preprocess="xml-stripblanks" alias="transform-symbolic.svg">icons/hicolor/symbolic/apps/transform-symbolic.svg</file>
-        <file preprocess="xml-stripblanks" alias="brush-2-line.svg">icons/hicolor/symbolic/apps/brush-2-line.svg</file>
-        <file preprocess="xml-stripblanks" alias="play-mini-line.svg">icons/hicolor/symbolic/apps/play-mini-line.svg</file>
+        <file preprocess="xml-stripblanks" alias="file-delete-symbolic.svg">icons/hicolor/symbolic/apps/delete-bin-line.svg</file>
+        <file preprocess="xml-stripblanks" alias="file-copy-symbolic.svg">icons/hicolor/symbolic/apps/file-copy-line.svg</file>
+        <file preprocess="xml-stripblanks" alias="play-symbolic.svg">icons/hicolor/symbolic/apps/play-mini-line.svg</file>
+        <file preprocess="xml-stripblanks" alias="save-symbolic.svg">icons/hicolor/symbolic/apps/save-3-line.svg</file>
     </gresource>
 </gresources>

@@ -18,7 +18,6 @@ template $FlowchartPage: Adw.Bin {
     ]
 
     Gtk.Overlay {
-      can-focus: false;
 
       Gtk.ScrolledWindow {
         hexpand: false;
@@ -30,8 +29,9 @@ template $FlowchartPage: Adw.Bin {
           pixels-below-lines: 1;
           editable: true;
           justification: left;
-          left-margin: 8;
+          left-margin: 4;
           accepts-tab: true;
+          can-focus: true;
         }
       }
 
@@ -45,7 +45,7 @@ template $FlowchartPage: Adw.Bin {
           margin-bottom: 2;
           margin-end: 2;
           tooltip-text: _("Clear All");
-          icon-name: "brush-2-line";
+          icon-name: "file-delete-symbolic";
           action-name: "flowchart.do_transform";
         }
 
@@ -53,15 +53,13 @@ template $FlowchartPage: Adw.Bin {
           margin-bottom: 2;
           margin-end: 2;
           tooltip-text: _("Transform");
-          icon-name: "play-mini-line";
+          icon-name: "play-symbolic";
           action-name: "flowchart.do_transform_to_svg";
         }
       }
     }
 
     Gtk.Overlay {
-      can-focus: false;
-
       Gtk.ScrolledWindow {
         hexpand: false;
         vexpand: false;
@@ -96,7 +94,7 @@ template $FlowchartPage: Adw.Bin {
           margin-bottom: 2;
           margin-end: 2;
           tooltip-text: _("Transform Svgbob to Svg");
-          icon-name: "transform-symbolic";
+          icon-name: "save-symbolic";
           action-name: "flowchart.do_transform_to_svg";
         }
       }

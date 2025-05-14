@@ -24,15 +24,13 @@ template $TablePage: Gtk.Box {
                 pixels-below-lines: 1;
                 editable: true;
                 justification: left;
-                left-margin: 8;
+                left-margin: 2;
                 accepts-tab: true;
                 can-focus: true;
             }
         }
 
         Gtk.Overlay {
-            visible: true;
-            can-focus: false;
 
             Gtk.ScrolledWindow {
                 hexpand: false;
@@ -44,7 +42,7 @@ template $TablePage: Gtk.Box {
                     pixels-below-lines: 1;
                     editable: true;
                     justification: left;
-                    left-margin: 8;
+                    left-margin: 4;
                     accepts-tab: true;
                     can-focus: true;
                 }
