@@ -25,3 +25,7 @@ asciibox 是一个意向简易化 ascii 文本操作的辅助工具，目前实�
     - [x] 表格美化
     - [ ] 源码美化
     - [ ] md 转 asciidoc
+
+## 感谢
+
+- [x] 本产品使用了 [remix](https://remixicon.com/) 图标

@@ -1,16 +1,15 @@
 use adw::prelude::*;
 use adw::subclass::prelude::*;
+use gtk::CompositeTemplate;
 use gtk::gdk;
 use gtk::gio;
 use gtk::glib;
 use gtk::prelude::{TextBufferExt, TextViewExt};
-use gtk::CompositeTemplate;
 use std::fs::OpenOptions;
 use std::io::Write;
 use svgbob::to_svg_string_pretty;
 
 use crate::core::AMap;
-
 
 mod imp {
 
@@ -25,8 +24,6 @@ mod imp {
         pub in_view: TemplateChild<gtk::TextView>,
         #[template_child]
         pub out_view: TemplateChild<gtk::TextView>,
-        #[template_child]
-        pub out_image: TemplateChild<gtk::Image>,
 
         pub icon_str_backup: RefCell<String>,
     }
@@ -35,7 +32,7 @@ mod imp {
     impl ObjectSubclass for FlowchartPage {
         const NAME: &'static str = "FlowchartPage";
         type Type = super::FlowchartPage;
-        type ParentType = gtk::Box;
+        type ParentType = adw::Bin;
 
         fn class_init(klass: &mut Self::Class) {
             klass.bind_template();
@@ -86,9 +83,7 @@ mod imp {
         }
     }
     impl WidgetImpl for FlowchartPage {}
-    impl WindowImpl for FlowchartPage {}
-    impl AdwWindowImpl for FlowchartPage {}
-    impl BoxImpl for FlowchartPage {}
+    impl BinImpl for FlowchartPage {}
 
     #[gtk::template_callbacks]
     impl FlowchartPage {
@@ -102,8 +97,7 @@ mod imp {
 
 glib::wrapper! {
     pub struct FlowchartPage(ObjectSubclass<imp::FlowchartPage>)
-        @extends gtk::Widget, gtk::Window, adw::Window, gtk::Box,
-        @implements gtk::Accessible, gtk::Buildable,gtk::ConstraintTarget, gtk::Native, gtk::Root, gtk::ShortcutManager;
+        @extends gtk::Widget, adw::Bin, @implements gtk::Accessible;
 }
 
 impl Default for FlowchartPage {
@@ -188,15 +182,15 @@ impl FlowchartPage {
     }
 
     fn do_transform_to_svg(&self) {
-        let buffer = self.imp().out_view.get().buffer();
-        let content = buffer.text(&buffer.bounds().0, &buffer.bounds().1, false);
-        let svg_content = to_svg_string_pretty(content.as_str());
+        // let buffer = self.imp().out_view.get().buffer();
+        // let content = buffer.text(&buffer.bounds().0, &buffer.bounds().1, false);
+        // let svg_content = to_svg_string_pretty(content.as_str());
 
-        let texture: gdk::Texture =
-            gdk::Texture::from_bytes(&glib::Bytes::from(svg_content.as_bytes()))
-                .expect("load svgbob out svg error");
-        self.imp().out_image.get().set_paintable(Some(&texture));
+        // let texture: gdk::Texture =
+        //     gdk::Texture::from_bytes(&glib::Bytes::from(svg_content.as_bytes()))
+        //         .expect("load svgbob out svg error");
+        // self.imp().out_image.get().set_paintable(Some(&texture));
 
-        self.imp().icon_str_backup.replace(svg_content);
+        // self.imp().icon_str_backup.replace(svg_content);
     }
 }
