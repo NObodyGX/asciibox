@@ -1,19 +1,29 @@
+.dock-label {
+    margin-top: 6px;
+    margin-bottom: 6px;
+}
+
 .dock-button {
     border: none;
     border-radius: 0px;
-    background-color: @view_bg_color;
+    background-color: var(--accent-fg-color);
 }
 
 .dock-button:hover {
-    background-color:#D7D8D4;
+    background-color: color-mix(in srgb, var(--accent-slate) 15%, transparent);
 }
 
 .dock-button:active {
-    background-color:#E7E8E4;
+    background-color: color-mix(in srgb, var(--accent-slate) 30%, transparent);
 }
 
 .clicked-dock-button {
-    background-color: @view_bg_color;
-    border-left: 2px solid #2f972b;
+    background-color: var(--accent-fg-color);
+    border-left: 3px solid var(--accent-green);
     border-radius: 0px;
+}
+
+.dock-box {
+    background-color: var(--accent-fg-color);
+    border-right: 1px solid var(--border-color);
 }

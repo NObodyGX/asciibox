@@ -9,73 +9,91 @@ template $MainWindow: Adw.ApplicationWindow {
   title: _("Asciibox");
 
   [content]
-  Adw.ToolbarView {
-    top-bar-style: raised;
+  Gtk.Box {
+    orientation: horizontal;
+    spacing: 0;
 
-    [top]
-    Adw.HeaderBar {
-      title-widget: Adw.WindowTitle window_title {
-        title: _("Asciibox");
-      };
+    Gtk.Box {
+      orientation: vertical;
+      spacing: 0;
 
-      [end]
-      Gtk.MenuButton {
-        icon-name: "open-menu-symbolic";
-        primary: true;
-        menu-model: main-menu;
+      styles [
+        "dock-box",
+      ]
+
+      Image {
+        icon-name: "asciibox";
+        pixel-size: 32;
+
+        styles [
+          "dock-label",
+        ]
+      }
+
+      Gtk.Button dock_button_01 {
+        styles [
+          "dock-button",
+        ]
+
+        width-request: 48;
+        height-request: 48;
+        icon-name: "logo-symbolic";
+        clicked => $switch_page_01() swapped;
+      }
+
+      Gtk.Button dock_button_02 {
+        styles [
+          "dock-button",
+        ]
+
+        width-request: 48;
+        height-request: 48;
+        icon-name: "logo-symbolic";
+        clicked => $switch_page_02() swapped;
       }
     }
 
-    Adw.ToastOverlay toaster {
-      Gtk.Box {
-        orientation: horizontal;
-        spacing: 0;
+    Adw.ToolbarView {
+      top-bar-style: raised;
 
+      [top]
+      Adw.HeaderBar {
+        title-widget: Adw.WindowTitle window_title {
+          title: _("Asciibox");
+        };
+
+        [end]
+        Gtk.MenuButton {
+          icon-name: "open-menu-symbolic";
+          primary: true;
+          menu-model: main-menu;
+        }
+      }
+
+      Adw.ToastOverlay toaster {
         Gtk.Box {
-          orientation: vertical;
+          orientation: horizontal;
           spacing: 0;
 
-          Gtk.Button dock_button_01 {
-            styles [
-              "dock-button",
-            ]
+          Adw.ViewStack stack {
+            hexpand: true;
+            vexpand: true;
 
-            width-request: 48;
-            height-request: 48;
-            icon-name: "logo-symbolic";
-            clicked => $switch_page_01() swapped;
-          }
+            Adw.ViewStackPage {
+              name: "page01";
+              icon-name: "logo-symbolic";
+              title: _("flowchart");
 
-          Gtk.Button dock_button_02 {
-            styles [
-              "dock-button",
-            ]
+              child: $FlowchartPage flowchart {};
+            }
 
-            width-request: 48;
-            height-request: 48;
-            icon-name: "logo-symbolic";
-            clicked => $switch_page_02() swapped;
-          }
-        }
+            Adw.ViewStackPage {
+              name: "page02";
+              icon-name: "logo-symbolic";
+              title: _("table");
 
-        Adw.ViewStack stack {
-          hexpand: true;
-          vexpand: true;
-
-          Adw.ViewStackPage {
-            name: "page01";
-            icon-name: "logo-symbolic";
-            title: _("flowchart");
-
-            child: $FlowchartPage flowchart{};
-          }
-
-          Adw.ViewStackPage {
-            name: "page02";
-            icon-name: "logo-symbolic";
-            title: _("table");
-
-            child: $TablePage table{};
+              child: $TablePage table {};
+            }
           }
         }
       }
