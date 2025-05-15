@@ -4,6 +4,7 @@ use super::TableData;
 pub enum TableMode {
     Asciidoc,
     Markdown,
+    MarkdownGFM,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
@@ -212,12 +213,15 @@ impl TableFormator {
         return Some(data);
     }
 
-    pub fn do_format(&mut self, text: &str, mode: &TableMode, style: MarkdownStyle) -> String {
+    pub fn do_format(&mut self, text: &str, mode: &TableMode) -> String {
         let data = self.try_format_into_basic_table(text);
         match data {
             Some(v) => match mode {
                 TableMode::Markdown => {
-                    return v.to_markdown_table(style);
+                    return v.to_normal_markdown_table();
+                }
+                TableMode::MarkdownGFM => {
+                    return v.to_gfm_markdown_table();
                 }
                 TableMode::Asciidoc => {
                     return v.to_asciidoc_table();

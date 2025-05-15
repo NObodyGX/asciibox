@@ -142,7 +142,15 @@ impl TableData {
         self.trim_end();
     }
 
-    pub fn to_markdown_table(&self, style: MarkdownStyle) -> String {
+    pub fn to_normal_markdown_table(&self) -> String {
+        return self.to_markdown_table(MarkdownStyle::Normal);
+    }
+
+    pub fn to_gfm_markdown_table(&self) -> String {
+        return self.to_markdown_table(MarkdownStyle::Github);
+    }
+
+    fn to_markdown_table(&self, style: MarkdownStyle) -> String {
         let cell_widths = self.cell_line_widths(true);
 
         let mut content: Vec<String> = Vec::new();

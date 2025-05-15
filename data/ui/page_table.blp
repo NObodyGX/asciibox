@@ -88,7 +88,7 @@ template $TablePage: Adw.Bin {
           margin-end: 2;
           tooltip-text: _("Copy Table Text");
           icon-name: "file-copy-symbolic";
-          action-name: "table.do_transform_copy";
+          action-name: "table.execute-copy-result";
         }
 
         Gtk.DropDown table_mode {
@@ -98,9 +98,9 @@ template $TablePage: Adw.Bin {
 
           model: Gtk.StringList {
             strings [
-              "Asciidoc",
               "Markdown",
               "Markdown-GFM",
+              "Asciidoc",
             ]
           };
         }

@@ -4,5 +4,4 @@ mod table;
 
 pub use flowchart::AMap;
 pub use settings::AppSettings;
-#[allow(unused)]
-pub use table::{MarkdownStyle, TableData, TableFormator, TableMode};
+pub use table::{TableFormator, TableMode};

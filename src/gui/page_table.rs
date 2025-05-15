@@ -1,4 +1,4 @@
-use crate::core::{MarkdownStyle, TableFormator, TableMode};
+use crate::core::{TableFormator, TableMode};
 use adw::prelude::*;
 use adw::subclass::prelude::*;
 use gtk::CompositeTemplate;
@@ -32,19 +32,16 @@ mod imp {
         fn class_init(klass: &mut Self::Class) {
             klass.bind_template();
 
-            klass.install_action("table.do_transform_copy", None, move |obj, _, _| {
-                obj.do_transform_copy();
+            klass.install_action("table.execute-transform", None, move |obj, _, _| {
+                obj.execute_transform();
             });
 
-            klass.install_action("table.do_transform", None, move |obj, _, _| {
-                obj.do_transform();
+            klass.install_action("table.execute-clear", None, move |obj, _, _| {
+                obj.execute_clear();
             });
 
-            klass.install_action("table.do_clear", None, move |obj, _, _| {
-                obj.do_clear();
-            });
-            klass.install_action("table.refresh_font", None, move |obj, _, _| {
-                obj.refresh_font();
+            klass.install_action("table.execute-copy-result", None, move |obj, _, _| {
+                obj.execute_copy_result();
             });
         }
 
@@ -77,44 +74,37 @@ impl TablePage {
         let page: TablePage = glib::Object::new();
         page
     }
-    fn do_transform_copy(&self) {
+    fn execute_copy_result(&self) {
         let clipboard = self.clipboard();
         let buffer = self.imp().out_view.get().buffer();
         let content = buffer.text(&buffer.bounds().0, &buffer.bounds().1, false);
         clipboard.set_text(content.as_str());
     }
 
-    fn do_transform(&self) {
+    fn execute_transform(&self) {
         let ibuffer: gtk::TextBuffer = self.imp().in_view.get().buffer();
         let content = ibuffer.text(&ibuffer.bounds().0, &ibuffer.bounds().1, false);
 
         // 当输入为 0 的时候不覆盖，这样可以编辑 svgbob 窗口并转换
         if content.len() != 0 {
             let omode = match self.imp().table_mode.get().selected() {
-                0 => TableMode::Asciidoc,
-                1 => TableMode::Markdown,
-                2 => TableMode::Markdown,
-                _ => TableMode::Asciidoc,
+                0 => TableMode::Markdown,
+                1 => TableMode::MarkdownGFM,
+                2 => TableMode::Asciidoc,
+                _ => TableMode::Markdown,
             };
-            let gfm_style = match self.imp().table_mode.get().selected() {
-                0 => MarkdownStyle::Normal,
-                1 => MarkdownStyle::Normal,
-                2 => MarkdownStyle::Github,
-                _ => MarkdownStyle::Normal,
-            };
-
             let cellw = 40;
             let linew = 99;
 
             let mut formator: TableFormator = TableFormator::new(cellw as usize, linew as usize);
-            let otext: String = formator.do_format(content.as_str(), &omode, gfm_style);
+            let otext: String = formator.do_format(content.as_str(), &omode);
 
             let obuffer = self.imp().out_view.get().buffer();
             obuffer.set_text(otext.as_str());
         }
     }
 
-    fn do_clear(&self) {
+    fn execute_clear(&self) {
         let ibuffer: gtk::TextBuffer = self.imp().in_view.get().buffer();
         ibuffer.set_text("");
     }
