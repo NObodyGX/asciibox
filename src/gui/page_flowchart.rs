@@ -1,10 +1,12 @@
 use crate::core::AMap;
 use adw::prelude::*;
 use adw::subclass::prelude::*;
+use gettextrs::gettext;
 use gtk::CompositeTemplate;
-use gtk::gio;
 use gtk::glib;
+use gtk::glib::property::PropertySet;
 use gtk::prelude::{TextBufferExt, TextViewExt};
+use log::error;
 use log::info;
 use std::cell::RefCell;
 use std::fs::OpenOptions;
@@ -25,7 +27,7 @@ mod imp {
         #[template_child]
         pub out_view: TemplateChild<gtk::TextView>,
 
-        pub icon_str_backup: RefCell<String>,
+        pub svg_content: RefCell<String>,
     }
 
     #[glib::object_subclass]
@@ -57,8 +59,8 @@ mod imp {
                 },
             );
 
-            klass.install_action("flowchart.execute-save", None, move |obj, _, _| {
-                obj.execute_save();
+            klass.install_action_async("flowchart.execute-save", None, |obj, _, _| async move {
+                obj.execute_save().await
             });
         }
 
@@ -142,6 +144,7 @@ impl FlowchartPage {
         let buffer = self.imp().out_view.get().buffer();
         let content = buffer.text(&buffer.bounds().0, &buffer.bounds().1, false);
         let svg_content = to_svg_string_pretty(content.as_str());
+        self.imp().svg_content.set(svg_content.clone());
 
         let dialog = ImagePreviewDialog::new();
         dialog.set_svg(svg_content);
@@ -154,27 +157,39 @@ impl FlowchartPage {
 
     fn do_copy_svg_file(&self) {
         let clipboard = self.clipboard();
-        clipboard.set_text(self.imp().icon_str_backup.borrow().as_str());
+        clipboard.set_text(self.imp().svg_content.borrow().as_str());
     }
 
-    pub async fn do_save_svg_file(&self) -> Result<(), Box<dyn std::error::Error>> {
+    async fn execute_save(&self) {
         let dialog = gtk::FileDialog::builder()
-            .title("Open File")
+            .title(&gettext("Open File"))
             .accept_label("Save")
             .modal(true)
             .build();
 
         let window = self.root().and_downcast::<gtk::Window>().unwrap();
-        let file: gio::File = dialog.save_future(Some(&window)).await?;
-        let mut filename = file.path().expect("Couldn't get file path");
+        let ofile = dialog.save_future(Some(&window)).await;
+        if ofile.is_err() {
+            error!("dialog error in : {ofile:#?}");
+            return;
+        }
+        let ofile = ofile.unwrap();
+        let filename = ofile.path();
+        if filename.is_none() {
+            error!("get ofile error");
+            return;
+        }
+        let mut filename = filename.unwrap();
         if !filename.ends_with("svg") {
             filename.set_extension("svg");
         }
-        let mut file2: std::fs::File =
-            OpenOptions::new().write(true).create(true).open(filename)?;
-        file2.write_all(self.imp().icon_str_backup.borrow().as_bytes())?;
-        Ok(())
+        match OpenOptions::new().write(true).create(true).open(&filename) {
+            Ok(mut f2) => f2
+                .write_all(self.imp().svg_content.borrow().as_bytes())
+                .expect("write error"),
+            Err(e) => {
+                error!("create file error in {filename:#?}: {e}")
+            }
+        }
     }
-
-    fn execute_save(&self) {}
 }
