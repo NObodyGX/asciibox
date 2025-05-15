@@ -12,13 +12,13 @@ init_push_hook() {
   if [ -z "$br" ]; then
     return
   fi
-  nfile="pre-push"
+  nfile="post-commit"
   echo "#!/bin/bash
 
 git push local main
 " > "$nfile"
-  mv -f "$nfile" "$pwd/.git/hooks/$nfile"
-  chmod +x "$pwd/.git/hooks/$nfile"
+  mv -f "$nfile" "$cdir/.git/hooks/$nfile"
+  chmod +x "$cdir/.git/hooks/$nfile"
   cd - || exit
 }
 
