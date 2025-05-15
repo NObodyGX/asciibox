@@ -12,6 +12,10 @@ log_info() {
     log "[info]$*"
 }
 
+log_title() {
+    log "========================$*"
+}
+
 log_succ() {
     log "${g_color_green}[success]${g_color_normal}$*"
 }
