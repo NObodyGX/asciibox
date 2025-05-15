@@ -39,7 +39,7 @@ fn init_resource() -> bool {
 fn init_i18n() {
     let settings = AppSettings::get();
 
-    gettextrs::setlocale(LocaleCategory::LcAll, settings.general.lang.clone());
+    gettextrs::setlocale(LocaleCategory::LcAll, settings.general.lang.as_str());
     gettextrs::bind_textdomain_codeset(config::APP_NAME, "utf-8")
         .expect("Unable to bind utf-8 codeset");
     gettextrs::bindtextdomain(config::APP_NAME, config::LOCALE_DIR)
