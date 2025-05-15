@@ -27,7 +27,7 @@ mod imp {
     impl ObjectSubclass for TablePage {
         const NAME: &'static str = "TablePage";
         type Type = super::TablePage;
-        type ParentType = gtk::Box;
+        type ParentType = adw::Bin;
 
         fn class_init(klass: &mut Self::Class) {
             klass.bind_template();
@@ -63,13 +63,13 @@ mod imp {
         }
     }
     impl WidgetImpl for TablePage {}
-    impl BoxImpl for TablePage {}
+    impl BinImpl for TablePage {}
 }
 
 glib::wrapper! {
     pub struct TablePage(ObjectSubclass<imp::TablePage>)
-        @extends gtk::Widget, gtk::Box,
-        @implements gtk::Accessible, gtk::Buildable,gtk::ConstraintTarget, gtk::Orientable;
+    @extends gtk::Widget, adw::Bin,
+    @implements gtk::Accessible;
 }
 
 impl TablePage {
