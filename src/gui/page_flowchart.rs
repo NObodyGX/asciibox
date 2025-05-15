@@ -1,5 +1,4 @@
 use crate::core::AMap;
-use crate::core::AppSettings;
 use adw::prelude::*;
 use adw::subclass::prelude::*;
 use gtk::CompositeTemplate;
@@ -7,7 +6,7 @@ use gtk::gio;
 use gtk::glib;
 use gtk::prelude::{TextBufferExt, TextViewExt};
 use log::info;
-use std::cell::{OnceCell, RefCell};
+use std::cell::RefCell;
 use std::fs::OpenOptions;
 use std::io::Write;
 use svgbob::to_svg_string_pretty;
@@ -27,7 +26,6 @@ mod imp {
         pub out_view: TemplateChild<gtk::TextView>,
 
         pub icon_str_backup: RefCell<String>,
-        pub settings: OnceCell<AppSettings>,
     }
 
     #[glib::object_subclass]
@@ -75,7 +73,6 @@ mod imp {
 
             let obj = self.obj();
             obj.setup_text_view();
-            obj.setup_config();
         }
     }
     impl WidgetImpl for FlowchartPage {}
@@ -116,14 +113,6 @@ impl FlowchartPage {
 impl FlowchartPage {
     // 配置默认的 placeholdtext
     fn setup_text_view(&self) {}
-
-    fn setup_config(&self) {
-        let settings = AppSettings::new();
-        self.imp()
-            .settings
-            .set(settings)
-            .expect("could not init config");
-    }
 
     fn execute_transform(&self) {
         let ibuffer: gtk::TextBuffer = self.imp().in_view.get().buffer();

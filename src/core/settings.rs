@@ -2,6 +2,7 @@ use std::{
     fs::{self, OpenOptions},
     io::{Read, Write},
     path::PathBuf,
+    sync::{LazyLock, RwLock, RwLockReadGuard, RwLockWriteGuard},
 };
 
 use crate::config::APP_NAME;
@@ -94,7 +95,18 @@ impl Default for AppSettings {
     }
 }
 
+static APP_SETTINGS_VAR: LazyLock<RwLock<AppSettings>> =
+    LazyLock::new(|| RwLock::new(AppSettings::load_default()));
+
 impl AppSettings {
+    pub fn get() -> RwLockReadGuard<'static, AppSettings> {
+        return APP_SETTINGS_VAR.read().unwrap();
+    }
+
+    pub fn get_mut() -> RwLockWriteGuard<'static, AppSettings> {
+        return APP_SETTINGS_VAR.write().unwrap();
+    }
+
     fn filename() -> PathBuf {
         let home = homedir::my_home().unwrap().unwrap();
         let filename = home
@@ -105,7 +117,7 @@ impl AppSettings {
         return filename;
     }
 
-    pub fn new() -> AppSettings {
+    fn load_default() -> AppSettings {
         let filename = AppSettings::filename();
         if !filename.exists() {
             return AppSettings::default();

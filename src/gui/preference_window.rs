@@ -78,9 +78,7 @@ impl MainPreferences {
     }
 
     fn setup_settings(&self) {
-        let isettings = AppSettings::new();
-        let mut settings = self.imp().settings.borrow_mut();
-        settings.clone_from(&isettings);
+        let settings = AppSettings::get();
 
         let imp = self.imp();
         // 初始化 lang_combox
