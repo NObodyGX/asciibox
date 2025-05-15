@@ -1,72 +1,37 @@
-# Asciibox readme
+# Asciibox说明 #
 
-[简体中文说明](./readme_CN.md)
+[English Readme](./readme_EN.md)
 
-## description
+## 简介 ##
 
-asciibox is an auxiliary tool intended to simplify ascii text manipulation, include svgbob and asciidoc, the current implementation of the following features:
+asciibox 是一个意向简易化 ascii 文本操作的辅助工具，准备实现的功能有：
 
-1. use mermaid syntax to generate svgbob, it will generate svgbob ascii text and output image(by svgbob)
-2. align and beautify asciidoc tables.
+1. 使用 mermaid 语法完成 svgbob 的生成，可以直接生成 svgbob 的文本和图片
+2. 对 asciidoc/markdown 的表格进行对齐美化
 
-## how to run
 
-run `sh build.sh` in project root dir
+## 运行 ##
 
-> if you want to debug with cargo, the config.rs will be generated differently than the installation. so you link file with your build, which should be done with ``build.sh``, if not, you should run `ln -s $PKGDATA_DIR/asciibox.gresource $PROJECTDIR/_build/data/asciibox.gresource`, `PKGDATA_DIR` define in `config.rs`, `PROJECTDIR` is project folder locate
+使用 `sh build.sh` 来生成并运行
 
-## roadmap
+> 注意⚠️：如果使用 cargo 进行调试运行，其内部也会调用 build.sh，请确保 `build.sh` 不被删除
 
-- [ ] flowchart(svgbob impl)
-    - [x] zh-cn support
-    - [x] basic arrow(left/down/up/right) support
-    - [ ] subgraph support
-    - [ ] multi arrow support
-    - [x] preview
-- [ ] table
-    - [ ] beautify table
-    - [ ] output table
-    - [ ] op table
-- [ ] asciidoc
-    - [ ] beautify code
-    - [ ] transform from markdown
-    - [ ] preview
+## 路线图 ##
 
-## install
+- [ ] svgbob 支持
+    - [x] 中文支持
+    - [x] 上下左右箭头支持
+    - [ ] subgraph 支持
+    - [ ] 左上下右上下扩展支持
+    - [x] 预览支持
+- [ ] asciidoc 支持
+    - [x] 表格美化
+    - [ ] 源码美化
+    - [ ] md 转 asciidoc
+- [ ] mermaid 支持
+    - [ ] mermaid 转 svg/png
 
-### linux
 
-```shell
-# for arch linux
-paru -S asciibox
+## 感谢
 
-# for other linux
-git clone --depth=1 https://github.com/nobodygx/asciibox
-meson setup build
-meson compile -C build
-meson install -C build
-
-# run asciibox to enjoy!!
-```
-
-### windows
-
-```shell
-
-# Install MSYS2
-pacman -S mingw-w64-x86_64-gtk4 mingw-w64-x86_64-gettext mingw-w64-x86_64-libxml2 mingw-w64-x86_64-librsvg mingw-w64-x86_64-pkgconf mingw-w64-x86_64-gcc mingw-w64-x86_64-libadwaita
-
-# add into paths
-C:\msys64\mingw64\include
-C:\msys64\mingw64\bin
-C:\msys64\mingw64\lib
-
-# install rust
-rustup toolchain install stable-gnu
-rustup default stable-gnu
-
-# before cargo run
-# sh build.sh  # --> to build asciibox, but without install
-# cp _build/data/asciibox.gresource /mingw/share/asciibox/
-# cargo run to enjoy
-```
+- [x] 本产品使用了 [remix](https://remixicon.com/) 图标

@@ -10,7 +10,7 @@ while getopts "rf" opt_sg; do
 done
 
 pwd=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
-bdir="${pwd}/target/__build"
+bdir="${pwd}/target/build"
 name=$(grep 'name =' "$pwd/Cargo.toml" | awk -F'"' '{print $2}')
 
 function check_dirs() {
