@@ -1,19 +1,19 @@
+use crate::core::AMap;
+use crate::core::AppSettings;
 use adw::prelude::*;
 use adw::subclass::prelude::*;
 use gtk::CompositeTemplate;
-use gtk::gdk;
 use gtk::gio;
 use gtk::glib;
 use gtk::prelude::{TextBufferExt, TextViewExt};
+use std::cell::{OnceCell, RefCell};
 use std::fs::OpenOptions;
 use std::io::Write;
 use svgbob::to_svg_string_pretty;
 
-use crate::core::AMap;
+use super::image_preview_dialog::ImagePreviewDialog;
 
 mod imp {
-
-    use std::cell::{OnceCell, RefCell};
 
     use super::*;
 
@@ -26,6 +26,7 @@ mod imp {
         pub out_view: TemplateChild<gtk::TextView>,
 
         pub icon_str_backup: RefCell<String>,
+        pub settings: OnceCell<AppSettings>,
     }
 
     #[glib::object_subclass]
@@ -53,9 +54,13 @@ mod imp {
                 "flowchart.execute-preview-svgbob",
                 None,
                 move |obj, _, _| {
-                    obj.execute_clear_result();
+                    obj.execute_preview_svgbob();
                 },
             );
+
+            klass.install_action("flowchart.execute-save", None, move |obj, _, _| {
+                obj.execute_save();
+            });
         }
 
         fn instance_init(obj: &glib::subclass::InitializingObject<Self>) {
@@ -112,11 +117,11 @@ impl FlowchartPage {
     fn setup_text_view(&self) {}
 
     fn setup_config(&self) {
-        // let config = Config::new();
-        // self.imp()
-        //     .config
-        //     .set(config)
-        //     .expect("could not init config");
+        let settings = AppSettings::new();
+        self.imp()
+            .settings
+            .set(settings)
+            .expect("could not init config");
     }
 
     fn execute_transform(&self) {
@@ -131,8 +136,6 @@ impl FlowchartPage {
             let obuffer = self.imp().out_view.get().buffer();
             obuffer.set_text(otext.as_str());
         }
-
-        self.do_transform_to_svg();
     }
 
     fn execute_clear(&self) {
@@ -145,7 +148,19 @@ impl FlowchartPage {
         obuffer.set_text("");
     }
 
-    fn execute_preview_svgbob(&self) {}
+    fn execute_preview_svgbob(&self) {
+        let buffer = self.imp().out_view.get().buffer();
+        let content = buffer.text(&buffer.bounds().0, &buffer.bounds().1, false);
+        let svg_content = to_svg_string_pretty(content.as_str());
+
+        let dialog = ImagePreviewDialog::new();
+        dialog.set_svg(svg_content);
+
+        let Some(parent_window) = self.root().and_downcast::<gtk::Window>() else {
+            return;
+        };
+        dialog.present(Some(&parent_window));
+    }
 
     fn do_copy_svg_file(&self) {
         let clipboard = self.clipboard();
@@ -171,23 +186,5 @@ impl FlowchartPage {
         Ok(())
     }
 
-    fn do_transform_copy(&self) {
-        let clipboard = self.clipboard();
-        let buffer = self.imp().out_view.get().buffer();
-        let content = buffer.text(&buffer.bounds().0, &buffer.bounds().1, false);
-        clipboard.set_text(content.as_str());
-    }
-
-    fn do_transform_to_svg(&self) {
-        // let buffer = self.imp().out_view.get().buffer();
-        // let content = buffer.text(&buffer.bounds().0, &buffer.bounds().1, false);
-        // let svg_content = to_svg_string_pretty(content.as_str());
-
-        // let texture: gdk::Texture =
-        //     gdk::Texture::from_bytes(&glib::Bytes::from(svg_content.as_bytes()))
-        //         .expect("load svgbob out svg error");
-        // self.imp().out_image.get().set_paintable(Some(&texture));
-
-        // self.imp().icon_str_backup.replace(svg_content);
-    }
+    fn execute_save(&self) {}
 }

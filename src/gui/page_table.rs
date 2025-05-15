@@ -1,15 +1,12 @@
+use crate::core::{MarkdownStyle, TableFormator, TableMode};
 use adw::prelude::*;
 use adw::subclass::prelude::*;
-use crate::core::{MarkdownStyle, TableFormator, TableMode};
+use gtk::CompositeTemplate;
 use gtk::gdk;
 use gtk::glib;
-use gtk::pango::Weight;
 use gtk::prelude::{TextBufferExt, TextViewExt};
-use gtk::CompositeTemplate;
 
 mod imp {
-    use std::cell::OnceCell;
-
 
     use super::*;
 
@@ -136,9 +133,7 @@ impl TablePage {
         ibuffer.set_text("");
     }
 
-    fn setup_config(&self) {
-
-    }
+    fn setup_config(&self) {}
 
     fn setup_font_setting(&self) {
         let imp = self.imp();
@@ -153,8 +148,7 @@ impl TablePage {
         self.refresh_font();
     }
 
-    fn refresh_font(&self) {
-    }
+    fn refresh_font(&self) {}
 }
 
 impl Default for TablePage {

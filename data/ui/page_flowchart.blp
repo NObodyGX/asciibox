@@ -94,9 +94,17 @@ template $FlowchartPage: Adw.Bin {
           margin-bottom: 2;
           margin-end: 2;
           tooltip-text: _("Preview svgbob");
-          icon-name: "save-symbolic";
+          icon-name: "image-preview-symbolic";
           action-name: "flowchart.execute-preview-svgbob";
         }
+
+        Gtk.Button {
+            margin-bottom: 2;
+            margin-end: 2;
+            tooltip-text: _("Save svg");
+            icon-name: "save-symbolic";
+            action-name: "flowchart.execute-save";
+          }
       }
     }
   }

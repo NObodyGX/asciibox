@@ -1,0 +1,35 @@
+using Gtk 4.0;
+using Adw 1;
+
+template $ImagePreviewDialog: Adw.Dialog {
+  content-width: 960;
+  content-height: 640;
+  width-request: 360;
+  height-request: 360;
+
+  Adw.ToastOverlay {
+    Adw.ToolbarView {
+      [top]
+      Adw.HeaderBar {}
+
+      Gtk.Overlay {
+        Gtk.Image image {}
+
+        [overlay]
+        Gtk.Box {
+          orientation: vertical;
+          valign: end;
+          halign: end;
+
+          Gtk.Button {
+            margin-bottom: 2;
+            margin-end: 2;
+            tooltip-text: _("Save svg");
+            icon-name: "save-symbolic";
+            action-name: "flowchart.execute-save";
+          }
+        }
+      }
+    }
+  }
+}
