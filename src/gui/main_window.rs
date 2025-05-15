@@ -26,6 +26,8 @@ mod imp {
         pub dock_button_01: TemplateChild<Button>,
         #[template_child]
         pub dock_button_02: TemplateChild<Button>,
+        #[template_child]
+        pub dock_button_settings: TemplateChild<Button>,
 
         pub dock_index: Cell<usize>,
     }
@@ -139,5 +141,10 @@ impl MainWindow {
     #[template_callback]
     pub fn switch_page_02(&self, _: gtk::Button) {
         self.click_dock_button(2);
+    }
+
+    #[template_callback]
+    pub fn clicked_settings(&self, _: gtk::Button) {
+        // todo
     }
 }

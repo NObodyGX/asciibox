@@ -21,35 +21,54 @@ template $MainWindow: Adw.ApplicationWindow {
         "dock-box",
       ]
 
-      Image {
+      Gtk.Image {
         icon-name: "asciibox";
-        pixel-size: 32;
+        pixel-size: 24;
+        tooltip-text: _("(ㅅ•ᴗ•)please don't click. (ㅅ•ᴗ•)");
 
         styles [
           "dock-label",
         ]
       }
 
-      Gtk.Button dock_button_01 {
-        styles [
-          "dock-button",
-        ]
+      Gtk.Box {
+        orientation: vertical;
+        spacing: 0;
+        vexpand: true;
 
-        width-request: 48;
-        height-request: 48;
-        icon-name: "icon-flowchart-symbolic";
-        clicked => $switch_page_01() swapped;
+        Gtk.Button dock_button_01 {
+          styles [
+            "dock-button",
+          ]
+
+          width-request: 48;
+          height-request: 48;
+          icon-name: "icon-flowchart-symbolic";
+          clicked => $switch_page_01() swapped;
+        }
+
+        Gtk.Button dock_button_02 {
+          styles [
+            "dock-button",
+          ]
+
+          width-request: 48;
+          height-request: 48;
+          icon-name: "icon-table-symbolic";
+          clicked => $switch_page_02() swapped;
+        }
       }
 
-      Gtk.Button dock_button_02 {
+      Gtk.Button dock_button_settings {
         styles [
           "dock-button",
         ]
 
+        tooltip-text: _("Preferences");
         width-request: 48;
         height-request: 48;
-        icon-name: "icon-table-symbolic";
-        clicked => $switch_page_02() swapped;
+        icon-name: "settings-symbolic";
+        action-name: "app.preferences";
       }
     }
 
