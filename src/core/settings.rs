@@ -6,40 +6,90 @@ use std::{
 
 use crate::config::APP_NAME;
 use indexmap::IndexMap;
+use log::error;
 use serde::{Deserialize, Serialize};
 use toml;
 
-#[derive(Serialize, Deserialize, Debug, Clone, Copy)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
+#[serde(deny_unknown_fields)]
+pub struct General {
+    #[serde(default = "default_lang")]
+    pub lang: String,
+}
+
+fn default_lang() -> String {
+    String::new()
+}
+
+impl Default for General {
+    fn default() -> Self {
+        General {
+            lang: default_lang(),
+        }
+    }
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(deny_unknown_fields)]
 pub struct Flowchart {
+    #[serde(default = "default_expand_mode")]
     pub expand_mode: bool,
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone, Copy)]
+fn default_expand_mode() -> bool {
+    false
+}
+
+impl Default for Flowchart {
+    fn default() -> Self {
+        Flowchart {
+            expand_mode: default_expand_mode(),
+        }
+    }
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(deny_unknown_fields)]
 pub struct Table {
+    #[serde(default = "default_cell_max_width")]
     pub cell_max_width: i32,
+    #[serde(default = "default_line_max_width")]
     pub line_max_width: i32,
+}
+
+fn default_cell_max_width() -> i32 {
+    99
+}
+
+fn default_line_max_width() -> i32 {
+    299
+}
+
+impl Default for Table {
+    fn default() -> Self {
+        Table {
+            cell_max_width: default_cell_max_width(),
+            line_max_width: default_line_max_width(),
+        }
+    }
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct AppSettings {
-    pub lang: String,
+    #[serde(default)]
+    pub general: General,
+    #[serde(default)]
     pub flowchart: Flowchart,
+    #[serde(default)]
     pub table: Table,
 }
 
 impl Default for AppSettings {
     fn default() -> Self {
         AppSettings {
-            lang: "".to_string(),
-
-            flowchart: Flowchart { expand_mode: false },
-
-            table: Table {
-                cell_max_width: 99,
-                line_max_width: 299,
-            },
+            general: General::default(),
+            flowchart: Flowchart::default(),
+            table: Table::default(),
         }
     }
 }
@@ -61,10 +111,18 @@ impl AppSettings {
             return AppSettings::default();
         }
 
-        let mut file: std::fs::File = OpenOptions::new().read(true).open(filename).unwrap();
+        let mut file: std::fs::File = OpenOptions::new().read(true).open(&filename).unwrap();
         let mut contents = String::new();
         file.read_to_string(&mut contents).unwrap();
-        let settings: AppSettings = toml::from_str(&contents).unwrap();
+        let settings = match toml::from_str(&contents) {
+            Ok(settings) => settings,
+            Err(e) => {
+                error!(
+                    "error to deserialize {filename:#?}: {e}\n========use deault setting========"
+                );
+                AppSettings::default()
+            }
+        };
         settings
     }
 
@@ -93,5 +151,4 @@ impl AppSettings {
 
         hashmap
     }
-
 }

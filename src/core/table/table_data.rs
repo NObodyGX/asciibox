@@ -1,8 +1,8 @@
 use std::cmp;
 
-use crate::utils;
-
 use super::table_format::MarkdownStyle;
+use crate::utils;
+use log::info;
 
 #[derive(Debug)]
 pub struct TableData {
@@ -114,7 +114,7 @@ impl TableData {
         // 清理尾部连续空行
         for i in (0..self.data.len()).rev() {
             let line = &self.data[i];
-            println!("line: {:?}", line);
+            info!("line: {:?}", line);
             let mut flag = false;
             for text in line.iter() {
                 if text.len() > 0 {
@@ -128,8 +128,8 @@ impl TableData {
                 break;
             }
         }
-        println!("data: {:?}", self.data);
-        println!("end size:{:?}", to_del);
+        info!("data: {:?}", self.data);
+        info!("end size:{:?}", to_del);
 
         for i in to_del.iter() {
             let _ = self.data.remove(*i);
@@ -266,21 +266,27 @@ impl TableData {
 mod tests {
     use super::*;
 
+    fn init() {
+        let _ = env_logger::builder().is_test(true).try_init();
+    }
+
     #[test]
     fn test_data_new() {
+        init();
         let mut data = TableData::new(5, 3, 33, 99);
         data.set_cell(0, 0, "1");
         data.set_cell(1, 0, "2");
         data.set_cell(2, 0, "3");
         data.set_cell(3, 0, "4");
         data.set_cell(4, 0, "5");
-        println!("{:#?}", data)
+        info!("{:#?}", data)
     }
 
     #[test]
     fn test_str() {
+        init();
         let a = "aa|a\tbb|b";
         let b = a.matches("|").count();
-        println!("len: {b}");
+        info!("len: {b}");
     }
 }

@@ -31,7 +31,6 @@ mod imp {
 
         fn class_init(klass: &mut Self::Class) {
             klass.bind_template();
-            klass.bind_template_callbacks();
 
             klass.install_action("table.do_transform_copy", None, move |obj, _, _| {
                 obj.do_transform_copy();
@@ -51,19 +50,6 @@ mod imp {
 
         fn instance_init(obj: &glib::subclass::InitializingObject<Self>) {
             obj.init_template();
-        }
-    }
-
-    #[gtk::template_callbacks]
-    impl TablePage {
-        #[template_callback]
-        fn top_picks_cb(&self) {
-            println!("click top picks cb");
-        }
-
-        #[template_callback]
-        fn new_albums_cb(&self) {
-            println!("click new_albums_cb");
         }
     }
 

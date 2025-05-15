@@ -1,6 +1,7 @@
 use super::cell::{Arrow, Cell, Direct};
 use super::maps::RenderBox;
 use super::node::{AEdgeCell, ANode};
+use log::info;
 use std::cmp::{max, min};
 use std::collections::HashMap;
 use std::ops::Not;
@@ -575,11 +576,11 @@ impl AGraph {
     }
 
     fn print_members(&self) {
-        println!("graph");
+        info!("graph");
         for (name, cell) in self.nodes.iter() {
-            println!("{}: ({}, {})", name, cell.x, cell.y);
+            info!("{}: ({}, {})", name, cell.x, cell.y);
         }
-        println!("graph end!!!")
+        info!("graph end!!!")
     }
 
     // 绘制本graph

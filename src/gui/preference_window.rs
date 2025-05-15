@@ -90,7 +90,7 @@ impl MainPreferences {
             let pomap = AppSettings::po_map();
             let mut position = 0;
             for (i, v) in pomap.values().enumerate() {
-                if v.eq_ignore_ascii_case(&settings.lang) {
+                if v.eq_ignore_ascii_case(&settings.general.lang) {
                     position = i;
                     break;
                 }
@@ -108,10 +108,10 @@ impl MainPreferences {
         }
         let value = pomap.get(key).map_or("", |v| v);
         let mut settings = self.imp().settings.borrow_mut();
-        if settings.lang.eq_ignore_ascii_case(value) {
+        if settings.general.lang.eq_ignore_ascii_case(value) {
             return;
         }
-        settings.lang = value.to_string();
+        settings.general.lang = value.to_string();
         settings.save();
 
         let ok_response = "ok";

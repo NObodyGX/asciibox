@@ -5,6 +5,7 @@ mod gui;
 mod utils;
 
 use core::AppSettings;
+use log::info;
 
 use application::BasicApplication;
 #[allow(unused_imports)]
@@ -38,7 +39,7 @@ fn init_resource() -> bool {
 fn init_i18n() {
     let settings = AppSettings::new();
 
-    gettextrs::setlocale(LocaleCategory::LcAll, settings.lang);
+    gettextrs::setlocale(LocaleCategory::LcAll, settings.general.lang);
     gettextrs::bind_textdomain_codeset(config::APP_NAME, "utf-8")
         .expect("Unable to bind utf-8 codeset");
     gettextrs::bindtextdomain(config::APP_NAME, config::LOCALE_DIR)
@@ -47,6 +48,7 @@ fn init_i18n() {
 }
 
 fn do_main_run() -> glib::ExitCode {
+    env_logger::init();
     gtk::init().expect("can not init gtk");
 
     init_resource();
@@ -73,11 +75,11 @@ fn main() -> glib::ExitCode {
     match daemon(false, true) {
         Ok(Fork::Child) => do_main_run(),
         Ok(Fork::Parent(pid)) => {
-            println!("daemon pid: {}", pid);
+            info!("daemon pid: {}", pid);
             return glib::ExitCode::from(0);
         }
         Err(_) => {
-            println!("Fork failed");
+            info!("Fork failed");
             return glib::ExitCode::from(1);
         }
     }

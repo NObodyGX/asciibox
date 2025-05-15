@@ -6,6 +6,7 @@ use gtk::CompositeTemplate;
 use gtk::gio;
 use gtk::glib;
 use gtk::prelude::{TextBufferExt, TextViewExt};
+use log::info;
 use std::cell::{OnceCell, RefCell};
 use std::fs::OpenOptions;
 use std::io::Write;
@@ -84,7 +85,7 @@ mod imp {
     impl FlowchartPage {
         #[template_callback]
         fn svgbob_svg_copy(&self) {
-            println!("copy svg");
+            info!("copy svg");
             self.obj().do_copy_svg_file();
         }
     }
@@ -108,7 +109,7 @@ impl FlowchartPage {
     }
 
     pub fn init_page(&self) {
-        println!("init page");
+        info!("init page");
     }
 }
 
