@@ -8,41 +8,71 @@ msgid ""
 msgstr ""
 "Project-Id-Version: asciibox\n"
 "Report-Msgid-Bugs-To: https://github.com/nobodygx/asciibox/issues/\n"
-"POT-Creation-Date: 2025-05-13 14:56+0800\n"
+"POT-Creation-Date: 2025-05-15 18:06+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: \n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: data/ui/main_window.ui:14 data/ui/main_window.ui:22 src/application.rs:141
+#: data/ui/main_window.ui:14 data/ui/main_window.ui:86 src/application.rs:141
 msgid "Asciibox"
 msgstr ""
 
-#: data/ui/main_window.ui:76
-msgid "Pa"
+#: data/ui/main_window.ui:30
+msgid "(ㅅ•ᴗ•)please don't click. (ㅅ•ᴗ•)"
 msgstr ""
 
-#: data/ui/main_window.ui:92
-msgid "Pb"
-msgstr ""
-
-#: data/ui/main_window.ui:116 data/ui/preferences.ui:10
+#: data/ui/main_window.ui:70 data/ui/main_window.ui:142
+#: data/ui/preferences.ui:10
 msgid "Preferences"
 msgstr ""
 
-#: data/ui/main_window.ui:123
+#: data/ui/main_window.ui:112
+msgid "flowchart"
+msgstr ""
+
+#: data/ui/main_window.ui:122
+msgid "table"
+msgstr ""
+
+#: data/ui/main_window.ui:149
 msgid "Keyboard Shortcuts"
 msgstr ""
 
-#: data/ui/main_window.ui:127
+#: data/ui/main_window.ui:153
 msgid "About"
 msgstr ""
 
-#: data/ui/main_window.ui:131
+#: data/ui/main_window.ui:157
 msgid "Quit"
+msgstr ""
+
+#: data/ui/page_flowchart.ui:53 data/ui/page_flowchart.ui:100
+#: data/ui/page_table.ui:55
+msgid "Clear all text"
+msgstr ""
+
+#: data/ui/page_flowchart.ui:62
+msgid "Transform to svgbob"
+msgstr ""
+
+#: data/ui/page_flowchart.ui:109
+msgid "Preview svgbob"
+msgstr ""
+
+#: data/ui/page_flowchart.ui:118 data/ui/image_preview_dialog.ui:36
+msgid "Save svg"
+msgstr ""
+
+#: data/ui/page_table.ui:64
+msgid "transform to table"
+msgstr ""
+
+#: data/ui/page_table.ui:102
+msgid "Copy Table Text"
 msgstr ""
 
 #: data/ui/preferences.ui:15
@@ -57,14 +87,56 @@ msgstr ""
 msgid "Choose your language"
 msgstr ""
 
-#: src/gui/preference_window.rs:114
-msgid "Please restart the application for the changes to take effect"
+#: data/ui/preferences.ui:34
+msgid "Flowchart"
 msgstr ""
 
-#: src/gui/preference_window.rs:118
-msgid "ok"
+#: data/ui/preferences.ui:37
+msgid "Expand Mode"
+msgstr ""
+
+#: data/ui/preferences.ui:38
+msgid "Is asciibox will expand auto"
+msgstr ""
+
+#: data/ui/preferences.ui:53
+msgid "Table"
+msgstr ""
+
+#: data/ui/preferences.ui:56
+msgid "Single Cell Max Width"
+msgstr ""
+
+#: data/ui/preferences.ui:57
+msgid "default to 99"
+msgstr ""
+
+#: data/ui/preferences.ui:71
+msgid "Total Line Max Width"
+msgstr ""
+
+#: data/ui/preferences.ui:72
+msgid "default to 120"
+msgstr ""
+
+#: data/ui/image_preview_dialog.ui:14
+msgid "Preview"
 msgstr ""
 
 #: src/application.rs:143
-msgid "asciibox is a example gtk4-rs demo for rust"
+msgid ""
+"asciibox is an auxiliary tool intended to simplify ascii text manipulation, "
+"include svgbob and asciidoc"
+msgstr ""
+
+#: src/gui/page_flowchart.rs:166
+msgid "Open File"
+msgstr ""
+
+#: src/gui/preference_window.rs:118
+msgid "Please restart the application for the changes to take effect"
+msgstr ""
+
+#: src/gui/preference_window.rs:122
+msgid "ok"
 msgstr ""

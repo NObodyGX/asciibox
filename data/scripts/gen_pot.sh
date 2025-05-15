@@ -4,6 +4,21 @@ pwd=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 cdir=$(realpath "$pwd/../..")
 name=$(grep 'name =' "$cdir/Cargo.toml" | awk -F'"' '{print $2}')
 url=$(grep 'homepage =' "$cdir/Cargo.toml" | awk -F'"' '{print $2}')
+pifile="$cdir/po/POTFILES.in"
+source "$cdir/data/scripts/env.sh"
+
+gen_potfiles_in() {
+  cd "$cdir" || exit
+  exclude_pattern="target|node_modules"
+  echo "# DO NOT EDIT MANUALLY，GENERATE BY gen_potfiles.sh" > "$pifile"
+  # 查找所有的 .ui 文件，不包括匹配排除模式的项
+  find "data/ui" -name '*.ui' | grep -Ev "$exclude_pattern" >> "$pifile"
+  # 查找所有的 .rs 文件，不包括匹配排除模式的项
+  find "src" -name '*.rs' | grep -Ev "$exclude_pattern" >> "$pifile"
+
+  log_succ "POTFILES.in has been generated."
+  cd - || exit
+}
 
 gen_pot() {
   local pot="$cdir/po/$name.pot"
@@ -41,10 +56,15 @@ gen_pot() {
           --flag=gtk_message_dialog_new_with_markup:5:c-format \
           --files-from="$srcdir/POTFILES.in" \
           --output="$cdir/po/$name.pot"
+    if [ -f "$cdir/po/$name.pot" ]; then
+      log_succ "$name.pot has been generated"
+    fi
 }
 
 main() {
-  echo "---------------gen pot"
+  log_title "generate POTFILES.IN"
+  gen_potfiles_in
+  log_title "generate $name.pot"
   gen_pot
 }
 
