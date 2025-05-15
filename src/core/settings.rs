@@ -96,48 +96,20 @@ impl Default for AppSettings {
 }
 
 static APP_SETTINGS_VAR: LazyLock<RwLock<AppSettings>> =
-    LazyLock::new(|| RwLock::new(AppSettings::load_default()));
+    LazyLock::new(|| RwLock::new(AppSettings::load()));
 
 impl AppSettings {
+    /// 获取当前 AppSettings 的引用（此时才会初始化）
     pub fn get() -> RwLockReadGuard<'static, AppSettings> {
         return APP_SETTINGS_VAR.read().unwrap();
     }
 
+    /// 获取当前 AppSettings 可写引用
     pub fn get_mut() -> RwLockWriteGuard<'static, AppSettings> {
         return APP_SETTINGS_VAR.write().unwrap();
     }
 
-    fn filename() -> PathBuf {
-        let home = homedir::my_home().unwrap().unwrap();
-        let filename = home
-            .join(".config")
-            .join(APP_NAME)
-            .join(APP_NAME)
-            .with_extension("toml");
-        return filename;
-    }
-
-    fn load_default() -> AppSettings {
-        let filename = AppSettings::filename();
-        if !filename.exists() {
-            return AppSettings::default();
-        }
-
-        let mut file: std::fs::File = OpenOptions::new().read(true).open(&filename).unwrap();
-        let mut contents = String::new();
-        file.read_to_string(&mut contents).unwrap();
-        let settings = match toml::from_str(&contents) {
-            Ok(settings) => settings,
-            Err(e) => {
-                error!(
-                    "error to deserialize {filename:#?}: {e}\n========use deault setting========"
-                );
-                AppSettings::default()
-            }
-        };
-        settings
-    }
-
+    /// 保存当前配置
     pub fn save(&self) {
         let filename = AppSettings::filename();
         let toml = toml::to_string(self).unwrap();
@@ -162,5 +134,36 @@ impl AppSettings {
         hashmap.insert("简体中文", "zh_CN.UTF-8");
 
         hashmap
+    }
+
+    fn filename() -> PathBuf {
+        let home = homedir::my_home().unwrap().unwrap();
+        let filename = home
+            .join(".config")
+            .join(APP_NAME)
+            .join(APP_NAME)
+            .with_extension("toml");
+        return filename;
+    }
+
+    fn load() -> AppSettings {
+        let filename = AppSettings::filename();
+        if !filename.exists() {
+            return AppSettings::default();
+        }
+
+        let mut file: std::fs::File = OpenOptions::new().read(true).open(&filename).unwrap();
+        let mut contents = String::new();
+        file.read_to_string(&mut contents).unwrap();
+        let settings = match toml::from_str(&contents) {
+            Ok(settings) => settings,
+            Err(e) => {
+                error!(
+                    "error to deserialize {filename:#?}: {e}\n========use deault setting========"
+                );
+                AppSettings::default()
+            }
+        };
+        settings
     }
 }
