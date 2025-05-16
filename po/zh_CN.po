@@ -1,142 +1,141 @@
-# SOME DESCRIPTIVE TITLE.
-# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# Chinese translations for asciibox package.
+# Copyright (C) 2025 THE asciibox'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the asciibox package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+# Automatically generated, 2025.
 #
-#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: asciibox\n"
 "Report-Msgid-Bugs-To: https://github.com/nobodygx/asciibox/issues/\n"
 "POT-Creation-Date: 2025-05-16 08:43+0800\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: LANGUAGE <LL@li.org>\n"
-"Language: \n"
+"PO-Revision-Date: 2025-05-16 08:43+0800\n"
+"Last-Translator: NObodyGX<nobodygx@163.com>\n"
+"Last-Team: NObodyGX<nobodygx@163.com>\n"
+"Language: zh_CN\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
 #: data/ui/main_window.ui:14 data/ui/main_window.ui:86 src/application.rs:141
 msgid "Asciibox"
-msgstr ""
+msgstr "Asciibox"
 
 #: data/ui/main_window.ui:30
 msgid "(ㅅ•ᴗ•)please don't click. (ㅅ•ᴗ•)"
-msgstr ""
+msgstr "(ㅅ•ᴗ•)不要点击的啦。(ㅅ•ᴗ•)"
 
 #: data/ui/main_window.ui:70 data/ui/main_window.ui:142
 #: data/ui/preferences.ui:10
 msgid "Preferences"
-msgstr ""
+msgstr "设置"
 
 #: data/ui/main_window.ui:112
 msgid "flowchart"
-msgstr ""
+msgstr "流程图"
 
 #: data/ui/main_window.ui:122
 msgid "table"
-msgstr ""
+msgstr "表格"
 
 #: data/ui/main_window.ui:149
 msgid "Keyboard Shortcuts"
-msgstr ""
+msgstr "快捷键"
 
 #: data/ui/main_window.ui:153
 msgid "About"
-msgstr ""
+msgstr "关于"
 
 #: data/ui/main_window.ui:157
 msgid "Quit"
-msgstr ""
+msgstr "退出"
 
 #: data/ui/page_flowchart.ui:53 data/ui/page_flowchart.ui:100
 #: data/ui/page_table.ui:55
 msgid "Clear all text"
-msgstr ""
+msgstr "清空"
 
 #: data/ui/page_flowchart.ui:62
 msgid "Transform to svgbob"
-msgstr ""
+msgstr "转换"
 
 #: data/ui/page_flowchart.ui:109
 msgid "Preview svgbob"
-msgstr ""
+msgstr "预览"
 
 #: data/ui/page_flowchart.ui:118 data/ui/image_preview_dialog.ui:36
 msgid "Save svg"
-msgstr ""
+msgstr "保存"
 
 #: data/ui/page_table.ui:64
 msgid "transform to table"
-msgstr ""
+msgstr "转换"
 
 #: data/ui/page_table.ui:102
 msgid "Copy Table Text"
-msgstr ""
+msgstr "复制"
 
 #: data/ui/preferences.ui:15
 msgid "General"
-msgstr ""
+msgstr "通用"
 
 #: data/ui/preferences.ui:18
 msgid "Language"
-msgstr ""
+msgstr "语言"
 
 #: data/ui/preferences.ui:19
 msgid "Choose your language"
-msgstr ""
+msgstr "请选择你的语言"
 
 #: data/ui/preferences.ui:34
 msgid "Flowchart"
-msgstr ""
+msgstr "流程图"
 
 #: data/ui/preferences.ui:37
 msgid "Expand Mode"
-msgstr ""
+msgstr "扩展模式"
 
 #: data/ui/preferences.ui:38
 msgid "Is asciibox will expand auto"
-msgstr ""
+msgstr "是否自动扩展"
 
 #: data/ui/preferences.ui:53
 msgid "Table"
-msgstr ""
+msgstr "表格"
 
 #: data/ui/preferences.ui:56
 msgid "Single Cell Max Width"
-msgstr ""
+msgstr "单个单元格最大宽度"
 
 #: data/ui/preferences.ui:57
 msgid "default to 99"
-msgstr ""
+msgstr "默认 99"
 
 #: data/ui/preferences.ui:71
 msgid "Total Line Max Width"
-msgstr ""
+msgstr "整行最大宽度"
 
 #: data/ui/preferences.ui:72
 msgid "default to 120"
-msgstr ""
+msgstr "默认 120"
 
 #: data/ui/image_preview_dialog.ui:14
 msgid "Preview"
-msgstr ""
+msgstr "预览"
 
 #: src/application.rs:143
 msgid ""
 "asciibox is an auxiliary tool intended to simplify ascii text manipulation, "
 "include svgbob and asciidoc"
-msgstr ""
+msgstr "asciibox 是一个辅助工具，用于简化各种文本操作"
 
 #: src/gui/page_flowchart.rs:166
 msgid "Open File"
-msgstr ""
+msgstr "打开文件"
 
 #: src/gui/preference_window.rs:118
 msgid "Please restart the application for the changes to take effect"
-msgstr ""
+msgstr "请重启应用来让配置生效"
 
 #: src/gui/preference_window.rs:122
 msgid "ok"
-msgstr ""
+msgstr "好的"
