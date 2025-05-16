@@ -28,11 +28,14 @@ gen_pot() {
   top_srcdir="${top_srcdir:-.}"
   srcdir="${srcdir:-$top_srcdir/po}"
   XGETTEXT_KEYWORDS="${XGETTEXT_KEYWORDS:- --keyword=_ --keyword=N_ --keyword=C_:1c,2 --keyword=NC_:1c,2 --keyword=g_dngettext:2,3 }"
-  xgettext --default-domain="$name" \
+  IFS=' ' read -r -a XGETTEXT_KEYWORDS_ARRAY <<< "$XGETTEXT_KEYWORDS"
+  # 如果不将其作为列表传入，在解析的时候，整个参数将会被视为一个变量传入，导致参数解析出错
+  xgettext "${XGETTEXT_KEYWORDS_ARRAY[@]}" \
+          --default-domain="$name" \
           --directory="$top_srcdir" \
           --msgid-bugs-address="$url/issues/" \
           --package-name="$name" \
-          --add-comments ${XGETTEXT_KEYWORDS}\
+          --add-comments \
           --from-code=utf-8 \
           --flag=g_dngettext:2:pass-c-format \
           --flag=g_strdup_printf:1:c-format \
