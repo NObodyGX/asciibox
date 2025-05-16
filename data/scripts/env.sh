@@ -1,7 +1,7 @@
 #!/bin/bash
 
 g_color_red='\033[31m'     # 红色
-g_color_green='\033[32m'  # 黄色
+g_color_green='\033[32m'   # 绿色
 g_color_normal='\033[0m'   # 正常色
 
 log() {
@@ -13,7 +13,7 @@ log_info() {
 }
 
 log_title() {
-    log "========================$*"
+    log "------------------------$*"
 }
 
 log_succ() {

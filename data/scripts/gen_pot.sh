@@ -8,6 +8,7 @@ pifile="$cdir/po/POTFILES.in"
 source "$cdir/data/scripts/env.sh"
 
 gen_potfiles_in() {
+  log_title "generate POTFILES.IN"
   cd "$cdir" || exit
   exclude_pattern="target|node_modules"
   echo "# DO NOT EDIT MANUALLY，GENERATE BY gen_potfiles.sh" > "$pifile"
@@ -21,6 +22,7 @@ gen_potfiles_in() {
 }
 
 gen_pot() {
+  log_title "generate $name.pot"
   local pot="$cdir/po/$name.pot"
   if [ -f "$pot" ]; then
     rm -f "$pot"
@@ -65,9 +67,7 @@ gen_pot() {
 }
 
 main() {
-  log_title "generate POTFILES.IN"
   gen_potfiles_in
-  log_title "generate $name.pot"
   gen_pot
 }
 

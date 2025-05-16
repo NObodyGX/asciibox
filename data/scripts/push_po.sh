@@ -9,6 +9,7 @@ source "$cdir/data/scripts/env.sh"
 
 # check all potfiles is exist
 gen_mo() {
+  log_title "generate mo"
   while read -r lang; do
     if [[ -n $lang && ${lang::1} != '#' ]]; then
       if [[ -f "$cdir/po/${lang}.po" ]]; then
@@ -18,7 +19,7 @@ gen_mo() {
       fi
     fi
   done <"$linguas"
-  log_succ "gen mo PASSED"
+  log_succ "generate mo Done"
 }
 
 main() {
