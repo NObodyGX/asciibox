@@ -57,6 +57,17 @@ template $MainWindow: Adw.ApplicationWindow {
           icon-name: "icon-table-symbolic";
           clicked => $switch_page_02() swapped;
         }
+
+        Gtk.Button dock_button_03 {
+          styles [
+            "dock-button",
+          ]
+
+          width-request: 48;
+          height-request: 48;
+          icon-name: "mermaid-symbolic";
+          clicked => $switch_page_03() swapped;
+        }
       }
 
       Gtk.Button {
@@ -112,6 +123,14 @@ template $MainWindow: Adw.ApplicationWindow {
               title: _("table");
 
               child: $TablePage table {};
+            }
+
+            Adw.ViewStackPage {
+              name: "page03";
+              icon-name: "logo-symbolic";
+              title: _("mermaid");
+
+              child: $MermaidPage mermaid {};
             }
           }
         }

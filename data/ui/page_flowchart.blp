@@ -18,7 +18,6 @@ template $FlowchartPage: Adw.Bin {
     ]
 
     Gtk.Overlay {
-
       Gtk.ScrolledWindow {
         hexpand: false;
         vexpand: true;
@@ -40,14 +39,6 @@ template $FlowchartPage: Adw.Bin {
         orientation: vertical;
         valign: end;
         halign: end;
-
-        Gtk.Button {
-          margin-bottom: 2;
-          margin-end: 2;
-          tooltip-text: _("Clear all text");
-          icon-name: "file-delete-symbolic";
-          action-name: "flowchart.execute-clear";
-        }
 
         Gtk.Button {
           margin-bottom: 2;
@@ -99,12 +90,12 @@ template $FlowchartPage: Adw.Bin {
         }
 
         Gtk.Button {
-            margin-bottom: 2;
-            margin-end: 2;
-            tooltip-text: _("Save svg");
-            icon-name: "save-symbolic";
-            action-name: "flowchart.execute-save";
-          }
+          margin-bottom: 2;
+          margin-end: 2;
+          tooltip-text: _("Save svg");
+          icon-name: "save-symbolic";
+          action-name: "flowchart.execute-save";
+        }
       }
     }
   }

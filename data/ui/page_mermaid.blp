@@ -1,7 +1,7 @@
 using Gtk 4.0;
 using Adw 1;
 
-template $TablePage: Adw.Bin {
+template $MermaidPage: Adw.Bin {
   Gtk.Paned paned {
     visible: true;
     resize-start-child: true;
@@ -47,7 +47,7 @@ template $TablePage: Adw.Bin {
           margin-end: 2;
           tooltip-text: _("transform to table");
           icon-name: "play-symbolic";
-          action-name: "table.execute-transform";
+          action-name: "mermaid.execute-transform";
         }
       }
     }
@@ -57,15 +57,9 @@ template $TablePage: Adw.Bin {
         hexpand: false;
         vexpand: false;
 
-        Gtk.TextView out_view {
-          hscroll-policy: natural;
-          vscroll-policy: natural;
-          pixels-below-lines: 1;
-          editable: true;
-          justification: left;
-          left-margin: 4;
-          accepts-tab: true;
-          can-focus: true;
+        Gtk.Picture out_image {
+          can-shrink: false;
+          content-fit: scale_down;
         }
       }
 
@@ -80,21 +74,15 @@ template $TablePage: Adw.Bin {
           margin-end: 2;
           tooltip-text: _("Copy Table Text");
           icon-name: "file-copy-symbolic";
-          action-name: "table.execute-copy-result";
+          action-name: "mermaid.execute-copy-result";
         }
 
-        Gtk.DropDown table_mode {
+        Gtk.Button {
+          margin-bottom: 2;
           margin-end: 2;
-          valign: center;
-          width-request: 60;
-
-          model: Gtk.StringList {
-            strings [
-              "Markdown",
-              "Markdown-GFM",
-              "Asciidoc",
-            ]
-          };
+          tooltip-text: _("Save svg");
+          icon-name: "save-symbolic";
+          action-name: "mermaid.execute-save";
         }
       }
     }

@@ -5,7 +5,7 @@ use glib::Object;
 use glib::subclass::InitializingObject;
 use gtk::{Button, CompositeTemplate, gio, glib, prelude::WidgetExt};
 
-use crate::gui::{FlowchartPage, TablePage};
+use crate::gui::{FlowchartPage, MermaidPage, TablePage};
 
 mod imp {
 
@@ -21,11 +21,15 @@ mod imp {
         #[template_child]
         pub flowchart: TemplateChild<FlowchartPage>,
         #[template_child]
+        pub mermaid: TemplateChild<MermaidPage>,
+        #[template_child]
         pub table: TemplateChild<TablePage>,
         #[template_child]
         pub dock_button_01: TemplateChild<Button>,
         #[template_child]
         pub dock_button_02: TemplateChild<Button>,
+        #[template_child]
+        pub dock_button_03: TemplateChild<Button>,
 
         pub dock_index: Cell<usize>,
     }
@@ -139,5 +143,10 @@ impl MainWindow {
     #[template_callback]
     pub fn switch_page_02(&self, _: gtk::Button) {
         self.click_dock_button(2);
+    }
+
+    #[template_callback]
+    pub fn switch_page_03(&self, _: gtk::Button) {
+        self.click_dock_button(3);
     }
 }

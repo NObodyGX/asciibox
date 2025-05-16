@@ -4,6 +4,7 @@
         <file preprocess="xml-stripblanks">ui/image_preview_dialog.ui</file>
         <file preprocess="xml-stripblanks">ui/main_window.ui</file>
         <file preprocess="xml-stripblanks">ui/page_flowchart.ui</file>
+        <file preprocess="xml-stripblanks">ui/page_mermaid.ui</file>
         <file preprocess="xml-stripblanks">ui/page_table.ui</file>
         <file preprocess="xml-stripblanks">ui/preferences.ui</file>
         <file preprocess="xml-stripblanks">ui/shortcuts.ui</file>
@@ -17,6 +18,7 @@
         <file preprocess="xml-stripblanks" alias="file-delete-symbolic.svg">icons/hicolor/symbolic/apps/delete-bin-line.svg</file>
         <file preprocess="xml-stripblanks" alias="file-copy-symbolic.svg">icons/hicolor/symbolic/apps/file-copy-line.svg</file>
         <file preprocess="xml-stripblanks" alias="image-preview-symbolic.svg">icons/hicolor/symbolic/apps/image-line.svg</file>
+        <file preprocess="xml-stripblanks" alias="mermaid-symbolic.svg">icons/hicolor/symbolic/apps/mermaid-symbolic.svg</file>
         <file preprocess="xml-stripblanks" alias="play-symbolic.svg">icons/hicolor/symbolic/apps/play-mini-line.svg</file>
         <file preprocess="xml-stripblanks" alias="save-symbolic.svg">icons/hicolor/symbolic/apps/save-3-line.svg</file>
         <file preprocess="xml-stripblanks" alias="settings-symbolic.svg">icons/hicolor/symbolic/apps/settings-3-line.svg</file>
