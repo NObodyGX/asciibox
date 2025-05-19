@@ -5,9 +5,10 @@ use gtk::glib;
 use gtk::prelude::*;
 use gtk::prelude::{TextBufferExt, TextViewExt};
 use log::error;
-use std::cell::OnceCell;
-use webkit6::WebView;
-use webkit6::prelude::*;
+use sourceview;
+use std::cell::{Cell, OnceCell};
+use webkit::WebView;
+use webkit::prelude::*;
 
 const DEFAULT_CONTENT: &str = "
 <html>
@@ -29,12 +30,13 @@ mod imp {
     #[template(resource = "/com/github/nobodygx/asciibox/ui/page_mermaid.ui")]
     pub struct MermaidPage {
         #[template_child]
-        pub in_view: TemplateChild<gtk::TextView>,
+        pub in_view: TemplateChild<sourceview::View>,
         #[template_child]
         pub obox: TemplateChild<gtk::Box>,
 
         pub html_content: OnceCell<String>,
         pub webview: OnceCell<WebView>,
+        pub cur_zoom: Cell<f64>,
     }
 
     #[glib::object_subclass]
@@ -56,6 +58,14 @@ mod imp {
 
             klass.install_action("mermaid.execute-copy-result", None, move |obj, _, _| {
                 obj.execute_copy_result();
+            });
+
+            klass.install_action("mermaid.zoom-in", None, move |obj, _, _| {
+                obj.zoom_in();
+            });
+
+            klass.install_action("mermaid.zoom-out", None, move |obj, _, _| {
+                obj.zoom_out();
             });
         }
 
@@ -121,13 +131,39 @@ impl MermaidPage {
         let obox = imp.obox.get();
         obox.append(&webview);
         imp.webview.set(webview).unwrap();
+
+        imp.cur_zoom.set(1.0);
     }
 
     fn execute_copy_result(&self) {}
 
+    fn zoom_in(&self) {
+        let imp = self.imp();
+        let val = imp.cur_zoom.get();
+        if val < 5.0 {
+            let val = val + 0.2;
+            imp.cur_zoom.set(val);
+
+            let webview = imp.webview.get().unwrap();
+            webview.set_zoom_level(val);
+        }
+    }
+
+    fn zoom_out(&self) {
+        let imp = self.imp();
+        let val = imp.cur_zoom.get();
+        if val > 0.2 {
+            let val = val - 0.2;
+            imp.cur_zoom.set(val);
+
+            let webview = imp.webview.get().unwrap();
+            webview.set_zoom_level(val);
+        }
+    }
+
     fn execute_transform(&self) {
         let imp = self.imp();
-        let ibuffer: gtk::TextBuffer = self.imp().in_view.get().buffer();
+        let ibuffer = self.imp().in_view.get().buffer();
         let content = ibuffer.text(&ibuffer.bounds().0, &ibuffer.bounds().1, false);
         let content = content.as_str();
 

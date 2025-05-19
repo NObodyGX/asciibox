@@ -1,5 +1,6 @@
 using Gtk 4.0;
 using Adw 1;
+using GtkSource 5;
 
 template $MermaidPage: Adw.Bin {
   Gtk.Paned paned {
@@ -22,17 +23,24 @@ template $MermaidPage: Adw.Bin {
         hexpand: false;
         vexpand: true;
         min-content-width: 360;
-        margin-start: 12;
+        margin-start: 0;
 
-        Gtk.TextView in_view {
+        GtkSource.View in_view {
+          show-line-numbers: true;
+          show-line-marks: true;
           hscroll-policy: natural;
           vscroll-policy: natural;
           pixels-below-lines: 1;
           editable: true;
           justification: left;
-          left-margin: 2;
+          left-margin: 0;
           accepts-tab: true;
           can-focus: true;
+          tab-width: 4;
+          indent-width: 4;
+          indent-on-tab: false;
+
+          buffer: GtkSource.Buffer {};
         }
       }
 
@@ -41,6 +49,22 @@ template $MermaidPage: Adw.Bin {
         orientation: vertical;
         valign: end;
         halign: end;
+
+        Gtk.Button {
+          margin-bottom: 2;
+          margin-end: 2;
+          tooltip-text: _("zoom in");
+          icon-name: "zoom-in-symbolic";
+          action-name: "mermaid.zoom-in";
+        }
+
+        Gtk.Button {
+          margin-bottom: 2;
+          margin-end: 2;
+          tooltip-text: _("zoom out");
+          icon-name: "zoom-on-symbolic";
+          action-name: "mermaid.zoom-out";
+        }
 
         Gtk.Button {
           margin-bottom: 2;
