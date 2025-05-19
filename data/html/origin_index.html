@@ -5,5 +5,10 @@
     <div class="mermaid">
         @@ASCIIBOX-NOBODYGX-PLACEHOLD@@
     </div>
+    <script>
+        window.render = async(x) => (
+            await mermaid.render('mermaid', x)
+        ).svg
+    </script>
 </body>
 </html>

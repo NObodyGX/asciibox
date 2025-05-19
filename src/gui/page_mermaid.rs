@@ -102,6 +102,11 @@ impl MermaidPage {
             context_menu.remove_all();
             true
         });
+
+        let settings = webkit::Settings::new();
+        settings.set_enable_developer_extras(true);
+        settings.set_enable_write_console_messages_to_stdout(true);
+        webview.set_settings(&settings);
     }
 
     /// 初始化默认html内容
