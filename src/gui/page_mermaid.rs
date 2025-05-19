@@ -1,7 +1,25 @@
 use adw::subclass::prelude::*;
 use gtk::CompositeTemplate;
+use gtk::gio;
 use gtk::glib;
+use gtk::prelude::*;
 use gtk::prelude::{TextBufferExt, TextViewExt};
+use log::error;
+use std::cell::OnceCell;
+use webkit6::WebView;
+use webkit6::prelude::*;
+
+const DEFAULT_CONTENT: &str = "
+<html>
+<body>
+    <script src=\"https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js\"></script>
+    <script>mermaid.initialize({ startOnLoad: true });</script>
+    <div class=\"mermaid\">
+        @@ASCIIBOX-NOBODYGX-PLACEHOLD@@
+    </div>
+</body>
+</html>
+";
 
 mod imp {
 
@@ -13,9 +31,10 @@ mod imp {
         #[template_child]
         pub in_view: TemplateChild<gtk::TextView>,
         #[template_child]
-        pub out_image: TemplateChild<gtk::Picture>,
+        pub obox: TemplateChild<gtk::Box>,
 
-        pub provider: gtk::CssProvider,
+        pub html_content: OnceCell<String>,
+        pub webview: OnceCell<WebView>,
     }
 
     #[glib::object_subclass]
@@ -50,7 +69,9 @@ mod imp {
             let obj = self.obj();
             self.parent_constructed();
 
+            obj.setup_html();
             obj.setup_config();
+            obj.setup_view();
         }
     }
     impl WidgetImpl for MermaidPage {}
@@ -68,9 +89,60 @@ impl MermaidPage {
         let page: MermaidPage = glib::Object::new();
         page
     }
+    fn setup_html(&self) {
+        let path = "/com/github/nobodygx/asciibox/html/index.html";
+        let content = match gio::resources_lookup_data(path, gio::ResourceLookupFlags::NONE) {
+            Ok(data) => match String::from_utf8((&data).to_vec()) {
+                Ok(ctx) => ctx,
+                Err(e) => {
+                    error!("failed to string from_utf8 from gresource: {e}");
+                    DEFAULT_CONTENT.to_string()
+                }
+            },
+            Err(e) => {
+                error!("failed to load {path} from gresource: {e}");
+                DEFAULT_CONTENT.to_string()
+            }
+        };
+
+        match self.imp().html_content.set(content) {
+            Ok(_) => {}
+            Err(e) => {
+                error!("failed to set content: {e}");
+            }
+        }
+    }
+
+    fn setup_view(&self) {
+        let imp = self.imp();
+        let webview = WebView::new();
+        webview.set_hexpand(true);
+        webview.set_vexpand(true);
+        let obox = imp.obox.get();
+        obox.append(&webview);
+        imp.webview.set(webview).unwrap();
+    }
+
     fn execute_copy_result(&self) {}
 
-    fn execute_transform(&self) {}
+    fn execute_transform(&self) {
+        let imp = self.imp();
+        let ibuffer: gtk::TextBuffer = self.imp().in_view.get().buffer();
+        let content = ibuffer.text(&ibuffer.bounds().0, &ibuffer.bounds().1, false);
+        let content = content.as_str();
+
+        if content.len() <= 1 {
+            return;
+        }
+
+        let html_content = imp
+            .html_content
+            .get()
+            .unwrap()
+            .replace("@@ASCIIBOX-NOBODYGX-PLACEHOLD@@", content);
+
+        imp.webview.get().unwrap().load_html(&html_content, None);
+    }
 
     fn execute_clear(&self) {
         let ibuffer: gtk::TextBuffer = self.imp().in_view.get().buffer();
@@ -78,8 +150,6 @@ impl MermaidPage {
     }
 
     fn setup_config(&self) {}
-
-    fn refresh_font(&self) {}
 }
 
 impl Default for MermaidPage {

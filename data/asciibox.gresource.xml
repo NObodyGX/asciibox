@@ -9,6 +9,7 @@
         <file preprocess="xml-stripblanks">ui/preferences.ui</file>
         <file preprocess="xml-stripblanks">ui/shortcuts.ui</file>
         <file>css/app.css</file>
+        <file>html/index.html</file>
     </gresource>
     <gresource prefix="/com/github/nobodygx/asciibox/icons/scalable/apps/">
         <file preprocess="xml-stripblanks" alias="asciibox.svg">icons/hicolor/scalable/apps/asciibox.svg</file>

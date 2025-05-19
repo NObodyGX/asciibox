@@ -52,38 +52,12 @@ template $MermaidPage: Adw.Bin {
       }
     }
 
-    Gtk.Overlay {
-      Gtk.ScrolledWindow {
-        hexpand: false;
-        vexpand: false;
+    Gtk.Box obox {
+      orientation: vertical;
+      spacing: 0;
 
-        Gtk.Picture out_image {
-          can-shrink: false;
-          content-fit: scale_down;
-        }
-      }
-
-      [overlay]
-      Gtk.Box {
-        orientation: vertical;
-        valign: end;
-        halign: end;
-
-        Gtk.Button {
-          margin-bottom: 2;
-          margin-end: 2;
-          tooltip-text: _("Copy Table Text");
-          icon-name: "file-copy-symbolic";
-          action-name: "mermaid.execute-copy-result";
-        }
-
-        Gtk.Button {
-          margin-bottom: 2;
-          margin-end: 2;
-          tooltip-text: _("Save svg");
-          icon-name: "save-symbolic";
-          action-name: "mermaid.execute-save";
-        }
+      Gtk.Label {
+        label: _("mermaid");
       }
     }
   }

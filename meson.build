@@ -1,5 +1,5 @@
 project('asciibox', 'rust',
-          version: '0.11.0',
+          version: '1.0.0',
     meson_version: '>= 0.59.0',
   default_options: [ 'warning_level=2',
                      'werror=false',
@@ -38,7 +38,9 @@ conf.set_quoted('LOCALE_DIR', localedir)
 
 
 dependency('gtk4', version: '>= 4.0.0')
-dependency('libadwaita-1', version: '>=1.1.0')
+dependency('libadwaita-1', version: '>=1.5')
+dependency('webkitgtk-6.0', version: '>= 2.43')
+dependency('gtksourceview-5', version: '>= 5.11')
 
 cargo_sources = files(
   'Cargo.toml',
