@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: asciibox\n"
 "Report-Msgid-Bugs-To: https://github.com/nobodygx/asciibox/issues/\n"
-"POT-Creation-Date: 2025-05-16 08:57+0800\n"
+"POT-Creation-Date: 2025-05-19 14:58+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: data/ui/main_window.ui:14 data/ui/main_window.ui:86 src/application.rs:141
+#: data/ui/main_window.ui:14 data/ui/shortcuts.ui:32 src/application.rs:141
 msgid "Asciibox"
 msgstr ""
 
@@ -25,57 +25,64 @@ msgstr ""
 msgid "(ㅅ•ᴗ•)please don't click. (ㅅ•ᴗ•)"
 msgstr ""
 
-#: data/ui/main_window.ui:70 data/ui/main_window.ui:142
+#: data/ui/main_window.ui:84 data/ui/main_window.ui:166
 #: data/ui/preferences.ui:10
 msgid "Preferences"
 msgstr ""
 
-#: data/ui/main_window.ui:112
+#: data/ui/main_window.ui:100
+msgid "asciibox"
+msgstr ""
+
+#: data/ui/main_window.ui:126
 msgid "flowchart"
 msgstr ""
 
-#: data/ui/main_window.ui:122
+#: data/ui/main_window.ui:136
 msgid "table"
 msgstr ""
 
-#: data/ui/main_window.ui:149
+#: data/ui/main_window.ui:146 data/ui/page_mermaid.ui:96
+msgid "mermaid"
+msgstr ""
+
+#: data/ui/main_window.ui:173
 msgid "Keyboard Shortcuts"
 msgstr ""
 
-#: data/ui/main_window.ui:153
+#: data/ui/main_window.ui:177
 msgid "About"
 msgstr ""
 
-#: data/ui/main_window.ui:157
+#: data/ui/main_window.ui:181
 msgid "Quit"
 msgstr ""
 
-#: data/ui/page_flowchart.ui:53 data/ui/page_flowchart.ui:100
-#: data/ui/page_table.ui:55
-msgid "Clear all text"
-msgstr ""
-
-#: data/ui/page_flowchart.ui:62
+#: data/ui/page_flowchart.ui:61
 msgid "Transform to svgbob"
 msgstr ""
 
-#: data/ui/page_flowchart.ui:109
+#: data/ui/page_flowchart.ui:107
+msgid "Clear all text"
+msgstr ""
+
+#: data/ui/page_flowchart.ui:116
 msgid "Preview svgbob"
 msgstr ""
 
-#: data/ui/page_flowchart.ui:118 data/ui/image_preview_dialog.ui:36
+#: data/ui/page_flowchart.ui:125 data/ui/image_preview_dialog.ui:36
 msgid "Save svg"
 msgstr ""
 
-#: data/ui/page_table.ui:64
+#: data/ui/page_table.ui:63 data/ui/page_mermaid.ui:81
 msgid "transform to table"
 msgstr ""
 
-#: data/ui/page_table.ui:102
+#: data/ui/page_table.ui:109
 msgid "Copy Table Text"
 msgstr ""
 
-#: data/ui/preferences.ui:15
+#: data/ui/preferences.ui:15 data/ui/shortcuts.ui:59
 msgid "General"
 msgstr ""
 
@@ -119,16 +126,32 @@ msgstr ""
 msgid "default to 120"
 msgstr ""
 
-#: data/ui/shortcuts.ui:38
+#: data/ui/shortcuts.ui:41
+msgid "Execute Transform"
+msgstr ""
+
+#: data/ui/shortcuts.ui:42
+msgid "it is effective for all pages"
+msgstr ""
+
+#: data/ui/shortcuts.ui:68
 msgid "Show help overlay"
 msgstr ""
 
-#: data/ui/shortcuts.ui:51
+#: data/ui/shortcuts.ui:81
 msgid "Application Quit"
 msgstr ""
 
 #: data/ui/image_preview_dialog.ui:14
 msgid "Preview"
+msgstr ""
+
+#: data/ui/page_mermaid.ui:63
+msgid "zoom in"
+msgstr ""
+
+#: data/ui/page_mermaid.ui:72
+msgid "zoom out"
 msgstr ""
 
 #: src/application.rs:143
@@ -137,7 +160,7 @@ msgid ""
 "include svgbob and asciidoc"
 msgstr ""
 
-#: src/gui/page_flowchart.rs:166
+#: src/gui/page_flowchart.rs:164
 msgid "Open File"
 msgstr ""
 

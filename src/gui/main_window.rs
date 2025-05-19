@@ -4,8 +4,6 @@ use adw::subclass::prelude::*;
 use glib::Object;
 use glib::subclass::InitializingObject;
 use gtk::{Button, CompositeTemplate, gio, glib, prelude::WidgetExt};
-use log;
-use sourceview::prelude::ObjectExt;
 
 use crate::gui::{FlowchartPage, MermaidPage, TablePage};
 

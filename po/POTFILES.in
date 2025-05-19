@@ -5,6 +5,7 @@ data/ui/page_table.ui
 data/ui/preferences.ui
 data/ui/shortcuts.ui
 data/ui/image_preview_dialog.ui
+data/ui/page_mermaid.ui
 src/application.rs
 src/config.rs
 src/core/flowchart/cell.rs
@@ -26,6 +27,7 @@ src/gui/preference_window.rs
 src/gui/shortcuts_window.rs
 src/gui/image_preview_dialog.rs
 src/gui/page_table.rs
+src/gui/page_mermaid.rs
 src/main.rs
 src/utils/calurator.rs
 src/utils/mod.rs

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: asciibox\n"
 "Report-Msgid-Bugs-To: https://github.com/nobodygx/asciibox/issues/\n"
-"POT-Creation-Date: 2025-05-16 08:57+0800\n"
+"POT-Creation-Date: 2025-05-19 14:58+0800\n"
 "PO-Revision-Date: 2025-05-16 08:43+0800\n"
 "Last-Translator: NObodyGX<nobodygx@163.com>\n"
 "Language: zh_CN\n"
@@ -16,65 +16,73 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Last-Team: NObodyGX<nobodygx@163.com>\n"
 
-#: data/ui/main_window.ui:14 data/ui/main_window.ui:86 src/application.rs:141
+#: data/ui/main_window.ui:14 data/ui/shortcuts.ui:32 src/application.rs:141
 msgid "Asciibox"
-msgstr "Asciibox"
+msgstr "文箱"
 
 #: data/ui/main_window.ui:30
 msgid "(ㅅ•ᴗ•)please don't click. (ㅅ•ᴗ•)"
 msgstr "(ㅅ•ᴗ•)不要点击的啦。(ㅅ•ᴗ•)"
 
-#: data/ui/main_window.ui:70 data/ui/main_window.ui:142
+#: data/ui/main_window.ui:84 data/ui/main_window.ui:166
 #: data/ui/preferences.ui:10
 msgid "Preferences"
 msgstr "设置"
 
-#: data/ui/main_window.ui:112
+#: data/ui/main_window.ui:100
+#, fuzzy
+msgid "asciibox"
+msgstr "文箱"
+
+#: data/ui/main_window.ui:126
 msgid "flowchart"
 msgstr "流程图"
 
-#: data/ui/main_window.ui:122
+#: data/ui/main_window.ui:136
 msgid "table"
 msgstr "表格"
 
-#: data/ui/main_window.ui:149
+#: data/ui/main_window.ui:146 data/ui/page_mermaid.ui:96
+msgid "mermaid"
+msgstr "mermaid"
+
+#: data/ui/main_window.ui:173
 msgid "Keyboard Shortcuts"
 msgstr "快捷键"
 
-#: data/ui/main_window.ui:153
+#: data/ui/main_window.ui:177
 msgid "About"
 msgstr "关于"
 
-#: data/ui/main_window.ui:157
+#: data/ui/main_window.ui:181
 msgid "Quit"
 msgstr "退出"
 
-#: data/ui/page_flowchart.ui:53 data/ui/page_flowchart.ui:100
-#: data/ui/page_table.ui:55
-msgid "Clear all text"
-msgstr "清空"
-
-#: data/ui/page_flowchart.ui:62
+#: data/ui/page_flowchart.ui:61
 msgid "Transform to svgbob"
 msgstr "转换"
 
-#: data/ui/page_flowchart.ui:109
+#: data/ui/page_flowchart.ui:107
+msgid "Clear all text"
+msgstr "清空"
+
+#: data/ui/page_flowchart.ui:116
 msgid "Preview svgbob"
 msgstr "预览"
 
-#: data/ui/page_flowchart.ui:118 data/ui/image_preview_dialog.ui:36
+#: data/ui/page_flowchart.ui:125 data/ui/image_preview_dialog.ui:36
 msgid "Save svg"
 msgstr "保存"
 
-#: data/ui/page_table.ui:64
+#: data/ui/page_table.ui:63 data/ui/page_mermaid.ui:81
 msgid "transform to table"
 msgstr "转换"
 
-#: data/ui/page_table.ui:102
+#: data/ui/page_table.ui:109
 msgid "Copy Table Text"
 msgstr "复制"
 
-#: data/ui/preferences.ui:15
+#: data/ui/preferences.ui:15 data/ui/shortcuts.ui:59
 msgid "General"
 msgstr "通用"
 
@@ -118,11 +126,19 @@ msgstr "整行最大宽度"
 msgid "default to 120"
 msgstr "默认 120"
 
-#: data/ui/shortcuts.ui:38
+#: data/ui/shortcuts.ui:41
+msgid "Execute Transform"
+msgstr "执行转换"
+
+#: data/ui/shortcuts.ui:42
+msgid "it is effective for all pages"
+msgstr "对所有页面有效"
+
+#: data/ui/shortcuts.ui:68
 msgid "Show help overlay"
 msgstr "显示快捷键界面"
 
-#: data/ui/shortcuts.ui:51
+#: data/ui/shortcuts.ui:81
 msgid "Application Quit"
 msgstr "应用退出"
 
@@ -130,13 +146,22 @@ msgstr "应用退出"
 msgid "Preview"
 msgstr "预览"
 
+#: data/ui/page_mermaid.ui:63
+msgid "zoom in"
+msgstr "放大"
+
+#: data/ui/page_mermaid.ui:72
+msgid "zoom out"
+msgstr "缩小"
+
 #: src/application.rs:143
 msgid ""
 "asciibox is an auxiliary tool intended to simplify ascii text manipulation, "
 "include svgbob and asciidoc"
-msgstr "asciibox 是一个文本辅助工具，用于简化各种文本操作，包括 svgbob 和 asciidoc"
+msgstr ""
+"asciibox 是一个文本辅助工具，用于简化各种文本操作，包括 svgbob 和 asciidoc"
 
-#: src/gui/page_flowchart.rs:166
+#: src/gui/page_flowchart.rs:164
 msgid "Open File"
 msgstr "打开文件"
 
