@@ -25,13 +25,13 @@ template $FlowchartPage: Adw.Bin {
 
         GtkSource.View in_view {
           show-line-numbers: true;
-          show-line-marks: true;
+          show-line-marks: false;
           hscroll-policy: natural;
           vscroll-policy: natural;
           pixels-below-lines: 1;
           editable: true;
           justification: left;
-          left-margin: 0;
+          left-margin: 4;
           accepts-tab: true;
           can-focus: true;
           tab-width: 4;
@@ -64,14 +64,14 @@ template $FlowchartPage: Adw.Bin {
         vexpand: false;
 
         GtkSource.View out_view {
-          show-line-numbers: true;
-          show-line-marks: true;
+          show-line-numbers: false;
+          show-line-marks: false;
           hscroll-policy: natural;
           vscroll-policy: natural;
           pixels-below-lines: 1;
           editable: true;
           justification: left;
-          left-margin: 0;
+          left-margin: 8;
           accepts-tab: true;
           can-focus: true;
           tab-width: 4;

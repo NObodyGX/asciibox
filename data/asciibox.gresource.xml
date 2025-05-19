@@ -25,5 +25,7 @@
         <file preprocess="xml-stripblanks" alias="settings-symbolic.svg">icons/hicolor/symbolic/apps/settings-3-line.svg</file>
         <file preprocess="xml-stripblanks" alias="icon-flowchart-symbolic.svg">icons/hicolor/symbolic/apps/shape-line.svg</file>
         <file preprocess="xml-stripblanks" alias="icon-table-symbolic.svg">icons/hicolor/symbolic/apps/table-line.svg</file>
+        <file preprocess="xml-stripblanks" alias="zoom-in-1-symbolic.svg">icons/hicolor/symbolic/apps/zoom-in-line.svg</file>
+        <file preprocess="xml-stripblanks" alias="zoom-out-1-symbolic.svg">icons/hicolor/symbolic/apps/zoom-out-line.svg</file>
     </gresource>
 </gresources>
