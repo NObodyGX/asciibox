@@ -71,12 +71,11 @@ function build_target() {
     rm -rf "$bdir"
     meson setup "$bdir"
   else
-    if [[ -d "$bdir" && $(git status --porcelain | wc -l) -eq 1 ]]; then
+    if [[ -d "$bdir" && $(git status --porcelain | grep -E '(blp|svg|xml|in|po)') -ge 1 ]]; then
       meson setup "$bdir" --reconfigure
     else
       meson setup "$bdir"
     fi
-
   fi
   cd "${bdir}" || exit
   meson compile
