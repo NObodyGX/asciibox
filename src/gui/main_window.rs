@@ -44,7 +44,15 @@ mod imp {
 
         fn class_init(klass: &mut Self::Class) {
             klass.bind_template();
-            klass.bind_template_instance_callbacks();
+
+            klass.install_action(
+                "win.switch-page",
+                Some(glib::VariantTy::STRING),
+                move |obj, _, param| {
+                    let var = param.unwrap().get::<String>();
+                    obj.switch_page(&var.unwrap());
+                },
+            );
         }
 
         fn instance_init(obj: &InitializingObject<Self>) {
@@ -111,6 +119,7 @@ impl MainWindow {
         let button = match index {
             1 => imp.dock_button_01.get(),
             2 => imp.dock_button_02.get(),
+            3 => imp.dock_button_03.get(),
             _ => {
                 return;
             }
@@ -135,18 +144,8 @@ impl MainWindow {
         imp.dock_index.set(index);
     }
 
-    #[template_callback]
-    pub fn switch_page_01(&self, _: gtk::Button) {
-        self.click_dock_button(1);
-    }
-
-    #[template_callback]
-    pub fn switch_page_02(&self, _: gtk::Button) {
-        self.click_dock_button(2);
-    }
-
-    #[template_callback]
-    pub fn switch_page_03(&self, _: gtk::Button) {
-        self.click_dock_button(3);
+    fn switch_page(&self, page_str: &String) {
+        let index = page_str.parse::<usize>().unwrap_or_default();
+        self.click_dock_button(index);
     }
 }

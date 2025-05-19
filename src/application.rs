@@ -129,6 +129,8 @@ impl BasicApplication {
         );
     }
 
+    fn execute_transform(&self) {}
+
     fn show_prefrerences(&self) {
         let window = self.active_window().unwrap();
         let preferences = MainPreferences::new();

@@ -44,7 +44,8 @@ template $MainWindow: Adw.ApplicationWindow {
           width-request: 48;
           height-request: 48;
           icon-name: "icon-flowchart-symbolic";
-          clicked => $switch_page_01() swapped;
+          action-name: "win.switch-page";
+          action-target: "'01'";
         }
 
         Gtk.Button dock_button_02 {
@@ -55,7 +56,8 @@ template $MainWindow: Adw.ApplicationWindow {
           width-request: 48;
           height-request: 48;
           icon-name: "icon-table-symbolic";
-          clicked => $switch_page_02() swapped;
+          action-name: "win.switch-page";
+          action-target: "'02'";
         }
 
         Gtk.Button dock_button_03 {
@@ -66,7 +68,8 @@ template $MainWindow: Adw.ApplicationWindow {
           width-request: 48;
           height-request: 48;
           icon-name: "mermaid-symbolic";
-          clicked => $switch_page_03() swapped;
+          action-name: "win.switch-page";
+          action-target: "'03'";
         }
       }
 
