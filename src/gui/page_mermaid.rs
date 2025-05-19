@@ -56,6 +56,9 @@ mod imp {
             klass.install_action("mermaid.zoom-out", None, move |obj, _, _| {
                 obj.zoom_out();
             });
+            klass.install_action("mermaid.save", None, move |obj, _, _| {
+                obj.save();
+            });
         }
 
         fn instance_init(obj: &glib::subclass::InitializingObject<Self>) {
@@ -167,6 +170,24 @@ impl MermaidPage {
             .replace("@@ASCIIBOX-NOBODYGX-PLACEHOLD@@", content);
 
         imp.webview.get().load_html(&html_content, None);
+    }
+
+    fn save(&self) {
+        let webview = self.imp().webview.get();
+        webview.evaluate_javascript(
+            r#"document.getElementById('svgData').value;"#,
+            None,
+            None,
+            gio::Cancellable::NONE,
+            |result| match result {
+                Ok(value) => {
+                    println!("{:?}", value.to_string());
+                }
+                Err(_) => {
+                    println!("error in js")
+                }
+            },
+        );
     }
 }
 
