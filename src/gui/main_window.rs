@@ -160,7 +160,7 @@ impl MainWindow {
         let stack = imp.stack.get();
         match stack.visible_child() {
             Some(w) => {
-                w.emit_by_name::<()>("execute-transform", &[]);
+                let _ = w.activate_action("execute-transform", None);
             }
             None => {
                 log::error!("no widget for stack to select");

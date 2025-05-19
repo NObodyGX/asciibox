@@ -33,7 +33,7 @@ mod imp {
         fn class_init(klass: &mut Self::Class) {
             klass.bind_template();
 
-            klass.install_action("table.execute-transform", None, move |obj, _, _| {
+            klass.install_action("execute-transform", None, move |obj, _, _| {
                 obj.execute_transform();
             });
 

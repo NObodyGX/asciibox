@@ -39,7 +39,7 @@ mod imp {
             klass.bind_template();
             klass.bind_template_callbacks();
 
-            klass.install_action("flowchart.execute-transform", None, move |obj, _, _| {
+            klass.install_action("execute-transform", None, move |obj, _, _| {
                 obj.execute_transform();
             });
             klass.install_action("flowchart.execute-clear", None, move |obj, _, _| {

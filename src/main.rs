@@ -77,8 +77,8 @@ fn main() -> glib::ExitCode {
             log::debug!("daemon pid: {}", pid);
             return glib::ExitCode::from(0);
         }
-        Err(_) => {
-            log::error!("Fork failed");
+        Err(e) => {
+            log::error!("Fork failed: code({e})");
             return glib::ExitCode::from(1);
         }
     }
@@ -87,4 +87,5 @@ fn main() -> glib::ExitCode {
 fn setup_shortcuts(app: &BasicApplication) {
     app.set_accels_for_action("app.quit", &["<Ctrl>q"]);
     app.set_accels_for_action("app.show-shortcuts", &["<Ctrl>h"]);
+    app.set_accels_for_action("win.execute-transform", &["<Ctrl>r"]);
 }

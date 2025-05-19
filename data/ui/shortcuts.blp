@@ -21,30 +21,60 @@ template $ShortcutsWindow: Adw.Dialog {
         margin-top: 5;
         margin-bottom: 15;
 
-        Gtk.ListBox {
-          styles [
-            "boxed-list",
-          ]
+        Adw.PreferencesGroup {
+          title: _("Asciibox");
 
-          selection-mode: none;
+          Gtk.ListBox {
+            styles [
+              "boxed-list",
+            ]
 
-          Adw.ActionRow {
-            title: _("Show help overlay");
-            Gtk.Button {
-              margin-start: 6;
-              margin-end: 6;
-              valign: center;
-              label: "Ctrl+h";
+            selection-mode: none;
+
+            Adw.ActionRow {
+              title: _("Execute Transform");
+              subtitle: _("it is effective for all pages");
+
+              Gtk.Button {
+                margin-start: 6;
+                margin-end: 6;
+                valign: center;
+                label: "Ctrl+r";
+              }
             }
           }
+        }
 
-          Adw.ActionRow {
-            title: _("Application Quit");
-            Gtk.Button {
-              margin-start: 6;
-              margin-end: 6;
-              valign: center;
-              label: "Ctrl+q";
+        Adw.PreferencesGroup {
+          title: _("General");
+
+          Gtk.ListBox {
+            styles [
+              "boxed-list",
+            ]
+
+            selection-mode: none;
+
+            Adw.ActionRow {
+              title: _("Show help overlay");
+
+              Gtk.Button {
+                margin-start: 6;
+                margin-end: 6;
+                valign: center;
+                label: "Ctrl+h";
+              }
+            }
+
+            Adw.ActionRow {
+              title: _("Application Quit");
+
+              Gtk.Button {
+                margin-start: 6;
+                margin-end: 6;
+                valign: center;
+                label: "Ctrl+q";
+              }
             }
           }
         }
