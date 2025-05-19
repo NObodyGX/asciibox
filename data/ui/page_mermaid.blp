@@ -1,6 +1,7 @@
 using Gtk 4.0;
 using Adw 1;
 using GtkSource 5;
+using WebKit 6.0;
 
 template $MermaidPage: Adw.Bin {
   Gtk.Paned paned {
@@ -53,6 +54,28 @@ template $MermaidPage: Adw.Bin {
         Gtk.Button {
           margin-bottom: 2;
           margin-end: 2;
+          tooltip-text: _("transform to table");
+          icon-name: "play-symbolic";
+          action-name: "win.execute-transform";
+        }
+      }
+    }
+
+    Gtk.Overlay {
+      WebKit.WebView webview {
+        hexpand: true;
+        vexpand: true;
+      }
+
+      [overlay]
+      Gtk.Box {
+        orientation: vertical;
+        valign: end;
+        halign: end;
+
+        Gtk.Button {
+          margin-bottom: 2;
+          margin-end: 2;
           tooltip-text: _("zoom in");
           icon-name: "zoom-in-symbolic";
           action-name: "mermaid.zoom-in";
@@ -65,23 +88,6 @@ template $MermaidPage: Adw.Bin {
           icon-name: "zoom-on-symbolic";
           action-name: "mermaid.zoom-out";
         }
-
-        Gtk.Button {
-          margin-bottom: 2;
-          margin-end: 2;
-          tooltip-text: _("transform to table");
-          icon-name: "play-symbolic";
-          action-name: "win.execute-transform";
-        }
-      }
-    }
-
-    Gtk.Box obox {
-      orientation: vertical;
-      spacing: 0;
-
-      Gtk.Label {
-        label: _("mermaid");
       }
     }
   }

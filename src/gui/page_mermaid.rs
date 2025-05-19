@@ -2,7 +2,6 @@ use adw::subclass::prelude::*;
 use gtk::CompositeTemplate;
 use gtk::gio;
 use gtk::glib;
-use gtk::prelude::*;
 use gtk::prelude::{TextBufferExt, TextViewExt};
 use sourceview;
 use std::cell::{Cell, OnceCell};
@@ -31,10 +30,9 @@ mod imp {
         #[template_child]
         pub in_view: TemplateChild<sourceview::View>,
         #[template_child]
-        pub obox: TemplateChild<gtk::Box>,
+        pub webview: TemplateChild<WebView>,
 
         pub html_content: OnceCell<String>,
-        pub webview: OnceCell<WebView>,
         pub cur_zoom: Cell<f64>,
     }
 
@@ -124,13 +122,6 @@ impl MermaidPage {
 
     fn setup_view(&self) {
         let imp = self.imp();
-        let webview = WebView::new();
-        webview.set_hexpand(true);
-        webview.set_vexpand(true);
-        let obox = imp.obox.get();
-        obox.append(&webview);
-        imp.webview.set(webview).unwrap();
-
         imp.cur_zoom.set(1.0);
     }
 
@@ -143,7 +134,7 @@ impl MermaidPage {
             let val = val + 0.2;
             imp.cur_zoom.set(val);
 
-            let webview = imp.webview.get().unwrap();
+            let webview = imp.webview.get();
             webview.set_zoom_level(val);
         }
     }
@@ -155,7 +146,7 @@ impl MermaidPage {
             let val = val - 0.2;
             imp.cur_zoom.set(val);
 
-            let webview = imp.webview.get().unwrap();
+            let webview = imp.webview.get();
             webview.set_zoom_level(val);
         }
     }
@@ -176,7 +167,7 @@ impl MermaidPage {
             .unwrap()
             .replace("@@ASCIIBOX-NOBODYGX-PLACEHOLD@@", content);
 
-        imp.webview.get().unwrap().load_html(&html_content, None);
+        imp.webview.get().load_html(&html_content, None);
     }
 
     fn execute_clear(&self) {
