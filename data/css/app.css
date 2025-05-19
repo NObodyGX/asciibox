@@ -18,6 +18,7 @@
 }
 
 .clicked-dock-button {
+    color: var(--accent-green);
     background-color: var(--accent-fg-color);
     border-left: 3px solid var(--accent-green);
     border-radius: 0px;
@@ -31,4 +32,8 @@
 
 .center-paned {
     border-top: 1px solid var(--border-color);
+}
+
+.execute-button {
+    color: var(--success-color);
 }
