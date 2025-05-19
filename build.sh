@@ -49,7 +49,7 @@ function prepare_ui() {
 function build_resource() {
   cd "${pwd}/data" || exit
   glib-compile-resources "${name}.gresource.xml"
-  if [ ! -d "${pwd}/data/bin" ];then
+  if [ ! -d "${pwd}/data/bin" ]; then
     mkdir -p "${pwd}/data/bin"
   fi
   mv "${name}.gresource" "${pwd}/data/bin/${name}.gresource"
@@ -71,7 +71,12 @@ function build_target() {
     rm -rf "$bdir"
     meson setup "$bdir"
   else
-    meson setup "$bdir"
+    if [[ -d "$bdir" && $(git status --porcelain | wc -l) -eq 1 ]]; then
+      meson setup "$bdir" --reconfigure
+    else
+      meson setup "$bdir"
+    fi
+
   fi
   cd "${bdir}" || exit
   meson compile
@@ -98,13 +103,13 @@ function main() {
     rm -rf "$bdir"
   fi
 
-  if [[ "$mode" == "prepare" ]];then
+  if [[ "$mode" == "prepare" ]]; then
     echo "------------------------start prepare ${mode} ${force}"
     check_dirs
     sync_version
     prepare_ui
     build_resource
-  elif [[ "$mode" == "build" ]];then
+  elif [[ "$mode" == "build" ]]; then
     echo "------------------------start build"
     check_dirs
     sync_version
