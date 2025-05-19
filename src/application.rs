@@ -5,7 +5,6 @@ use adw::prelude::*;
 use adw::subclass::prelude::*;
 use gettextrs::gettext;
 use gtk::CssProvider;
-use gtk::glib::clone;
 use gtk::{gdk, gio, glib};
 
 mod imp {
@@ -78,7 +77,7 @@ impl BasicApplication {
 
     fn setup_gactions(&self) {
         let preferences_action = gio::SimpleAction::new("preferences", None);
-        preferences_action.connect_activate(clone!(
+        preferences_action.connect_activate(glib::clone!(
             #[weak(rename_to = app)]
             self,
             move |_action, _parameter| {

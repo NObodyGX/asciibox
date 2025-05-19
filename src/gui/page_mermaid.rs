@@ -49,14 +49,6 @@ mod imp {
                 obj.execute_transform();
             });
 
-            klass.install_action("mermaid.execute-clear", None, move |obj, _, _| {
-                obj.execute_clear();
-            });
-
-            klass.install_action("mermaid.execute-copy-result", None, move |obj, _, _| {
-                obj.execute_copy_result();
-            });
-
             klass.install_action("mermaid.zoom-in", None, move |obj, _, _| {
                 obj.zoom_in();
             });
@@ -76,9 +68,8 @@ mod imp {
             let obj = self.obj();
             self.parent_constructed();
 
-            obj.setup_html();
-            obj.setup_config();
-            obj.setup_view();
+            obj.setup_webview();
+            obj.setup_content();
         }
     }
     impl WidgetImpl for MermaidPage {}
@@ -96,7 +87,22 @@ impl MermaidPage {
         let page: MermaidPage = glib::Object::new();
         page
     }
-    fn setup_html(&self) {
+
+    /// 调整 webview 相关配置
+    fn setup_webview(&self) {
+        let imp = self.imp();
+        imp.cur_zoom.set(1.0);
+
+        let webview = imp.webview.get();
+        webview.connect_context_menu(|_webview, context_menu, _hit_test_result| {
+            // 清除默认菜单项
+            context_menu.remove_all();
+            true
+        });
+    }
+
+    /// 初始化默认html内容
+    fn setup_content(&self) {
         let path = "/com/github/nobodygx/asciibox/html/index.html";
         let content = match gio::resources_lookup_data(path, gio::ResourceLookupFlags::NONE) {
             Ok(data) => match String::from_utf8((&data).to_vec()) {
@@ -119,13 +125,6 @@ impl MermaidPage {
             }
         }
     }
-
-    fn setup_view(&self) {
-        let imp = self.imp();
-        imp.cur_zoom.set(1.0);
-    }
-
-    fn execute_copy_result(&self) {}
 
     fn zoom_in(&self) {
         let imp = self.imp();
@@ -169,13 +168,6 @@ impl MermaidPage {
 
         imp.webview.get().load_html(&html_content, None);
     }
-
-    fn execute_clear(&self) {
-        let ibuffer: gtk::TextBuffer = self.imp().in_view.get().buffer();
-        ibuffer.set_text("");
-    }
-
-    fn setup_config(&self) {}
 }
 
 impl Default for MermaidPage {
