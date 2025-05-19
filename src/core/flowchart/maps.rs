@@ -1,7 +1,6 @@
 use super::cell::{ASharp, Arrow, Cell, Direct};
 use super::graph::AGraph;
 use super::parse::{parse_edge, parse_node};
-use log::info;
 use std::cmp::{max, min};
 use std::collections::HashMap;
 
@@ -248,7 +247,7 @@ impl AMap {
         self.clear();
         self.build_cells(content);
         self.build_board();
-        info!("load content done.");
+        log::debug!("load content done.");
         let content = self.render();
         content
     }

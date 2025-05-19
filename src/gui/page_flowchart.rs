@@ -6,8 +6,6 @@ use gtk::CompositeTemplate;
 use gtk::glib;
 use gtk::glib::property::PropertySet;
 use gtk::prelude::{TextBufferExt, TextViewExt};
-use log::error;
-use log::info;
 use sourceview;
 use std::cell::RefCell;
 use std::fs::OpenOptions;
@@ -85,7 +83,6 @@ mod imp {
     impl FlowchartPage {
         #[template_callback]
         fn svgbob_svg_copy(&self) {
-            info!("copy svg");
             self.obj().do_copy_svg_file();
         }
     }
@@ -110,7 +107,7 @@ impl FlowchartPage {
     }
 
     pub fn init_page(&self) {
-        info!("init page");
+        log::debug!("init page");
     }
 }
 
@@ -172,13 +169,13 @@ impl FlowchartPage {
         let window = self.root().and_downcast::<gtk::Window>().unwrap();
         let ofile = dialog.save_future(Some(&window)).await;
         if ofile.is_err() {
-            error!("dialog error in : {ofile:#?}");
+            log::error!("dialog error in : {ofile:#?}");
             return;
         }
         let ofile = ofile.unwrap();
         let filename = ofile.path();
         if filename.is_none() {
-            error!("get ofile error");
+            log::error!("get ofile error");
             return;
         }
         let mut filename = filename.unwrap();
@@ -190,7 +187,7 @@ impl FlowchartPage {
                 .write_all(self.imp().svg_content.borrow().as_bytes())
                 .expect("write error"),
             Err(e) => {
-                error!("create file error in {filename:#?}: {e}")
+                log::error!("create file error in {filename:#?}: {e}")
             }
         }
     }

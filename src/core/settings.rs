@@ -7,7 +7,6 @@ use std::{
 
 use crate::config::APP_NAME;
 use indexmap::IndexMap;
-use log::error;
 use serde::{Deserialize, Serialize};
 use toml;
 
@@ -158,7 +157,7 @@ impl AppSettings {
         let settings = match toml::from_str(&contents) {
             Ok(settings) => settings,
             Err(e) => {
-                error!(
+                log::error!(
                     "error to deserialize {filename:#?}: {e}\n========use deault setting========"
                 );
                 AppSettings::default()

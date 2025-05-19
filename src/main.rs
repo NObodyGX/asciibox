@@ -5,7 +5,6 @@ mod gui;
 mod utils;
 
 use core::AppSettings;
-use log::info;
 
 use application::BasicApplication;
 #[allow(unused_imports)]
@@ -75,11 +74,11 @@ fn main() -> glib::ExitCode {
     match daemon(false, true) {
         Ok(Fork::Child) => do_main_run(),
         Ok(Fork::Parent(pid)) => {
-            info!("daemon pid: {}", pid);
+            log::debug!("daemon pid: {}", pid);
             return glib::ExitCode::from(0);
         }
         Err(_) => {
-            info!("Fork failed");
+            log::error!("Fork failed");
             return glib::ExitCode::from(1);
         }
     }

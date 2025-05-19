@@ -4,6 +4,8 @@ use adw::subclass::prelude::*;
 use glib::Object;
 use glib::subclass::InitializingObject;
 use gtk::{Button, CompositeTemplate, gio, glib, prelude::WidgetExt};
+use log;
+use sourceview::prelude::ObjectExt;
 
 use crate::gui::{FlowchartPage, MermaidPage, TablePage};
 
@@ -49,10 +51,14 @@ mod imp {
                 "win.switch-page",
                 Some(glib::VariantTy::STRING),
                 move |obj, _, param| {
-                    let var = param.unwrap().get::<String>();
-                    obj.switch_page(&var.unwrap());
+                    let var = param.unwrap().get::<String>().unwrap();
+                    obj.switch_page(&var);
                 },
             );
+
+            klass.install_action("win.execute-transform", None, move |obj, _, _| {
+                obj.execute_transform();
+            });
         }
 
         fn instance_init(obj: &InitializingObject<Self>) {
@@ -147,5 +153,18 @@ impl MainWindow {
     fn switch_page(&self, page_str: &String) {
         let index = page_str.parse::<usize>().unwrap_or_default();
         self.click_dock_button(index);
+    }
+
+    fn execute_transform(&self) {
+        let imp = self.imp();
+        let stack = imp.stack.get();
+        match stack.visible_child() {
+            Some(w) => {
+                w.emit_by_name::<()>("execute-transform", &[]);
+            }
+            None => {
+                log::error!("no widget for stack to select");
+            }
+        }
     }
 }

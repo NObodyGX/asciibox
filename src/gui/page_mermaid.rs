@@ -4,7 +4,6 @@ use gtk::gio;
 use gtk::glib;
 use gtk::prelude::*;
 use gtk::prelude::{TextBufferExt, TextViewExt};
-use log::error;
 use sourceview;
 use std::cell::{Cell, OnceCell};
 use webkit::WebView;
@@ -105,12 +104,12 @@ impl MermaidPage {
             Ok(data) => match String::from_utf8((&data).to_vec()) {
                 Ok(ctx) => ctx,
                 Err(e) => {
-                    error!("failed to string from_utf8 from gresource: {e}");
+                    log::error!("failed to string from_utf8 from gresource: {e}");
                     DEFAULT_CONTENT.to_string()
                 }
             },
             Err(e) => {
-                error!("failed to load {path} from gresource: {e}");
+                log::error!("failed to load {path} from gresource: {e}");
                 DEFAULT_CONTENT.to_string()
             }
         };
@@ -118,7 +117,7 @@ impl MermaidPage {
         match self.imp().html_content.set(content) {
             Ok(_) => {}
             Err(e) => {
-                error!("failed to set content: {e}");
+                log::error!("failed to set content: {e}");
             }
         }
     }
