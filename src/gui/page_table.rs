@@ -5,6 +5,7 @@ use gtk::CompositeTemplate;
 use gtk::gdk;
 use gtk::glib;
 use gtk::prelude::{TextBufferExt, TextViewExt};
+use sourceview;
 
 mod imp {
 
@@ -14,9 +15,9 @@ mod imp {
     #[template(resource = "/com/github/nobodygx/asciibox/ui/page_table.ui")]
     pub struct TablePage {
         #[template_child]
-        pub in_view: TemplateChild<gtk::TextView>,
+        pub in_view: TemplateChild<sourceview::View>,
         #[template_child]
-        pub out_view: TemplateChild<gtk::TextView>,
+        pub out_view: TemplateChild<sourceview::View>,
         #[template_child]
         pub table_mode: TemplateChild<gtk::DropDown>,
 

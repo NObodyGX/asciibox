@@ -1,5 +1,6 @@
 using Gtk 4.0;
 using Adw 1;
+using GtkSource 5;
 
 template $FlowchartPage: Adw.Bin {
   Gtk.Paned paned {
@@ -22,15 +23,22 @@ template $FlowchartPage: Adw.Bin {
         hexpand: false;
         vexpand: true;
 
-        Gtk.TextView in_view {
+        GtkSource.View in_view {
+          show-line-numbers: true;
+          show-line-marks: true;
           hscroll-policy: natural;
           vscroll-policy: natural;
           pixels-below-lines: 1;
           editable: true;
           justification: left;
-          left-margin: 4;
+          left-margin: 0;
           accepts-tab: true;
           can-focus: true;
+          tab-width: 4;
+          indent-width: 4;
+          indent-on-tab: false;
+
+          buffer: GtkSource.Buffer {};
         }
       }
 
@@ -55,15 +63,22 @@ template $FlowchartPage: Adw.Bin {
         hexpand: false;
         vexpand: false;
 
-        Gtk.TextView out_view {
+        GtkSource.View out_view {
+          show-line-numbers: true;
+          show-line-marks: true;
           hscroll-policy: natural;
           vscroll-policy: natural;
           pixels-below-lines: 1;
           editable: true;
           justification: left;
-          left-margin: 8;
+          left-margin: 0;
           accepts-tab: true;
           can-focus: true;
+          tab-width: 4;
+          indent-width: 4;
+          indent-on-tab: false;
+
+          buffer: GtkSource.Buffer {};
         }
       }
 

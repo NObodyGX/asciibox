@@ -8,6 +8,7 @@ use gtk::glib::property::PropertySet;
 use gtk::prelude::{TextBufferExt, TextViewExt};
 use log::error;
 use log::info;
+use sourceview;
 use std::cell::RefCell;
 use std::fs::OpenOptions;
 use std::io::Write;
@@ -23,9 +24,9 @@ mod imp {
     #[template(resource = "/com/github/nobodygx/asciibox/ui/page_flowchart.ui")]
     pub struct FlowchartPage {
         #[template_child]
-        pub in_view: TemplateChild<gtk::TextView>,
+        pub in_view: TemplateChild<sourceview::View>,
         #[template_child]
-        pub out_view: TemplateChild<gtk::TextView>,
+        pub out_view: TemplateChild<sourceview::View>,
 
         pub svg_content: RefCell<String>,
     }
