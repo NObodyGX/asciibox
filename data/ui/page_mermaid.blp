@@ -80,6 +80,16 @@ template $MermaidPage: Adw.Bin {
         Gtk.Button {
           margin-bottom: 2;
           margin-end: 2;
+          tooltip-text: _("dark");
+          icon-name: "";
+          action-name: "mermaid.switch-theme";
+          action-target: "'dark'";
+          visible: false;
+        }
+
+        Gtk.Button {
+          margin-bottom: 2;
+          margin-end: 2;
           tooltip-text: _("zoom in");
           icon-name: "zoom-in-1-symbolic";
           action-name: "mermaid.zoom-in";

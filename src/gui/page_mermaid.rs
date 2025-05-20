@@ -42,6 +42,15 @@ mod imp {
                 obj.execute_transform();
             });
 
+            klass.install_action(
+                "mermaid.switch-theme",
+                Some(glib::VariantTy::STRING),
+                move |obj, _, param| {
+                    let var = param.unwrap().get::<String>().unwrap();
+                    obj.switch_theme(&var);
+                },
+            );
+
             klass.install_action("mermaid.zoom-in", None, move |obj, _, _| {
                 obj.zoom_in();
             });
@@ -196,6 +205,8 @@ impl MermaidPage {
         )
         .await;
     }
+
+    fn switch_theme(&self, _theme: &String) {}
 }
 
 impl Default for MermaidPage {
