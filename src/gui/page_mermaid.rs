@@ -9,6 +9,7 @@ use std::cell::Cell;
 use webkit::WebView;
 use webkit::prelude::*;
 
+use crate::core::AppSettings;
 use crate::core::MermaidTheme;
 use crate::utils;
 
@@ -29,6 +30,7 @@ mod imp {
         pub html_content: RefCell<String>,
         pub cur_zoom: Cell<f64>,
         pub svg_data: RefCell<String>,
+        pub cur_theme: RefCell<String>,
     }
 
     #[glib::object_subclass]
@@ -76,7 +78,7 @@ mod imp {
             self.parent_constructed();
 
             obj.setup_webview();
-            obj.setup_content(MermaidTheme::Default);
+            obj.setup_settings();
         }
     }
     impl WidgetImpl for MermaidPage {}
@@ -114,6 +116,14 @@ impl MermaidPage {
             settings.set_enable_write_console_messages_to_stdout(true);
         }
         webview.set_settings(&settings);
+    }
+
+    /// 初始化配置
+    fn setup_settings(&self) {
+        let settings = AppSettings::get();
+        let theme = &settings.mermaid.theme;
+        let theme = MermaidTheme::from(theme);
+        self.setup_content(theme);
     }
 
     /// 初始化默认html内容
@@ -217,6 +227,10 @@ impl MermaidPage {
     fn switch_theme(&self, theme: &String) {
         log::info!("select theme: {theme}");
         let theme = MermaidTheme::from(theme);
+        let mut settings = AppSettings::get_mut();
+        settings.mermaid.theme = String::from(theme.as_str());
+        settings.set_changed();
+
         self.setup_content(theme);
         self.execute_transform();
     }

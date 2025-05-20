@@ -11,6 +11,8 @@ mod imp {
 
     use std::cell::Cell;
 
+    use crate::core::AppSettings;
+
     use super::*;
 
     #[derive(CompositeTemplate, Default)]
@@ -81,6 +83,11 @@ mod imp {
 
     impl WindowImpl for MainWindow {
         fn close_request(&self) -> glib::Propagation {
+            let settings = AppSettings::get();
+            if settings.is_changed() {
+                settings.save();
+            }
+
             self.parent_close_request()
         }
     }

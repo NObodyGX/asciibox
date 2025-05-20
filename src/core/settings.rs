@@ -11,7 +11,6 @@ use serde::{Deserialize, Serialize};
 use toml;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
-#[serde(deny_unknown_fields)]
 pub struct General {
     #[serde(default = "default_lang")]
     pub lang: String,
@@ -30,7 +29,6 @@ impl Default for General {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
-#[serde(deny_unknown_fields)]
 pub struct Flowchart {
     #[serde(default = "default_expand_mode")]
     pub expand_mode: bool,
@@ -49,7 +47,6 @@ impl Default for Flowchart {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
-#[serde(deny_unknown_fields)]
 pub struct Table {
     #[serde(default = "default_cell_max_width")]
     pub cell_max_width: i32,
@@ -75,6 +72,24 @@ impl Default for Table {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct Mermaid {
+    #[serde(default = "default_mermaid_theme")]
+    pub theme: String,
+}
+
+fn default_mermaid_theme() -> String {
+    String::from("default")
+}
+
+impl Default for Mermaid {
+    fn default() -> Self {
+        Mermaid {
+            theme: default_mermaid_theme(),
+        }
+    }
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, Default)]
 pub struct AppSettings {
     #[serde(default)]
     pub general: General,
@@ -82,22 +97,25 @@ pub struct AppSettings {
     pub flowchart: Flowchart,
     #[serde(default)]
     pub table: Table,
-}
-
-impl Default for AppSettings {
-    fn default() -> Self {
-        AppSettings {
-            general: General::default(),
-            flowchart: Flowchart::default(),
-            table: Table::default(),
-        }
-    }
+    #[serde(default)]
+    pub mermaid: Mermaid,
+    #[serde(skip)]
+    pub changed: bool, // default to false
 }
 
 static APP_SETTINGS_VAR: LazyLock<RwLock<AppSettings>> =
     LazyLock::new(|| RwLock::new(AppSettings::load()));
 
 impl AppSettings {
+    /// 判断配置是否发生变化
+    pub fn is_changed(&self) -> bool {
+        self.changed
+    }
+
+    pub fn set_changed(&mut self) {
+        self.changed = true;
+    }
+
     /// 获取当前 AppSettings 的引用（此时才会初始化）
     pub fn get() -> RwLockReadGuard<'static, AppSettings> {
         return APP_SETTINGS_VAR.read().unwrap();
