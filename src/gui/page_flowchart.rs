@@ -1,16 +1,14 @@
 use crate::core::AMap;
+use crate::utils;
 use adw::prelude::*;
 use adw::subclass::prelude::*;
-use gettextrs::gettext;
 use gtk::CompositeTemplate;
 use gtk::glib;
 use gtk::glib::property::PropertySet;
 use gtk::prelude::{TextBufferExt, TextViewExt};
 use sourceview;
 use std::cell::RefCell;
-use std::fs::OpenOptions;
-use std::io::Write;
-use svgbob::to_svg_string_pretty;
+use svgbob;
 
 use super::image_preview_dialog::ImagePreviewDialog;
 
@@ -59,7 +57,7 @@ mod imp {
             );
 
             klass.install_action_async("flowchart.execute-save", None, |obj, _, _| async move {
-                obj.execute_save().await
+                obj.save().await
             });
         }
 
@@ -142,7 +140,7 @@ impl FlowchartPage {
     fn execute_preview_svgbob(&self) {
         let buffer = self.imp().out_view.get().buffer();
         let content = buffer.text(&buffer.bounds().0, &buffer.bounds().1, false);
-        let svg_content = to_svg_string_pretty(content.as_str());
+        let svg_content = svgbob::to_svg_string_pretty(content.as_str());
         self.imp().svg_content.set(svg_content.clone());
 
         let dialog = ImagePreviewDialog::new();
@@ -159,36 +157,13 @@ impl FlowchartPage {
         clipboard.set_text(self.imp().svg_content.borrow().as_str());
     }
 
-    async fn execute_save(&self) {
-        let dialog = gtk::FileDialog::builder()
-            .title(&gettext("Open File"))
-            .accept_label("Save")
-            .modal(true)
-            .build();
-
-        let window = self.root().and_downcast::<gtk::Window>().unwrap();
-        let ofile = dialog.save_future(Some(&window)).await;
-        if ofile.is_err() {
-            log::error!("dialog error in : {ofile:#?}");
-            return;
-        }
-        let ofile = ofile.unwrap();
-        let filename = ofile.path();
-        if filename.is_none() {
-            log::error!("get ofile error");
-            return;
-        }
-        let mut filename = filename.unwrap();
-        if !filename.ends_with("svg") {
-            filename.set_extension("svg");
-        }
-        match OpenOptions::new().write(true).create(true).open(&filename) {
-            Ok(mut f2) => f2
-                .write_all(self.imp().svg_content.borrow().as_bytes())
-                .expect("write error"),
-            Err(e) => {
-                log::error!("create file error in {filename:#?}: {e}")
-            }
-        }
+    async fn save(&self) {
+        utils::save_dialog(
+            &self.root().and_downcast::<gtk::Window>().unwrap(),
+            &gettextrs::gettext("Save Svg File"),
+            &self.imp().svg_content.borrow(),
+            Some("svg".to_string()),
+        )
+        .await;
     }
 }

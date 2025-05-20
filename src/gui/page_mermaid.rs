@@ -1,7 +1,7 @@
 use adw::subclass::prelude::*;
 use gtk::CompositeTemplate;
-use gtk::gio;
 use gtk::glib;
+use gtk::glib::property::PropertySet;
 use gtk::prelude::{TextBufferExt, TextViewExt};
 use sourceview;
 use std::cell::{Cell, OnceCell};
@@ -11,6 +11,8 @@ use webkit::prelude::*;
 use crate::utils;
 
 mod imp {
+
+    use std::cell::RefCell;
 
     use super::*;
 
@@ -24,6 +26,7 @@ mod imp {
 
         pub html_content: OnceCell<String>,
         pub cur_zoom: Cell<f64>,
+        pub svg_data: RefCell<String>,
     }
 
     #[glib::object_subclass]
@@ -46,8 +49,8 @@ mod imp {
             klass.install_action("mermaid.zoom-out", None, move |obj, _, _| {
                 obj.zoom_out();
             });
-            klass.install_action("mermaid.save", None, move |obj, _, _| {
-                obj.save();
+            klass.install_action_async("mermaid.save", None, move |obj, _, _| async move {
+                obj.save().await;
             });
         }
 
@@ -162,22 +165,36 @@ impl MermaidPage {
         imp.webview.get().load_html(&html_content, None);
     }
 
-    fn save(&self) {
-        let webview = self.imp().webview.get();
-        webview.evaluate_javascript(
-            r#"document.getElementById('svgData').value;"#,
-            None,
-            None,
-            gio::Cancellable::NONE,
-            |result| match result {
-                Ok(value) => {
-                    println!("{:?}", value.to_string());
-                }
-                Err(_) => {
-                    println!("error in js")
-                }
-            },
-        );
+    async fn get_svg_data(&self) {
+        let script = r#"document.getElementById('svgData').value;"#;
+        let res = self
+            .imp()
+            .webview
+            .evaluate_javascript_future(script, None, None)
+            .await;
+        match res {
+            Ok(value) => {
+                let content = value.to_string();
+                self.imp().svg_data.set(content);
+            }
+            Err(e) => {
+                log::error!("error get svg data: {e}");
+            }
+        }
+    }
+
+    async fn save(&self) {
+        self.get_svg_data().await;
+        let content = self.imp().svg_data.borrow();
+        log::info!("{}", content);
+
+        utils::save_dialog(
+            &self.root().and_downcast::<gtk::Window>().unwrap(),
+            &gettextrs::gettext("Save Svg File"),
+            &content,
+            Some("svg".to_string()),
+        )
+        .await;
     }
 }
 
