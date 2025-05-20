@@ -1,5 +1,12 @@
 gnome = import('gnome')
 
+res = run_command('sh', 'build.sh', 'prepare')
+if res.returncode() == 0
+  message('resource generate finished.')
+else
+  message('resource generate failed.')
+endif
+
 gnome.compile_resources(app_name,
   app_name + '.gresource.xml',
   gresource_bundle: true,

@@ -46,7 +46,7 @@ function prepare_ui() {
   cd - || exit
 }
 
-function build_resource() {
+function prepare_resource() {
   cd "${pwd}/data" || exit
   glib-compile-resources "${name}.gresource.xml"
   if [ ! -d "${pwd}/data/bin" ]; then
@@ -107,20 +107,12 @@ function main() {
     check_dirs
     sync_version
     prepare_ui
-    build_resource
+    prepare_resource
   elif [[ "$mode" == "build" ]]; then
     echo "------------------------start build"
-    check_dirs
-    sync_version
-    prepare_ui
-    build_resource
     build_target
   else
     echo "------------------------start run"
-    check_dirs
-    sync_version
-    prepare_ui
-    build_resource
     build_target
     run_target
   fi
