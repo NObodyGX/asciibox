@@ -1,4 +1,4 @@
-use crate::config::{APP_ID, APP_NAME, APP_PATH_ID, APP_URL, VERSION};
+use crate::config::{APP_ID, APP_NAME, APP_PATH_ID, APP_URL, MERMAID_VERSION, VERSION};
 use crate::gui::ShortcutsWindow;
 use crate::gui::{MainPreferences, MainWindow};
 use adw::prelude::*;
@@ -139,7 +139,11 @@ impl BasicApplication {
         comments.push_str("<b>");
         comments.push_str(&gettext("Asciibox"));
         comments.push_str("</b>\n\n");
-        comments.push_str(&gettext("asciibox is an auxiliary tool intended to simplify ascii text manipulation, include svgbob and asciidoc"));
+        comments.push_str(&gettext("asciibox is an auxiliary tool intended to simplify ascii text manipulation, include mermaid, svgbob and asciidoc"));
+        comments.push_str("\n\n");
+        comments.push_str(&gettext("mermaid version: "));
+        comments.push_str(MERMAID_VERSION);
+        comments.push_str("\n");
 
         let window = self.active_window().unwrap();
         let dialog = adw::AboutDialog::builder()

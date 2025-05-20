@@ -35,6 +35,7 @@ conf.set_quoted('PACKAGE_BUGREPORTS', 'https://github.com/nobodygx/asciibox/issu
 conf.set_quoted('PACKAGE_ICON_NAME', app_name)
 conf.set_quoted('PACKAGE_NAME', app_name)
 conf.set_quoted('LOCALE_DIR', localedir)
+conf.set_quoted('MERMAID_VERSION', '11.6.0')
 
 
 dependency('gtk4', version: '>= 4.0.0')

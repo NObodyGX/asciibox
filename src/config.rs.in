@@ -5,3 +5,4 @@ pub const APP_ID: &str = @APP_ID@;
 pub const APP_NAME: &str = @APP_NAME@;
 pub const APP_URL: &str = @PACKAGE_WEBSITE@;
 pub const APP_PATH_ID: &str = @APP_PATH_ID@;
+pub const MERMAID_VERSION: &str = @MERMAID_VERSION@;
