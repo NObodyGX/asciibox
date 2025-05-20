@@ -2,8 +2,12 @@
 
 ## v1.0.0
 
-reImp settings logic, it will not depend on gtk settings
-reImp resource logic, it will not depend on asciibox.resource in $pkg_dir
+Fixed some bug
+New features:
+- add new page: mermaid, asciibox support preview and save as svg
+- reImp settings, it will not depend on gtk settings, using ~/.config/asciibox/asciibox.toml instead
+- reImp resource, it will not depend on asciibox.resource in $pkg_dir, resource is self-contained now
+- reImp ui, it's using left dock to navigate and using sourceview to edit
 
 ## v0.9.1
 

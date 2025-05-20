@@ -4,10 +4,11 @@
 
 ## 简介 ##
 
-asciibox 是一个意向简易化 ascii 文本操作的辅助工具，准备实现的功能有：
+asciibox 是一个意向简易化 ascii 文本操作的辅助工具，实现的功能有：
 
 1. 使用 mermaid 语法完成 svgbob 的生成，可以直接生成 svgbob 的文本和图片
 2. 对 asciidoc/markdown 的表格进行对齐美化
+3. 支持 mermaid 的预览和导出
 
 
 ## 运行 ##
@@ -29,9 +30,10 @@ asciibox 是一个意向简易化 ascii 文本操作的辅助工具，准备实�
     - [ ] 源码美化
     - [ ] md 转 asciidoc
 - [ ] mermaid 支持
-    - [ ] mermaid 转 svg/png
-
+    - [x] mermaid 预览
+    - [x] mermaid 转 svg
+    - [ ] mermaid 转 png
 
 ## 感谢
 
-- [x] 本产品使用了 [remix](https://remixicon.com/) 图标
+- [x] 本工具使用了 [remix](https://remixicon.com/) 图标
