@@ -20,6 +20,8 @@ src/core/settings.rs
 src/core/table/mod.rs
 src/core/table/table_data.rs
 src/core/table/table_format.rs
+src/core/mermaid/mod.rs
+src/core/mermaid/theme.rs
 src/gui/main_window.rs
 src/gui/mod.rs
 src/gui/page_flowchart.rs
@@ -31,3 +33,5 @@ src/gui/page_mermaid.rs
 src/main.rs
 src/utils/calurator.rs
 src/utils/mod.rs
+src/utils/g_resource.rs
+src/utils/g_dialog.rs

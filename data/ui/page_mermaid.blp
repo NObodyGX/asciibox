@@ -76,15 +76,71 @@ template $MermaidPage: Adw.Bin {
         orientation: vertical;
         valign: end;
         halign: end;
+        spacing: 0;
 
-        Gtk.Button {
+        Gtk.MenuButton {
           margin-bottom: 2;
           margin-end: 2;
-          tooltip-text: _("dark");
-          icon-name: "";
-          action-name: "mermaid.switch-theme";
-          action-target: "'dark'";
-          visible: false;
+          tooltip-text: _("select theme");
+          icon-name: "mermaid-symbolic";
+          direction: left;
+
+          popover: Gtk.Popover {
+            Gtk.ListBox {
+              selection-mode: single;
+
+              styles [
+                "boxed-list",
+              ]
+              Adw.ActionRow {
+                title: _("default");
+                action-name: "mermaid.switch-theme";
+                action-target: "'default'";
+                selectable: true;
+                activatable: true;
+              }
+
+              Adw.ActionRow {
+                title: _("neutral");
+                action-name: "mermaid.switch-theme";
+                action-target: "'neutral'";
+                selectable: true;
+                activatable: true;
+              }
+
+              Adw.ActionRow {
+                title: _("dark");
+                action-name: "mermaid.switch-theme";
+                action-target: "'dark'";
+                selectable: true;
+                activatable: true;
+              }
+
+              Adw.ActionRow {
+                title: _("forest");
+                action-name: "mermaid.switch-theme";
+                action-target: "'forest'";
+                selectable: true;
+                activatable: true;
+              }
+
+              Adw.ActionRow {
+                title: _("base");
+                action-name: "mermaid.switch-theme";
+                action-target: "'base'";
+                selectable: true;
+                activatable: true;
+              }
+
+              Adw.ActionRow {
+                title: _("custom");
+                action-name: "mermaid.switch-theme";
+                action-target: "'custom'";
+                selectable: true;
+                activatable: true;
+              }
+            }
+          };
         }
 
         Gtk.Button {

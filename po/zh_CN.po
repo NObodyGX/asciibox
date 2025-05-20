@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: asciibox\n"
 "Report-Msgid-Bugs-To: https://github.com/nobodygx/asciibox/issues/\n"
-"POT-Creation-Date: 2025-05-19 14:58+0800\n"
+"POT-Creation-Date: 2025-05-20 16:31+0800\n"
 "PO-Revision-Date: 2025-05-16 08:43+0800\n"
 "Last-Translator: NObodyGX<nobodygx@163.com>\n"
 "Language: zh_CN\n"
@@ -16,7 +16,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Last-Team: NObodyGX<nobodygx@163.com>\n"
 
-#: data/ui/main_window.ui:14 data/ui/shortcuts.ui:32 src/application.rs:141
+#: data/ui/main_window.ui:14 data/ui/shortcuts.ui:32 src/application.rs:140
 msgid "Asciibox"
 msgstr "文箱"
 
@@ -42,7 +42,7 @@ msgstr "流程图"
 msgid "table"
 msgstr "表格"
 
-#: data/ui/main_window.ui:146 data/ui/page_mermaid.ui:96
+#: data/ui/main_window.ui:146
 msgid "mermaid"
 msgstr "mermaid"
 
@@ -58,27 +58,27 @@ msgstr "关于"
 msgid "Quit"
 msgstr "退出"
 
-#: data/ui/page_flowchart.ui:61
+#: data/ui/page_flowchart.ui:64
 msgid "Transform to svgbob"
 msgstr "转换"
 
-#: data/ui/page_flowchart.ui:107
+#: data/ui/page_flowchart.ui:110
 msgid "Clear all text"
 msgstr "清空"
 
-#: data/ui/page_flowchart.ui:116
+#: data/ui/page_flowchart.ui:119
 msgid "Preview svgbob"
 msgstr "预览"
 
-#: data/ui/page_flowchart.ui:125 data/ui/image_preview_dialog.ui:36
+#: data/ui/page_flowchart.ui:128 data/ui/image_preview_dialog.ui:36
 msgid "Save svg"
 msgstr "保存"
 
-#: data/ui/page_table.ui:63 data/ui/page_mermaid.ui:81
+#: data/ui/page_table.ui:66 data/ui/page_mermaid.ui:66
 msgid "transform to table"
 msgstr "转换"
 
-#: data/ui/page_table.ui:109
+#: data/ui/page_table.ui:112
 msgid "Copy Table Text"
 msgstr "复制"
 
@@ -126,6 +126,11 @@ msgstr "整行最大宽度"
 msgid "default to 120"
 msgstr "默认 120"
 
+#: data/ui/shortcuts.ui:10
+#, fuzzy
+msgid "Shortcuts"
+msgstr "快捷键"
+
 #: data/ui/shortcuts.ui:41
 msgid "Execute Transform"
 msgstr "执行转换"
@@ -146,24 +151,63 @@ msgstr "应用退出"
 msgid "Preview"
 msgstr "预览"
 
-#: data/ui/page_mermaid.ui:63
+#: data/ui/page_mermaid.ui:93
+msgid "select theme"
+msgstr "选择主题"
+
+#: data/ui/page_mermaid.ui:106
+#, fuzzy
+msgid "default"
+msgstr "默认"
+
+#: data/ui/page_mermaid.ui:115
+msgid "neutral"
+msgstr "中性"
+
+#: data/ui/page_mermaid.ui:124
+msgid "dark"
+msgstr "黑夜"
+
+#: data/ui/page_mermaid.ui:133
+msgid "forest"
+msgstr "雨林"
+
+#: data/ui/page_mermaid.ui:142
+msgid "base"
+msgstr "基础"
+
+#: data/ui/page_mermaid.ui:151
+msgid "custom"
+msgstr "自定义"
+
+#: data/ui/page_mermaid.ui:168
 msgid "zoom in"
 msgstr "放大"
 
-#: data/ui/page_mermaid.ui:72
+#: data/ui/page_mermaid.ui:177
 msgid "zoom out"
 msgstr "缩小"
 
-#: src/application.rs:143
+#: data/ui/page_mermaid.ui:186
+msgid "save"
+msgstr "保存"
+
+#: src/application.rs:142
+#, fuzzy
 msgid ""
 "asciibox is an auxiliary tool intended to simplify ascii text manipulation, "
-"include svgbob and asciidoc"
+"include mermaid, svgbob and asciidoc"
 msgstr ""
 "asciibox 是一个文本辅助工具，用于简化各种文本操作，包括 svgbob 和 asciidoc"
 
-#: src/gui/page_flowchart.rs:164
-msgid "Open File"
-msgstr "打开文件"
+#: src/application.rs:144
+msgid "mermaid version: "
+msgstr "mermaid 版本: "
+
+#: src/gui/page_flowchart.rs:164 src/gui/page_mermaid.rs:210
+#, fuzzy
+msgid "Save Svg File"
+msgstr "保存为svg"
 
 #: src/gui/preference_window.rs:118
 msgid "Please restart the application for the changes to take effect"
@@ -172,3 +216,6 @@ msgstr "请重启应用来让配置生效"
 #: src/gui/preference_window.rs:122
 msgid "ok"
 msgstr "好的"
+
+#~ msgid "Open File"
+#~ msgstr "打开文件"

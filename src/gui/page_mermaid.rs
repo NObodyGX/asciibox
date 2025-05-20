@@ -5,10 +5,11 @@ use gtk::glib;
 use gtk::glib::property::PropertySet;
 use gtk::prelude::{TextBufferExt, TextViewExt};
 use sourceview;
-use std::cell::{Cell, OnceCell};
+use std::cell::Cell;
 use webkit::WebView;
 use webkit::prelude::*;
 
+use crate::core::MermaidTheme;
 use crate::utils;
 
 mod imp {
@@ -25,7 +26,7 @@ mod imp {
         #[template_child]
         pub webview: TemplateChild<WebView>,
 
-        pub html_content: OnceCell<String>,
+        pub html_content: RefCell<String>,
         pub cur_zoom: Cell<f64>,
         pub svg_data: RefCell<String>,
     }
@@ -75,7 +76,7 @@ mod imp {
             self.parent_constructed();
 
             obj.setup_webview();
-            obj.setup_content();
+            obj.setup_content(MermaidTheme::Default);
         }
     }
     impl WidgetImpl for MermaidPage {}
@@ -107,29 +108,32 @@ impl MermaidPage {
         });
 
         let settings = webkit::Settings::new();
-        settings.set_enable_developer_extras(true);
-        settings.set_enable_write_console_messages_to_stdout(true);
+        #[cfg(debug_assertions)]
+        {
+            settings.set_enable_developer_extras(true);
+            settings.set_enable_write_console_messages_to_stdout(true);
+        }
         webview.set_settings(&settings);
     }
 
     /// 初始化默认html内容
-    fn setup_content(&self) {
-        let mermaid_js_content =
-            utils::load_gresource("/com/github/nobodygx/asciibox/html/mermaid.min.js");
+    fn setup_content(&self, theme: MermaidTheme) {
         let mut content = utils::load_gresource("/com/github/nobodygx/asciibox/html/index.html");
         if content.is_empty() {
             return;
         }
+        if theme != MermaidTheme::Default {
+            content = content.replace("theme: 'default'", format!("theme: '{theme}'").as_str());
+        }
+
+        let mermaid_js_content =
+            utils::load_gresource("/com/github/nobodygx/asciibox/html/mermaid.min.js");
+
         if !mermaid_js_content.is_empty() {
             content = content.replace("<script src=\"https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js\"></script>", &format!("<script>{}</script>", &mermaid_js_content));
         }
 
-        match self.imp().html_content.set(content) {
-            Ok(_) => {}
-            Err(e) => {
-                log::error!("failed to set content: {e}");
-            }
-        }
+        self.imp().html_content.set(content);
     }
 
     fn zoom_in(&self) {
@@ -156,21 +160,24 @@ impl MermaidPage {
         }
     }
 
-    fn execute_transform(&self) {
+    fn icontent(&self) -> String {
         let imp = self.imp();
         let ibuffer = imp.in_view.get().buffer();
         let content = ibuffer.text(&ibuffer.bounds().0, &ibuffer.bounds().1, false);
-        let content = content.as_str();
+        content.to_string()
+    }
 
+    fn execute_transform(&self) {
+        let imp = self.imp();
+        let content = self.icontent();
         if content.len() <= 1 {
             return;
         }
 
         let html_content = imp
             .html_content
-            .get()
-            .unwrap()
-            .replace("@@ASCIIBOX-NOBODYGX-PLACEHOLD@@", content);
+            .borrow()
+            .replace("@@ASCIIBOX-NOBODYGX-PLACEHOLD@@", content.as_str());
 
         imp.webview.get().load_html(&html_content, None);
     }
@@ -207,7 +214,12 @@ impl MermaidPage {
         .await;
     }
 
-    fn switch_theme(&self, _theme: &String) {}
+    fn switch_theme(&self, theme: &String) {
+        log::info!("select theme: {theme}");
+        let theme = MermaidTheme::from(theme);
+        self.setup_content(theme);
+        self.execute_transform();
+    }
 }
 
 impl Default for MermaidPage {
