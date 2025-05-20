@@ -8,17 +8,7 @@ use std::cell::{Cell, OnceCell};
 use webkit::WebView;
 use webkit::prelude::*;
 
-const DEFAULT_CONTENT: &str = "
-<html>
-<body>
-    <script src=\"https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js\"></script>
-    <script>mermaid.initialize({ startOnLoad: true });</script>
-    <div class=\"mermaid\">
-        @@ASCIIBOX-NOBODYGX-PLACEHOLD@@
-    </div>
-</body>
-</html>
-";
+use crate::utils;
 
 mod imp {
 
@@ -111,20 +101,15 @@ impl MermaidPage {
 
     /// 初始化默认html内容
     fn setup_content(&self) {
-        let path = "/com/github/nobodygx/asciibox/html/index.html";
-        let content = match gio::resources_lookup_data(path, gio::ResourceLookupFlags::NONE) {
-            Ok(data) => match String::from_utf8((&data).to_vec()) {
-                Ok(ctx) => ctx,
-                Err(e) => {
-                    log::error!("failed to string from_utf8 from gresource: {e}");
-                    DEFAULT_CONTENT.to_string()
-                }
-            },
-            Err(e) => {
-                log::error!("failed to load {path} from gresource: {e}");
-                DEFAULT_CONTENT.to_string()
-            }
-        };
+        let mermaid_js_content =
+            utils::load_gresource("/com/github/nobodygx/asciibox/html/mermaid.min.js");
+        let mut content = utils::load_gresource("/com/github/nobodygx/asciibox/html/index.html");
+        if content.is_empty() {
+            return;
+        }
+        if !mermaid_js_content.is_empty() {
+            content = content.replace("<script src=\"https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js\"></script>", &format!("<script>{}</script>", &mermaid_js_content));
+        }
 
         match self.imp().html_content.set(content) {
             Ok(_) => {}
@@ -160,7 +145,7 @@ impl MermaidPage {
 
     fn execute_transform(&self) {
         let imp = self.imp();
-        let ibuffer = self.imp().in_view.get().buffer();
+        let ibuffer = imp.in_view.get().buffer();
         let content = ibuffer.text(&ibuffer.bounds().0, &ibuffer.bounds().1, false);
         let content = content.as_str();
 

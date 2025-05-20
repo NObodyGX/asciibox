@@ -10,6 +10,7 @@
         <file preprocess="xml-stripblanks">ui/shortcuts.ui</file>
         <file>css/app.css</file>
         <file>html/index.html</file>
+        <file>html/mermaid.min.js</file>
     </gresource>
     <gresource prefix="/com/github/nobodygx/asciibox/icons/scalable/apps/">
         <file preprocess="xml-stripblanks" alias="asciibox.svg">icons/hicolor/scalable/apps/asciibox.svg</file>
