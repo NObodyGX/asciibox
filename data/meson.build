@@ -10,7 +10,7 @@ endif
 gnome.compile_resources(app_name,
   app_name + '.gresource.xml',
   gresource_bundle: true,
-  install: true,
+  install: false,
   install_dir: pkg_dir,
 )
 
