@@ -2,6 +2,7 @@ use crate::core::AMap;
 use crate::utils;
 use adw::prelude::*;
 use adw::subclass::prelude::*;
+use gettextrs::gettext;
 use gtk::CompositeTemplate;
 use gtk::glib;
 use gtk::glib::property::PropertySet;
@@ -160,7 +161,7 @@ impl FlowchartPage {
     async fn save(&self) {
         utils::save_dialog(
             &self.root().and_downcast::<gtk::Window>().unwrap(),
-            &gettextrs::gettext("Save Svg File"),
+            &gettext("Save Svg File"),
             &self.imp().svg_content.borrow(),
             Some("svg".to_string()),
         )
