@@ -49,13 +49,9 @@
       }
     }
 
-    window.addEventListener('load', () => {
-        generateMermaidSVG();
-
-        setTimeout(() => {
-          generateMermaidSVG();
-        }, 1500);
-      });
+    window.onload = () => {
+      generateMermaidSVG();
+    }
   </script>
 </body>
 </html>
