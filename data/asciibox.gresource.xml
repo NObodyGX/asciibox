@@ -20,7 +20,7 @@
         <file preprocess="xml-stripblanks" alias="icopy.svg">icons/hicolor/symbolic/apps/copy.svg</file>
         <file preprocess="xml-stripblanks" alias="idelete.svg">icons/hicolor/symbolic/apps/delete-bin-line.svg</file>
         <file preprocess="xml-stripblanks" alias="iimage-preview.svg">icons/hicolor/symbolic/apps/image-line.svg</file>
-        <file preprocess="xml-stripblanks" alias="imermaid.svg">icons/hicolor/symbolic/apps/imermaid.svg</file>
+        <file preprocess="xml-stripblanks" alias="imermaid.svg">icons/hicolor/symbolic/apps/mermaid-symbolic.svg</file>
         <file preprocess="xml-stripblanks" alias="iplay.svg">icons/hicolor/symbolic/apps/play-mini-line.svg</file>
         <file preprocess="xml-stripblanks" alias="isave.svg">icons/hicolor/symbolic/apps/save-3-line.svg</file>
         <file preprocess="xml-stripblanks" alias="isettings.svg">icons/hicolor/symbolic/apps/settings-3-line.svg</file>

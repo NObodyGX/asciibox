@@ -129,6 +129,12 @@ impl MermaidPage {
         let theme = &settings.mermaid.theme;
         let theme = MermaidTheme::from(theme);
         self.setup_content(theme);
+
+        #[cfg(debug_assertions)]
+        {
+            let buffer = self.imp().in_view.buffer();
+            buffer.set_text("graph TD\n    A-->B;\n    A-->C;\n    B-->D;\n    C-->D;");
+        }
     }
 
     /// 初始化默认html内容

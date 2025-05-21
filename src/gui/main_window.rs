@@ -108,7 +108,7 @@ impl MainWindow {
     fn setup_config(&self) {}
 
     fn setup_widget(&self) {
-        self.click_dock_button(1);
+        self.click_dock_button(3);
     }
 
     fn setup_actions(&self) {}
