@@ -62,6 +62,11 @@ mod imp {
             klass.install_action("mermaid.zoom-out", None, move |obj, _, _| {
                 obj.zoom_out();
             });
+
+            klass.install_action_async("mermaid.copy", None, move |obj, _, _| async move {
+                obj.copy().await;
+            });
+
             klass.install_action_async("mermaid.save", None, move |obj, _, _| async move {
                 obj.save().await;
             });
@@ -208,6 +213,15 @@ impl MermaidPage {
                 log::error!("error get svg data: {e}");
             }
         }
+    }
+
+    async fn copy(&self) {
+        self.get_svg_data().await;
+        let content = self.imp().svg_data.borrow();
+        log::info!("{}", content);
+
+        let clipboard = self.clipboard();
+        clipboard.set_text(&content);
     }
 
     async fn save(&self) {

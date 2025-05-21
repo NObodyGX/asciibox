@@ -59,7 +59,7 @@ template $MermaidPage: Adw.Bin {
           margin-bottom: 2;
           margin-end: 2;
           tooltip-text: _("transform to table");
-          icon-name: "play-symbolic";
+          icon-name: "iplay";
           action-name: "win.execute-transform";
         }
       }
@@ -82,7 +82,7 @@ template $MermaidPage: Adw.Bin {
           margin-bottom: 2;
           margin-end: 2;
           tooltip-text: _("select theme");
-          icon-name: "mermaid-symbolic";
+          icon-name: "imermaid";
           direction: left;
 
           popover: Gtk.Popover {
@@ -147,7 +147,7 @@ template $MermaidPage: Adw.Bin {
           margin-bottom: 2;
           margin-end: 2;
           tooltip-text: _("zoom in");
-          icon-name: "zoom-in-1-symbolic";
+          icon-name: "izoom-in";
           action-name: "mermaid.zoom-in";
         }
 
@@ -155,15 +155,23 @@ template $MermaidPage: Adw.Bin {
           margin-bottom: 2;
           margin-end: 2;
           tooltip-text: _("zoom out");
-          icon-name: "zoom-out-1-symbolic";
+          icon-name: "izoom-out";
           action-name: "mermaid.zoom-out";
         }
 
         Gtk.Button {
           margin-bottom: 2;
           margin-end: 2;
+          tooltip-text: _("Copy");
+          icon-name: "icopy";
+          action-name: "mermaid.copy";
+        }
+
+        Gtk.Button {
+          margin-bottom: 2;
+          margin-end: 2;
           tooltip-text: _("save");
-          icon-name: "save-symbolic";
+          icon-name: "isave";
           action-name: "mermaid.save";
         }
       }

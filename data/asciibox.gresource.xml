@@ -17,16 +17,16 @@
     </gresource>
     <gresource prefix="/com/github/nobodygx/asciibox/icons/symbolic/apps/">
         <file preprocess="xml-stripblanks" alias="logo-symbolic.svg">icons/hicolor/symbolic/apps/asciibox-symbolic.svg</file>
-        <file preprocess="xml-stripblanks" alias="file-delete-symbolic.svg">icons/hicolor/symbolic/apps/delete-bin-line.svg</file>
-        <file preprocess="xml-stripblanks" alias="file-copy-symbolic.svg">icons/hicolor/symbolic/apps/file-copy-line.svg</file>
-        <file preprocess="xml-stripblanks" alias="image-preview-symbolic.svg">icons/hicolor/symbolic/apps/image-line.svg</file>
-        <file preprocess="xml-stripblanks" alias="mermaid-symbolic.svg">icons/hicolor/symbolic/apps/mermaid-symbolic.svg</file>
-        <file preprocess="xml-stripblanks" alias="play-symbolic.svg">icons/hicolor/symbolic/apps/play-mini-line.svg</file>
-        <file preprocess="xml-stripblanks" alias="save-symbolic.svg">icons/hicolor/symbolic/apps/save-3-line.svg</file>
-        <file preprocess="xml-stripblanks" alias="settings-symbolic.svg">icons/hicolor/symbolic/apps/settings-3-line.svg</file>
-        <file preprocess="xml-stripblanks" alias="icon-flowchart-symbolic.svg">icons/hicolor/symbolic/apps/shape-line.svg</file>
-        <file preprocess="xml-stripblanks" alias="icon-table-symbolic.svg">icons/hicolor/symbolic/apps/table-line.svg</file>
-        <file preprocess="xml-stripblanks" alias="zoom-in-1-symbolic.svg">icons/hicolor/symbolic/apps/zoom-in-line.svg</file>
-        <file preprocess="xml-stripblanks" alias="zoom-out-1-symbolic.svg">icons/hicolor/symbolic/apps/zoom-out-line.svg</file>
+        <file preprocess="xml-stripblanks" alias="icopy.svg">icons/hicolor/symbolic/apps/copy.svg</file>
+        <file preprocess="xml-stripblanks" alias="idelete.svg">icons/hicolor/symbolic/apps/delete-bin-line.svg</file>
+        <file preprocess="xml-stripblanks" alias="iimage-preview.svg">icons/hicolor/symbolic/apps/image-line.svg</file>
+        <file preprocess="xml-stripblanks" alias="imermaid.svg">icons/hicolor/symbolic/apps/imermaid.svg</file>
+        <file preprocess="xml-stripblanks" alias="iplay.svg">icons/hicolor/symbolic/apps/play-mini-line.svg</file>
+        <file preprocess="xml-stripblanks" alias="isave.svg">icons/hicolor/symbolic/apps/save-3-line.svg</file>
+        <file preprocess="xml-stripblanks" alias="isettings.svg">icons/hicolor/symbolic/apps/settings-3-line.svg</file>
+        <file preprocess="xml-stripblanks" alias="iflowchart.svg">icons/hicolor/symbolic/apps/shape-line.svg</file>
+        <file preprocess="xml-stripblanks" alias="itable.svg">icons/hicolor/symbolic/apps/table-line.svg</file>
+        <file preprocess="xml-stripblanks" alias="izoom-in.svg">icons/hicolor/symbolic/apps/zoom-in-line.svg</file>
+        <file preprocess="xml-stripblanks" alias="izoom-out.svg">icons/hicolor/symbolic/apps/zoom-out-line.svg</file>
     </gresource>
 </gresources>
