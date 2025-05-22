@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: asciibox\n"
 "Report-Msgid-Bugs-To: https://github.com/nobodygx/asciibox/issues/\n"
-"POT-Creation-Date: 2025-05-20 16:31+0800\n"
+"POT-Creation-Date: 2025-05-22 11:03+0800\n"
 "PO-Revision-Date: 2025-05-16 08:43+0800\n"
 "Last-Translator: NObodyGX<nobodygx@163.com>\n"
 "Language: zh_CN\n"
@@ -189,25 +189,36 @@ msgid "zoom out"
 msgstr "缩小"
 
 #: data/ui/page_mermaid.ui:186
-msgid "save"
-msgstr "保存"
+msgid "Copy"
+msgstr "复制"
+
+#: data/ui/page_mermaid.ui:195
+#, fuzzy
+msgid "Save Svg"
+msgstr "保存为 SVG"
+
+#: data/ui/page_mermaid.ui:205
+#, fuzzy
+msgid "Save Png"
+msgstr "保存为 PNG"
 
 #: src/application.rs:142
 #, fuzzy
-msgid ""
-"asciibox is an auxiliary tool intended to simplify ascii text manipulation, "
-"include mermaid, svgbob and asciidoc"
-msgstr ""
-"asciibox 是一个文本辅助工具，用于简化各种文本操作，包括 svgbob 和 asciidoc"
+msgid "an ascii text auxiliary tool"
+msgstr "一个文本辅助工具"
 
 #: src/application.rs:144
 msgid "mermaid version: "
 msgstr "mermaid 版本: "
 
-#: src/gui/page_flowchart.rs:164 src/gui/page_mermaid.rs:210
+#: src/gui/page_flowchart.rs:162 src/gui/page_mermaid.rs:246
 #, fuzzy
-msgid "Save Svg File"
-msgstr "保存为svg"
+msgid "Save"
+msgstr "保存"
+
+#: src/gui/page_flowchart.rs:162 src/gui/page_mermaid.rs:246
+msgid "file"
+msgstr "文件"
 
 #: src/gui/preference_window.rs:118
 msgid "Please restart the application for the changes to take effect"
@@ -216,6 +227,3 @@ msgstr "请重启应用来让配置生效"
 #: src/gui/preference_window.rs:122
 msgid "ok"
 msgstr "好的"
-
-#~ msgid "Open File"
-#~ msgstr "打开文件"

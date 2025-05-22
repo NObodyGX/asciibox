@@ -35,3 +35,4 @@ src/utils/calurator.rs
 src/utils/mod.rs
 src/utils/g_resource.rs
 src/utils/g_dialog.rs
+src/utils/files.rs
