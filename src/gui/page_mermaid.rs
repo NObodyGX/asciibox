@@ -1,4 +1,6 @@
 use adw::subclass::prelude::*;
+use base64::Engine;
+use base64::engine;
 use gettextrs::gettext;
 use gtk::CompositeTemplate;
 use gtk::glib;
@@ -29,7 +31,7 @@ mod imp {
 
         pub html_content: RefCell<String>,
         pub cur_zoom: Cell<f64>,
-        pub svg_data: RefCell<String>,
+        pub image_data: RefCell<String>,
         pub cur_theme: RefCell<String>,
     }
 
@@ -64,12 +66,17 @@ mod imp {
             });
 
             klass.install_action_async("mermaid.copy", None, move |obj, _, _| async move {
-                obj.copy().await;
+                obj.copy(&String::from("svg")).await;
             });
 
-            klass.install_action_async("mermaid.save", None, move |obj, _, _| async move {
-                obj.save().await;
-            });
+            klass.install_action_async(
+                "mermaid.save",
+                Some(glib::VariantTy::STRING),
+                move |obj, _, param| async move {
+                    let var = param.unwrap().get::<String>().unwrap();
+                    obj.save(&var).await;
+                },
+            );
         }
 
         fn instance_init(obj: &glib::subclass::InitializingObject<Self>) {
@@ -149,9 +156,8 @@ impl MermaidPage {
 
         let mermaid_js_content =
             utils::load_gresource("/com/github/nobodygx/asciibox/html/mermaid.min.js");
-
         if !mermaid_js_content.is_empty() {
-            content = content.replace("<script src=\"https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js\"></script>", &format!("<script>{}</script>", &mermaid_js_content));
+            content = content.replace("<script src=\"https://cdn.jsdelivr.net/npm/mermaid@11.6.0/dist/mermaid.min.js\"></script>", &format!("<script>{}</script>", &mermaid_js_content));
         }
 
         self.imp().html_content.set(content);
@@ -203,17 +209,21 @@ impl MermaidPage {
         imp.webview.get().load_html(&html_content, None);
     }
 
-    async fn get_svg_data(&self) {
-        let script = r#"document.getElementById('svgData').value;"#;
+    async fn get_image_data(&self, image_type: &String) {
+        let script = format!(
+            "document.getElementById('{}Data').value;",
+            image_type.to_lowercase()
+        );
         let res = self
             .imp()
             .webview
-            .evaluate_javascript_future(script, None, None)
+            .evaluate_javascript_future(script.as_str(), None, None)
             .await;
         match res {
             Ok(value) => {
                 let content = value.to_string();
-                self.imp().svg_data.set(content);
+                log::info!("{content}");
+                self.imp().image_data.set(content);
             }
             Err(e) => {
                 log::error!("error get svg data: {e}");
@@ -221,25 +231,35 @@ impl MermaidPage {
         }
     }
 
-    async fn copy(&self) {
-        self.get_svg_data().await;
-        let content = self.imp().svg_data.borrow();
-        log::info!("{}", content);
+    async fn copy(&self, image_type: &String) {
+        self.get_image_data(image_type).await;
+        let content = self.imp().image_data.borrow();
 
         let clipboard = self.clipboard();
         clipboard.set_text(&content);
     }
 
-    async fn save(&self) {
-        self.get_svg_data().await;
-        let content = self.imp().svg_data.borrow();
-        log::info!("{}", content);
+    async fn save(&self, image_type: &String) {
+        self.get_image_data(image_type).await;
+        let content = self.imp().image_data.borrow();
 
+        let title = format!("{} {} {}", &gettext("Save"), image_type, &gettext("file"));
+
+        let save_content = match image_type.as_str() {
+            "png" => {
+                let content = content.replace("data:image/png;base64,", "");
+                &engine::general_purpose::STANDARD
+                    .decode(content.as_str())
+                    .unwrap()
+            }
+            "svg" => content.as_bytes(),
+            _ => content.as_bytes(),
+        };
         utils::save_dialog(
             &self.root().and_downcast::<gtk::Window>().unwrap(),
-            &gettext("Save Svg File"),
-            &content,
-            Some("svg".to_string()),
+            &title,
+            &save_content,
+            Some(image_type.clone()),
         )
         .await;
     }

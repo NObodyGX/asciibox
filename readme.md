@@ -34,8 +34,9 @@ asciibox 是一个意向简易化 ascii 文本操作的辅助工具，实现的�
 - [ ] mermaid 支持
     - [x] mermaid 预览
     - [x] mermaid 转 svg
-    - [ ] mermaid 转 png
-    - [ ] mermaid 主题
+    - [x] mermaid 转 png
+    - [x] mermaid 主题
+    - [ ] mermaid 自定义主题
     - [ ] mermaid 配置
 
 ## 感谢

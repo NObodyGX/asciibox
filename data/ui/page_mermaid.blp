@@ -170,9 +170,19 @@ template $MermaidPage: Adw.Bin {
         Gtk.Button {
           margin-bottom: 2;
           margin-end: 2;
-          tooltip-text: _("save");
+          tooltip-text: _("Save Svg");
           icon-name: "isave";
           action-name: "mermaid.save";
+          action-target: "'svg'";
+        }
+
+        Gtk.Button {
+          margin-bottom: 2;
+          margin-end: 2;
+          tooltip-text: _("Save Png");
+          icon-name: "isave";
+          action-name: "mermaid.save";
+          action-target: "'png'";
         }
       }
     }

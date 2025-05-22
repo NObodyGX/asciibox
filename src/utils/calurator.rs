@@ -4,6 +4,13 @@ pub fn cn_length(input: &str) -> usize {
     (a + b) / 2
 }
 
+#[allow(dead_code)]
+pub fn capitalize(s: &String) -> String {
+    s.chars().next().map_or_else(String::new, |c| {
+        c.to_uppercase().collect::<String>() + &s[1..]
+    })
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

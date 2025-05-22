@@ -11,10 +11,11 @@
   <textarea id="mermaidCode" style="display: none;">@@ASCIIBOX-NOBODYGX-PLACEHOLD@@</textarea>
   <textarea id="svgData" readonly style="display: none;"></textarea>
   <textarea id="pngData" readonly style="display: none;"></textarea>
+  <canvas></canvas>
   <div style="height: 100vh; display: grid; place-items: center;">
     <div style="padding: 20px;" id="svgElem"></div>
   </div>
-  <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@11.6.0/dist/mermaid.min.js"></script>
   <script type="module">
     mermaid.initialize({
       startOnLoad: false,
@@ -28,7 +29,7 @@
     const pngData = document.getElementById('pngData');
     const svgElem = document.getElementById('svgElem');
 
-    async function convertSvgToPng() {
+    async function convertSvgToImg() {
       const canvas = document.querySelector('canvas');
       const ctx = canvas.getContext('2d');
       const svg = svgElem.querySelector('svg');
@@ -40,33 +41,23 @@
         console.log('Failed to load imgSrc in Image object.');
       };
       img.onload = function () {
-        const elem = document.createElement('canvas');
-        elem.setAttribute('style', 'display: none;');
-        elem.setAttribute('id', 'cnvs');
         const calcedWidth = img.width;
         const calcedHeight = img.height;
-        elem.width = calcedWidth;
-        elem.height = calcedHeight;
-        elem.setAttribute('width', calcedWidth);
-        elem.setAttribute('height', calcedHeight);
+        canvas.width = calcedWidth;
+        canvas.height = calcedHeight;
+        ctx.drawImage(img, 0, 0, calcedWidth, calcedHeight);
         ctx.drawImage(img, 0, 0);
         const mimeType = 'image/png';
         pngData.value = canvas.toDataURL(mimeType);
         canvas.parentNode.removeChild(canvas);
       };
       img.src = imgSrc;
-      pngElem.parentNode.appendChild(img);
     }
 
     async function generateMermaidSvg() {
-      if (svgData.value) {
-        console.log("has value, exit.")
-        return;
-      }
       const mermaidCode = mermaidCodeInput.value.trim();
       svgData.value = '';
       if (!mermaidCode) {
-
         return;
       }
       try {
@@ -74,11 +65,10 @@
         const { svg } = await mermaid.render(svgId, mermaidCode);
         svgData.value = svg;
         svgElem.innerHTML = svg;
-        await convertSvgToPng();
-        console.log('SVG successfully generated and saved!');
+        await convertSvgToImg();
+        console.log('Successfully generated and saved!');
       } catch (error) {
         console.error('Mermaid rendering error:', error);
-        svgData.value = '';
       }
     }
 

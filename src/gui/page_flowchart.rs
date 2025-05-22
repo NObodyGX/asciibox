@@ -159,10 +159,12 @@ impl FlowchartPage {
     }
 
     async fn save(&self) {
+        let title = format!("{} {} {}", &gettext("Save"), "svg", &gettext("file"));
+
         utils::save_dialog(
             &self.root().and_downcast::<gtk::Window>().unwrap(),
-            &gettext("Save Svg File"),
-            &self.imp().svg_content.borrow(),
+            &title,
+            &self.imp().svg_content.borrow().as_bytes(),
             Some("svg".to_string()),
         )
         .await;

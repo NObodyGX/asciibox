@@ -1,11 +1,11 @@
-use std::{fs::OpenOptions, io::Write};
-
 use sourceview::prelude::FileExt;
+
+use super::save_file;
 
 pub async fn save_dialog(
     window: &gtk::Window,
     title: &str,
-    content: &String,
+    content: &[u8],
     extension: Option<String>,
 ) {
     let dialog = gtk::FileDialog::builder()
@@ -32,10 +32,5 @@ pub async fn save_dialog(
             filename.set_extension(&extension);
         }
     }
-    match OpenOptions::new().write(true).create(true).open(&filename) {
-        Ok(mut f2) => f2.write_all(content.as_bytes()).expect("write error"),
-        Err(e) => {
-            log::error!("create file error in {filename:#?}: {e}")
-        }
-    }
+    save_file(&filename, content);
 }
