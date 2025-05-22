@@ -23,6 +23,8 @@
         <file preprocess="xml-stripblanks" alias="imermaid.svg">icons/hicolor/symbolic/apps/mermaid-symbolic.svg</file>
         <file preprocess="xml-stripblanks" alias="iplay.svg">icons/hicolor/symbolic/apps/play-mini-line.svg</file>
         <file preprocess="xml-stripblanks" alias="isave.svg">icons/hicolor/symbolic/apps/save-3-line.svg</file>
+        <file preprocess="xml-stripblanks" alias="isave-png.svg">icons/hicolor/symbolic/apps/save-as-png.svg</file>
+        <file preprocess="xml-stripblanks" alias="isave-svg.svg">icons/hicolor/symbolic/apps/save-as-svg.svg</file>
         <file preprocess="xml-stripblanks" alias="isettings.svg">icons/hicolor/symbolic/apps/settings-3-line.svg</file>
         <file preprocess="xml-stripblanks" alias="iflowchart.svg">icons/hicolor/symbolic/apps/shape-line.svg</file>
         <file preprocess="xml-stripblanks" alias="itable.svg">icons/hicolor/symbolic/apps/table-line.svg</file>

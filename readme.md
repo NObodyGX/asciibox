@@ -38,6 +38,10 @@ asciibox 是一个意向简易化 ascii 文本操作的辅助工具，实现的�
     - [x] mermaid 主题
     - [ ] mermaid 自定义主题
     - [ ] mermaid 配置
+- [x] 主题
+    - [x] 白天主题
+    - [ ] 黑夜主题
+
 
 ## 感谢
 
