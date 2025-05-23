@@ -151,7 +151,18 @@ impl MermaidPage {
             return;
         }
         if theme != MermaidTheme::Default {
-            content = content.replace("theme: 'default'", format!("theme: '{theme}'").as_str());
+            if theme.is_custom() {
+                content = content.replace(
+                    "const mermaid_config = { startOnLoad: false, theme: 'default' }",
+                    format!("const mermaid_config = {{ startOnLoad: false, theme: 'base', themeVariables: {} }}", theme.config_js())
+                        .as_str(),
+                );
+            } else {
+                content = content.replace(
+                    "theme: 'default'",
+                    format!("theme: '{}'", theme.mermaid_theme()).as_str(),
+                );
+            }
         }
 
         let mermaid_js_content =
