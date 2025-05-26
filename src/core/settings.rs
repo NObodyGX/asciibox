@@ -1,4 +1,5 @@
 use std::{
+    collections::BTreeMap,
     fs::{self, OpenOptions},
     io::{Read, Write},
     path::PathBuf,
@@ -83,11 +84,11 @@ pub struct MermaidStyle {
     pub font_size: i32,
     #[serde(default = "default_white_color")]
     pub primary_color: String,
-    #[serde(default = "default_dark_color")]
+    #[serde(default = "default_black_color")]
     pub primary_border_color: String,
-    #[serde(default = "default_dark_color")]
+    #[serde(default = "default_black_color")]
     pub primary_text_color: String,
-    #[serde(default = "default_dark_color")]
+    #[serde(default = "default_black_color")]
     pub line_color: String,
     #[serde(default = "default_green_color")]
     pub secondary_color: String,
@@ -103,7 +104,7 @@ fn default_white_color() -> String {
     String::from("#f4f4f4")
 }
 
-fn default_dark_color() -> String {
+fn default_black_color() -> String {
     String::from("#000000")
 }
 
@@ -131,9 +132,9 @@ impl Default for MermaidStyle {
             font_family: default_font(),
             font_size: default_font_size(),
             primary_color: default_white_color(),
-            primary_border_color: default_mermaid_theme(),
-            primary_text_color: default_dark_color(),
-            line_color: default_dark_color(),
+            primary_border_color: default_black_color(),
+            primary_text_color: default_black_color(),
+            line_color: default_black_color(),
             secondary_color: default_green_color(),
             tertiary_color: default_red_color(),
         }
@@ -145,7 +146,7 @@ pub struct Mermaid {
     #[serde(default = "default_mermaid_theme")]
     pub theme: String,
     #[serde(default)]
-    pub theme_styles: MermaidStyle,
+    pub theme_styles: BTreeMap<String, MermaidStyle>,
 }
 
 fn default_mermaid_theme() -> String {
@@ -156,7 +157,7 @@ impl Default for Mermaid {
     fn default() -> Self {
         Mermaid {
             theme: default_mermaid_theme(),
-            theme_styles: MermaidStyle::default(),
+            theme_styles: BTreeMap::default(),
         }
     }
 }
@@ -186,6 +187,10 @@ impl AppSettings {
 
     pub fn set_changed(&mut self) {
         self.changed = true;
+    }
+
+    pub fn get_theme(&self, name: &str) -> Option<&MermaidStyle> {
+        self.mermaid.theme_styles.get(name)
     }
 
     /// 获取当前 AppSettings 的引用（此时才会初始化）

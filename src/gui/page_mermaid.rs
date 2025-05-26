@@ -13,6 +13,8 @@ use webkit::prelude::*;
 
 use crate::core::AppSettings;
 use crate::core::MermaidTheme;
+use crate::core::MermaidThemeConfig;
+use crate::core::MermaidThemeManager;
 use crate::utils;
 
 mod imp {
@@ -33,6 +35,7 @@ mod imp {
         pub cur_zoom: Cell<f64>,
         pub image_data: RefCell<String>,
         pub cur_theme: RefCell<String>,
+        pub theme_manager: RefCell<MermaidThemeManager>,
     }
 
     #[glib::object_subclass]
@@ -132,9 +135,13 @@ impl MermaidPage {
 
     /// 初始化配置
     fn setup_settings(&self) {
+        {
+            let tm = &self.imp().theme_manager;
+            tm.borrow_mut().init();
+        }
+
         let settings = AppSettings::get();
         let theme = &settings.mermaid.theme;
-        let theme = MermaidTheme::from(theme);
         self.setup_content(theme);
 
         #[cfg(debug_assertions)]
@@ -145,16 +152,24 @@ impl MermaidPage {
     }
 
     /// 初始化默认html内容
-    fn setup_content(&self, theme: MermaidTheme) {
+    fn setup_content(&self, name: &String) {
         let mut content = utils::load_gresource("/com/github/nobodygx/asciibox/html/index.html");
         if content.is_empty() {
             return;
         }
+        let theme = MermaidTheme::from(name);
         if theme != MermaidTheme::Default {
             if theme.is_custom() {
+                let tm = self.imp().theme_manager.borrow();
+                let style = tm.get_theme(name);
+                if style.is_none() {
+                    return;
+                }
+                let style = style.unwrap();
+                let config_js = MermaidThemeConfig::from_mermaid_style(style);
                 content = content.replace(
                     "const mermaid_config = { startOnLoad: false, theme: 'default' }",
-                    format!("const mermaid_config = {{ startOnLoad: false, theme: 'base', themeVariables: {} }}", theme.config_js())
+                    format!("const mermaid_config = {{ startOnLoad: false, theme: 'base', themeVariables: {} }}", config_js.to_js_string())
                         .as_str(),
                 );
             } else {
@@ -277,11 +292,13 @@ impl MermaidPage {
 
     fn switch_theme(&self, theme: &String) {
         log::info!("select theme: {theme}");
-        let theme = MermaidTheme::from(theme);
-        let mut settings = AppSettings::get_mut();
-        settings.mermaid.theme = String::from(theme.as_str());
-        settings.set_changed();
-
+        {
+            let mut settings = AppSettings::get_mut();
+            if !settings.mermaid.theme.eq(theme) {
+                settings.mermaid.theme = String::from(theme.as_str());
+                settings.set_changed();
+            }
+        }
         self.setup_content(theme);
         self.execute_transform();
     }

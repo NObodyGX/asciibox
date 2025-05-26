@@ -1,6 +1,6 @@
 use std::fmt;
 
-use crate::core::{AppSettings, settings::MermaidStyle};
+use crate::{core::settings::MermaidStyle, utils};
 
 #[allow(dead_code)]
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
@@ -11,7 +11,6 @@ pub enum MermaidTheme {
     Forest,
     Base,
     Custom,
-    CustomAdwaita,
 }
 
 impl MermaidTheme {
@@ -23,7 +22,6 @@ impl MermaidTheme {
             MermaidTheme::Forest => "forest",
             MermaidTheme::Base => "base",
             MermaidTheme::Custom => "custom",
-            MermaidTheme::CustomAdwaita => "custom_adwaita",
         }
     }
 
@@ -44,12 +42,7 @@ impl MermaidTheme {
             "dark" => MermaidTheme::Dark,
             "forest" => MermaidTheme::Forest,
             "base" => MermaidTheme::Base,
-            "custom" => MermaidTheme::Custom,
-            "custom_adwaita" => MermaidTheme::CustomAdwaita,
-            _ => {
-                log::warn!("mermaid theme unsupport theme: {s}");
-                MermaidTheme::Default
-            }
+            _ => MermaidTheme::Custom,
         }
     }
 
@@ -61,33 +54,6 @@ impl MermaidTheme {
             MermaidTheme::Forest => false,
             MermaidTheme::Base => false,
             _ => true,
-        }
-    }
-
-    pub fn config_js(&self) -> String {
-        match *self {
-            MermaidTheme::CustomAdwaita => {
-                let config = MermaidThemeConfigBuilder::new()
-                    .dark_mode(false)
-                    .background("#f4f4f4")
-                    .font_family("Maple Mono NF CN")
-                    .font_size(14)
-                    .primary_color("#f4f4f4")
-                    .primary_text_color("#000000")
-                    .primary_border_color("#000000")
-                    .line_color("#000000")
-                    .secondary_color("#00f33d")
-                    .tertiary_color("#c30000")
-                    .build();
-                config.to_js_string()
-            }
-            MermaidTheme::Custom => {
-                let settings = AppSettings::get();
-                let styles = &settings.mermaid.theme_styles;
-                let config = MermaidThemeConfig::from_mermaid_style(styles);
-                config.to_js_string()
-            }
-            _ => String::from("{}"),
         }
     }
 }
@@ -151,7 +117,7 @@ impl Default for MermaidThemeConfig {
         Self {
             dark_mode: false,
             background: "#f4f4f4".to_string(),
-            font_family: "mono, verdana, arial".to_string(),
+            font_family: "'Maple Mono NF CN', verdana, arial".to_string(),
             font_size: 16,
             primary_color: "#fff4dd".to_string(),
             primary_text_color: "#333".to_string(),
@@ -245,7 +211,10 @@ impl MermaidThemeConfigBuilder {
     }
 
     fn background<T: Into<String>>(mut self, background: T) -> Self {
-        self.background = Some(background.into());
+        let background = background.into();
+        if utils::check_is_color(&background) {
+            self.background = Some(background);
+        }
         self
     }
 
@@ -260,32 +229,50 @@ impl MermaidThemeConfigBuilder {
     }
 
     fn primary_color<T: Into<String>>(mut self, primary_color: T) -> Self {
-        self.primary_color = Some(primary_color.into());
+        let primary_color = primary_color.into();
+        if utils::check_is_color(&primary_color) {
+            self.primary_color = Some(primary_color);
+        }
         self
     }
 
     fn primary_text_color<T: Into<String>>(mut self, primary_text_color: T) -> Self {
-        self.primary_text_color = Some(primary_text_color.into());
+        let primary_text_color = primary_text_color.into();
+        if utils::check_is_color(&primary_text_color) {
+            self.primary_text_color = Some(primary_text_color);
+        }
         self
     }
 
     fn primary_border_color<T: Into<String>>(mut self, primary_border_color: T) -> Self {
-        self.primary_border_color = Some(primary_border_color.into());
+        let primary_border_color = primary_border_color.into();
+        if utils::check_is_color(&primary_border_color) {
+            self.primary_border_color = Some(primary_border_color);
+        }
         self
     }
 
     fn line_color<T: Into<String>>(mut self, line_color: T) -> Self {
-        self.line_color = Some(line_color.into());
+        let line_color = line_color.into();
+        if utils::check_is_color(&line_color) {
+            self.line_color = Some(line_color);
+        }
         self
     }
 
     fn secondary_color<T: Into<String>>(mut self, secondary_color: T) -> Self {
-        self.secondary_color = Some(secondary_color.into());
+        let secondary_color = secondary_color.into();
+        if utils::check_is_color(&secondary_color) {
+            self.secondary_color = Some(secondary_color);
+        }
         self
     }
 
     fn tertiary_color<T: Into<String>>(mut self, tertiary_color: T) -> Self {
-        self.tertiary_color = Some(tertiary_color.into());
+        let tertiary_color = tertiary_color.into();
+        if utils::check_is_color(&tertiary_color) {
+            self.tertiary_color = Some(tertiary_color);
+        }
         self
     }
 
