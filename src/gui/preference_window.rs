@@ -1,10 +1,12 @@
 use crate::core::AppSettings;
 use adw::ResponseAppearance;
-use adw::prelude::{AdwDialogExt, AlertDialogExt, ComboRowExt};
+use adw::prelude::{
+    ActionRowExt, AdwDialogExt, AlertDialogExt, ComboRowExt, PreferencesGroupExt, PreferencesRowExt,
+};
 use gettextrs::gettext;
 use gtk::glib::clone;
 use gtk::glib::object::Cast;
-use gtk::prelude::WidgetExt;
+use gtk::prelude::{ActionableExt, ActionableExtManual, ButtonExt, WidgetExt};
 use gtk::{CompositeTemplate, glib, subclass::prelude::*, *};
 
 mod imp {
@@ -27,6 +29,8 @@ mod imp {
         pub cell_max_width: TemplateChild<adw::SpinRow>,
         #[template_child]
         pub line_max_width: TemplateChild<adw::SpinRow>,
+        #[template_child]
+        pub mermaid_group: TemplateChild<adw::PreferencesGroup>,
 
         pub settings: RefCell<AppSettings>,
     }
@@ -39,6 +43,15 @@ mod imp {
 
         fn class_init(klass: &mut Self::Class) {
             klass.bind_template();
+
+            klass.install_action_async(
+                "preference.modify-theme",
+                Some(glib::VariantTy::STRING),
+                move |obj, _, param| async move {
+                    let var = param.unwrap().get::<String>().unwrap();
+                    obj.modify_theme(&var).await;
+                },
+            );
         }
 
         fn instance_init(obj: &glib::subclass::InitializingObject<Self>) {
@@ -95,6 +108,22 @@ impl MainPreferences {
             }
             lang_combox.set_selected(position as u32);
         }
+
+        // 初始化 mermaid_group
+        {
+            let mgroup = imp.mermaid_group.get();
+            for name in settings.mermaid.theme_styles.keys() {
+                let arow = adw::ActionRow::new();
+                let btn = gtk::Button::new();
+                btn.set_icon_name("isettings");
+                btn.add_css_class("flat");
+                arow.add_suffix(&btn);
+                btn.set_action_name(Some("preference.modify-theme"));
+                btn.set_action_target(Some(format!("'{}'", name)));
+                arow.set_title(name);
+                mgroup.add(&arow);
+            }
+        }
     }
 
     fn select_lang(&self, key: glib::GString) {
@@ -137,6 +166,13 @@ impl MainPreferences {
                 let s = item.downcast_ref::<StringObject>().expect("string_object");
                 pw.select_lang(s.string());
             }
+        ));
+    }
+
+    async fn modify_theme(&self, theme: &String) {
+        let dialog = adw::AlertDialog::new(Some(theme), Some("body"));
+        dialog.present(Some(
+            self.root().unwrap().downcast_ref::<gtk::Window>().unwrap(),
         ));
     }
 }
