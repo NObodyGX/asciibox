@@ -133,9 +133,17 @@ template $MermaidPage: Adw.Bin {
               }
 
               Adw.ActionRow {
-                title: _("custom adwaita");
+                title: _("adwaita");
                 action-name: "mermaid.switch-theme";
                 action-target: "'custom_adwaita'";
+                selectable: true;
+                activatable: true;
+              }
+
+              Adw.ActionRow {
+                title: _("custom");
+                action-name: "mermaid.switch-theme";
+                action-target: "'custom'";
                 selectable: true;
                 activatable: true;
               }

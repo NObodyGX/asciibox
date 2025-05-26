@@ -72,9 +72,80 @@ impl Default for Table {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct MermaidStyle {
+    #[serde(default = "default_dark_mode")]
+    pub dark_mode: bool,
+    #[serde(default = "default_white_color")]
+    pub background: String,
+    #[serde(default = "default_font")]
+    pub font_family: String,
+    #[serde(default = "default_font_size")]
+    pub font_size: i32,
+    #[serde(default = "default_white_color")]
+    pub primary_color: String,
+    #[serde(default = "default_dark_color")]
+    pub primary_border_color: String,
+    #[serde(default = "default_dark_color")]
+    pub primary_text_color: String,
+    #[serde(default = "default_dark_color")]
+    pub line_color: String,
+    #[serde(default = "default_green_color")]
+    pub secondary_color: String,
+    #[serde(default = "default_red_color")]
+    pub tertiary_color: String,
+}
+
+fn default_dark_mode() -> bool {
+    false
+}
+
+fn default_white_color() -> String {
+    String::from("#f4f4f4")
+}
+
+fn default_dark_color() -> String {
+    String::from("#000000")
+}
+
+fn default_green_color() -> String {
+    String::from("#00f33d")
+}
+
+fn default_red_color() -> String {
+    String::from("#c30000")
+}
+
+fn default_font() -> String {
+    String::from("Maple Mono NF CN")
+}
+
+fn default_font_size() -> i32 {
+    14
+}
+
+impl Default for MermaidStyle {
+    fn default() -> Self {
+        MermaidStyle {
+            dark_mode: default_dark_mode(),
+            background: default_white_color(),
+            font_family: default_font(),
+            font_size: default_font_size(),
+            primary_color: default_white_color(),
+            primary_border_color: default_mermaid_theme(),
+            primary_text_color: default_dark_color(),
+            line_color: default_dark_color(),
+            secondary_color: default_green_color(),
+            tertiary_color: default_red_color(),
+        }
+    }
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Mermaid {
     #[serde(default = "default_mermaid_theme")]
     pub theme: String,
+    #[serde(default)]
+    pub theme_styles: MermaidStyle,
 }
 
 fn default_mermaid_theme() -> String {
@@ -85,6 +156,7 @@ impl Default for Mermaid {
     fn default() -> Self {
         Mermaid {
             theme: default_mermaid_theme(),
+            theme_styles: MermaidStyle::default(),
         }
     }
 }

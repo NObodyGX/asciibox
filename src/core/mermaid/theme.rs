@@ -1,5 +1,7 @@
 use std::fmt;
 
+use crate::core::{AppSettings, settings::MermaidStyle};
+
 #[allow(dead_code)]
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum MermaidTheme {
@@ -79,6 +81,12 @@ impl MermaidTheme {
                     .build();
                 config.to_js_string()
             }
+            MermaidTheme::Custom => {
+                let settings = AppSettings::get();
+                let styles = &settings.mermaid.theme_styles;
+                let config = MermaidThemeConfig::from_mermaid_style(styles);
+                config.to_js_string()
+            }
             _ => String::from("{}"),
         }
     }
@@ -156,6 +164,23 @@ impl Default for MermaidThemeConfig {
 }
 
 impl MermaidThemeConfig {
+    pub fn from_mermaid_style(style: &MermaidStyle) -> Self {
+        let config = MermaidThemeConfigBuilder::new()
+            .dark_mode(style.dark_mode)
+            .background(&style.background)
+            .font_family(&style.font_family)
+            .font_size(style.font_size)
+            .primary_color(&style.primary_color)
+            .primary_border_color(&style.primary_border_color)
+            .primary_text_color(&style.primary_text_color)
+            .line_color(&style.line_color)
+            .secondary_color(&style.secondary_color)
+            .tertiary_color(&style.tertiary_color)
+            .build();
+
+        config
+    }
+
     pub fn to_js_string(&self) -> String {
         format!(
             "{{\
