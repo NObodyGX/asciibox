@@ -86,66 +86,58 @@ template $MermaidPage: Adw.Bin {
           direction: left;
 
           popover: Gtk.Popover {
-            Gtk.ListBox {
-              selection-mode: single;
+            Gtk.ScrolledWindow {
+              halign: fill;
+              valign: start;
+              min-content-height: 320;
+              min-content-width: 100;
 
-              styles [
-                "boxed-list",
-              ]
-              Adw.ActionRow {
-                title: _("default");
-                action-name: "mermaid.switch-theme";
-                action-target: "'default'";
-                selectable: true;
-                activatable: true;
-              }
+              Gtk.ListBox theme_list {
+                selection-mode: single;
 
-              Adw.ActionRow {
-                title: _("neutral");
-                action-name: "mermaid.switch-theme";
-                action-target: "'neutral'";
-                selectable: true;
-                activatable: true;
-              }
+                styles [
+                  "boxed-list",
+                ]
 
-              Adw.ActionRow {
-                title: _("dark");
-                action-name: "mermaid.switch-theme";
-                action-target: "'dark'";
-                selectable: true;
-                activatable: true;
-              }
+                Adw.ActionRow {
+                  title: _("default");
+                  action-name: "mermaid.switch-theme";
+                  action-target: "'default'";
+                  selectable: true;
+                  activatable: true;
+                }
 
-              Adw.ActionRow {
-                title: _("forest");
-                action-name: "mermaid.switch-theme";
-                action-target: "'forest'";
-                selectable: true;
-                activatable: true;
-              }
+                Adw.ActionRow {
+                  title: _("neutral");
+                  action-name: "mermaid.switch-theme";
+                  action-target: "'neutral'";
+                  selectable: true;
+                  activatable: true;
+                }
 
-              Adw.ActionRow {
-                title: _("base");
-                action-name: "mermaid.switch-theme";
-                action-target: "'base'";
-                selectable: true;
-                activatable: true;
-              }
+                Adw.ActionRow {
+                  title: _("dark");
+                  action-name: "mermaid.switch-theme";
+                  action-target: "'dark'";
+                  selectable: true;
+                  activatable: true;
+                }
 
-              Adw.ActionRow {
-                title: _("adwaita");
-                action-name: "mermaid.switch-theme";
-                action-target: "'adwaita'";
-                selectable: true;
-                activatable: true;
-              }
+                Adw.ActionRow {
+                  title: _("forest");
+                  action-name: "mermaid.switch-theme";
+                  action-target: "'forest'";
+                  selectable: true;
+                  activatable: true;
+                }
 
-              Adw.ActionRow {
-                title: _("custom");
-                action-name: "mermaid.switch-theme";
-                action-target: "'custom'";
-                selectable: true;
-                activatable: true;
+                Adw.ActionRow {
+                  title: _("base");
+                  action-name: "mermaid.switch-theme";
+                  action-target: "'base'";
+                  selectable: true;
+                  activatable: true;
+                }
               }
             }
           };

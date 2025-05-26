@@ -1,3 +1,4 @@
+use adw::prelude::PreferencesRowExt;
 use adw::subclass::prelude::*;
 use base64::Engine;
 use base64::engine;
@@ -30,6 +31,8 @@ mod imp {
         pub in_view: TemplateChild<sourceview::View>,
         #[template_child]
         pub webview: TemplateChild<WebView>,
+        #[template_child]
+        pub theme_list: TemplateChild<gtk::ListBox>,
 
         pub html_content: RefCell<String>,
         pub cur_zoom: Cell<f64>,
@@ -138,6 +141,18 @@ impl MermaidPage {
         {
             let tm = &self.imp().theme_manager;
             tm.borrow_mut().init();
+
+            let theme_list = self.imp().theme_list.get();
+            for name in tm.borrow().themes.keys() {
+                let widget = adw::ActionRow::new();
+                widget.set_title(name);
+                widget.set_selectable(true);
+                widget.set_activatable(true);
+                widget.set_action_name(Some("mermaid.switch-theme"));
+                widget.set_action_target(Some(format!("'{}'", name)));
+
+                theme_list.append(&widget);
+            }
         }
 
         let settings = AppSettings::get();
