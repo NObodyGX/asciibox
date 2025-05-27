@@ -1,3 +1,4 @@
+use adw;
 use gtk::{glib, subclass::prelude::*};
 
 mod imp {
@@ -36,6 +37,15 @@ mod imp {
         fn class_init(klass: &mut Self::Class) {
             klass.bind_template();
             klass.set_css_name("theme-switcher");
+
+            klass.install_action(
+                "theme_switcher.switch-theme",
+                Some(glib::VariantTy::STRING),
+                move |obj, _, param| {
+                    let var = param.unwrap().get::<String>().unwrap();
+                    obj.switch_theme(&var);
+                },
+            );
         }
 
         fn instance_init(obj: &glib::subclass::InitializingObject<Self>) {
@@ -63,5 +73,17 @@ glib::wrapper! {
 impl ThemeSwitcher {
     pub fn new() -> Self {
         glib::Object::builder().build()
+    }
+
+    fn switch_theme(&self, theme: &String) {
+        let style = adw::StyleManager::default();
+
+        let color_scheme = match theme.as_str() {
+            "system" => adw::ColorScheme::Default,
+            "light" => adw::ColorScheme::ForceLight,
+            "dark" => adw::ColorScheme::ForceDark,
+            _ => adw::ColorScheme::Default,
+        };
+        style.set_color_scheme(color_scheme);
     }
 }
