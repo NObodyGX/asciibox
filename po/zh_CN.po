@@ -8,13 +8,15 @@ msgstr ""
 "Project-Id-Version: asciibox\n"
 "Report-Msgid-Bugs-To: https://github.com/nobodygx/asciibox/issues/\n"
 "POT-Creation-Date: 2025-05-22 11:03+0800\n"
-"PO-Revision-Date: 2025-05-16 08:43+0800\n"
-"Last-Translator: NObodyGX<nobodygx@163.com>\n"
+"PO-Revision-Date: 2025-05-27 09:02+0800\n"
+"Last-Translator: NObodyGX <nobodygx@163.com>\n"
+"Language-Team: \n"
 "Language: zh_CN\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Last-Team: NObodyGX<nobodygx@163.com>\n"
+"X-Generator: Poedit 3.6\n"
 
 #: data/ui/main_window.ui:14 data/ui/shortcuts.ui:32 src/application.rs:140
 msgid "Asciibox"
@@ -30,7 +32,6 @@ msgid "Preferences"
 msgstr "设置"
 
 #: data/ui/main_window.ui:100
-#, fuzzy
 msgid "asciibox"
 msgstr "文箱"
 
@@ -127,7 +128,6 @@ msgid "default to 120"
 msgstr "默认 120"
 
 #: data/ui/shortcuts.ui:10
-#, fuzzy
 msgid "Shortcuts"
 msgstr "快捷键"
 
@@ -156,7 +156,6 @@ msgid "select theme"
 msgstr "选择主题"
 
 #: data/ui/page_mermaid.ui:106
-#, fuzzy
 msgid "default"
 msgstr "默认"
 
@@ -193,17 +192,14 @@ msgid "Copy"
 msgstr "复制"
 
 #: data/ui/page_mermaid.ui:195
-#, fuzzy
 msgid "Save Svg"
 msgstr "保存为 SVG"
 
 #: data/ui/page_mermaid.ui:205
-#, fuzzy
 msgid "Save Png"
 msgstr "保存为 PNG"
 
 #: src/application.rs:142
-#, fuzzy
 msgid "an ascii text auxiliary tool"
 msgstr "一个文本辅助工具"
 
@@ -212,7 +208,6 @@ msgid "mermaid version: "
 msgstr "mermaid 版本: "
 
 #: src/gui/page_flowchart.rs:162 src/gui/page_mermaid.rs:246
-#, fuzzy
 msgid "Save"
 msgstr "保存"
 

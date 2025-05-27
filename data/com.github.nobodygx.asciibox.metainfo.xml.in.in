@@ -7,8 +7,8 @@
   <metadata_license>CC0</metadata_license>
   <project_license>MIT</project_license>
   <description>
-    <p>A simple text tool to help generate svgbob ascii text and image easily</p>
-    <p>Also can used to formating asciidoc table.</p>
+    <p>A simple text tool to help generate mermaid/svgbob ascii text and image easily</p>
+    <p>Also can used to formating markdown/asciidoc table.</p>
     <p>Build by rust with gtk4.</p>
   </description>
   <developer>
