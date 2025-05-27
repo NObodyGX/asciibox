@@ -8,6 +8,7 @@ use gtk::glib;
 use gtk::glib::property::PropertySet;
 use gtk::prelude::{TextBufferExt, TextViewExt};
 use sourceview;
+use sourceview::prelude::BufferExt;
 use std::cell::Cell;
 use webkit::WebView;
 use webkit::prelude::*;
@@ -97,6 +98,7 @@ mod imp {
 
             obj.setup_webview();
             obj.setup_settings();
+            obj.setup_gtk_theme();
         }
     }
     impl WidgetImpl for MermaidPage {}
@@ -164,6 +166,59 @@ impl MermaidPage {
             let buffer = self.imp().in_view.buffer();
             buffer.set_text("graph TD\n    A-->B;\n    A-->C;\n    B-->D;\n    C-->D;");
         }
+    }
+
+    fn setup_gtk_theme(&self) {
+        let style_mgr = adw::StyleManager::default();
+
+        style_mgr.connect_color_scheme_notify(glib::clone!(
+            #[weak(rename_to = app)]
+            self,
+            move |manager| {
+                let buffer = app
+                    .imp()
+                    .in_view
+                    .buffer()
+                    .downcast::<sourceview::Buffer>()
+                    .unwrap();
+                let ssm = sourceview::StyleSchemeManager::default();
+                match manager.color_scheme() {
+                    adw::ColorScheme::ForceDark | adw::ColorScheme::PreferDark => {
+                        for sc in vec![
+                            "Adwaita-dark",
+                            "classic-dark",
+                            "cobalt",
+                            "kate-dark",
+                            "oblivion",
+                            "solarized-dark",
+                        ] {
+                            if let Some(scheme) = ssm.scheme(sc) {
+                                buffer.set_style_scheme(Some(&scheme));
+                                break;
+                            }
+                        }
+                    }
+                    adw::ColorScheme::ForceLight | adw::ColorScheme::PreferLight => {
+                        for sc in vec![
+                            "Adwaita",
+                            "classic",
+                            "cobalt-light",
+                            "kate",
+                            "solarized-light",
+                            "tango",
+                        ] {
+                            if let Some(scheme) = ssm.scheme(sc) {
+                                buffer.set_style_scheme(Some(&scheme));
+                                break;
+                            }
+                        }
+                    }
+                    _ => {
+                        buffer.set_style_scheme(Some(&ssm.scheme("Adwaita").unwrap()));
+                    }
+                }
+            }
+        ));
     }
 
     /// 初始化默认html内容
