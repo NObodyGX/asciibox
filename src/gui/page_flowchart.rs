@@ -11,7 +11,7 @@ use sourceview;
 use std::cell::RefCell;
 use svgbob;
 
-use super::image_preview_dialog::ImagePreviewDialog;
+use super::widget::ImagePreviewDialog;
 
 mod imp {
 
