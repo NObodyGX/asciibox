@@ -4,12 +4,17 @@ use adw::subclass::prelude::*;
 use glib::Object;
 use glib::subclass::InitializingObject;
 use gtk::{Button, CompositeTemplate, gio, glib, prelude::WidgetExt};
+use sourceview::prelude::Cast;
 
 use crate::gui::{FlowchartPage, MermaidPage, TablePage};
+
+use super::ThemeSwitcher;
 
 mod imp {
 
     use std::cell::Cell;
+
+    use gtk::MenuButton;
 
     use crate::core::AppSettings;
 
@@ -32,6 +37,8 @@ mod imp {
         pub dock_button_02: TemplateChild<Button>,
         #[template_child]
         pub dock_button_03: TemplateChild<Button>,
+        #[template_child]
+        pub menu_button: TemplateChild<MenuButton>,
 
         pub dock_index: Cell<usize>,
     }
@@ -71,7 +78,7 @@ mod imp {
             self.parent_constructed();
 
             let obj = self.obj();
-            obj.setup_config();
+            obj.setup_theme_switcher();
             obj.setup_widget();
             obj.setup_actions();
         }
@@ -105,7 +112,16 @@ glib::wrapper! {
 }
 
 impl MainWindow {
-    fn setup_config(&self) {}
+    fn setup_theme_switcher(&self) {
+        if let Some(popover) = self
+            .imp()
+            .menu_button
+            .popover()
+            .and_then(|p| p.downcast::<gtk::PopoverMenu>().ok())
+        {
+            popover.add_child(&ThemeSwitcher::new(), "theme-switcher");
+        }
+    }
 
     fn setup_widget(&self) {
         self.click_dock_button(3);

@@ -1,0 +1,35 @@
+using Gtk 4.0;
+
+template $ThemeSwitcher: Gtk.Box {
+  styles ["theme-switcher"]
+  Gtk.Box {
+    halign: center;
+    margin-start: 12;
+    margin-end: 12;
+    margin-bottom: 6;
+    spacing: 8;
+
+    Gtk.CheckButton system_button {
+      tooltip-text: _("use system colors");
+      styles ["theme-switcher", "system"]
+    }
+
+    Gtk.CheckButton light_button {
+      group: system_button;
+      tooltip-text: _("use light color");
+      styles ["theme-switcher", "light"]
+    }
+
+    Gtk.CheckButton dark_button {
+      group: system_button;
+      tooltip-text: _("use dark color");
+      styles ["theme-switcher", "dark"]
+    }
+
+    Gtk.CheckButton sepia_button {
+      group: system_button;
+      tooltip-text: _("use sepia color");
+      styles ["theme-switcher", "sepia"]
+    }
+  }
+}

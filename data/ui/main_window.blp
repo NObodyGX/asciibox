@@ -96,7 +96,7 @@ template $MainWindow: Adw.ApplicationWindow {
         };
 
         [end]
-        Gtk.MenuButton {
+        Gtk.MenuButton menu_button{
           icon-name: "open-menu-symbolic";
           primary: true;
           menu-model: main-menu;
@@ -143,6 +143,12 @@ template $MainWindow: Adw.ApplicationWindow {
 }
 
 menu main-menu {
+  section {
+    item {
+      custom: 'theme-switcher';
+    }
+  }
+
   section {
     item {
       label: _("Preferences");
