@@ -9,6 +9,9 @@
         <file preprocess="xml-stripblanks">ui/preferences.ui</file>
         <file preprocess="xml-stripblanks">ui/shortcuts.ui</file>
         <file preprocess="xml-stripblanks">ui/theme_switcher.ui</file>
+        <file>css/gtk/style-dark.css</file>
+        <file>css/gtk/style-light.css</file>
+        <file>css/gtk/style-sepia.css</file>
         <file>css/app.css</file>
         <file>html/index.html</file>
         <file>html/mermaid.min.js</file>
