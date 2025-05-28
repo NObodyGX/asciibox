@@ -1,12 +1,12 @@
+use std::fs;
 use std::{
     collections::BTreeMap,
-    fs::{self, OpenOptions},
-    io::{Read, Write},
     path::PathBuf,
     sync::{LazyLock, RwLock, RwLockReadGuard, RwLockWriteGuard},
 };
 
 use crate::config::APP_NAME;
+use crate::utils;
 use indexmap::IndexMap;
 use serde::{Deserialize, Serialize};
 use toml;
@@ -145,7 +145,6 @@ impl Default for MermaidStyle {
 pub struct Mermaid {
     #[serde(default = "default_mermaid_theme")]
     pub theme: String,
-    #[serde(default)]
     pub theme_styles: BTreeMap<String, MermaidStyle>,
 }
 
@@ -211,14 +210,7 @@ impl AppSettings {
         if !filename.parent().unwrap().exists() {
             fs::create_dir_all(filename.parent().unwrap()).unwrap();
         }
-        // 注意不truncate会导致覆盖不完全
-        let mut file: std::fs::File = OpenOptions::new()
-            .write(true)
-            .truncate(true)
-            .create(true)
-            .open(filename)
-            .unwrap();
-        file.write_all(toml.as_bytes()).unwrap();
+        utils::save_file(&filename, toml.as_bytes());
     }
 
     /// 支持的多语言选项
@@ -240,16 +232,27 @@ impl AppSettings {
         return filename;
     }
 
+    fn theme_dir() -> PathBuf {
+        let home = homedir::my_home().unwrap().unwrap();
+        let dirname = home.join(".config").join(APP_NAME).join("themes");
+        return dirname;
+    }
+
+    #[allow(dead_code)]
+    fn mermaid_theme_dir() -> PathBuf {
+        let dirname = AppSettings::theme_dir();
+        let dirname = dirname.join("mermaid");
+        return dirname;
+    }
+
     fn load() -> AppSettings {
         let filename = AppSettings::filename();
         if !filename.exists() {
             return AppSettings::default();
         }
 
-        let mut file: std::fs::File = OpenOptions::new().read(true).open(&filename).unwrap();
-        let mut contents = String::new();
-        file.read_to_string(&mut contents).unwrap();
-        let settings = match toml::from_str(&contents) {
+        let content = utils::read_text(&filename);
+        let mut settings: AppSettings = match toml::from_str(&content) {
             Ok(settings) => settings,
             Err(e) => {
                 log::error!(
@@ -258,6 +261,34 @@ impl AppSettings {
                 AppSettings::default()
             }
         };
+
+        let dirname = AppSettings::theme_dir();
+        if !dirname.exists() {
+            return settings;
+        }
+        // 读取主题配置
+
+        // 读取 mermaid 主题配置
+        let mdir = AppSettings::mermaid_theme_dir();
+        let extensions = vec!["toml"];
+        let mlist = utils::list_files_in_dir(&mdir, &extensions);
+        for mfile in mlist.iter() {
+            let mcontent = utils::read_text(&mfile);
+            match toml::from_str(&mcontent) {
+                Ok(style) => {
+                    let name = mfile.file_stem().unwrap_or_default();
+                    let mut name = format!("{}", name.to_str().unwrap_or("error"));
+                    if name.len() == 0 {
+                        name = String::from("error");
+                    }
+                    settings.mermaid.theme_styles.insert(name, style);
+                }
+                Err(e) => {
+                    log::error!("error to deserialize mermaid style {filename:#?}: {e}");
+                }
+            };
+        }
+
         settings
     }
 }
