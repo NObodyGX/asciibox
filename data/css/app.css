@@ -1,3 +1,8 @@
+/************ dock 面板 ************/
+.dock-box {
+    border-right: 1px solid var(--border-color);
+}
+
 .dock-label {
     margin-top: 12px;
     margin-bottom: 12px;
@@ -6,7 +11,7 @@
 .dock-button {
     border: none;
     border-radius: 0px;
-    background-color: var(--accent-fg-color);
+    background-color: transparent;
 }
 
 .dock-button:hover {
@@ -18,16 +23,11 @@
 }
 
 .clicked-dock-button {
-    color: var(--accent-green);
-    background-color: var(--accent-fg-color);
     border-left: 3px solid var(--accent-green);
     border-radius: 0px;
 }
 
-.dock-box {
-    background-color: var(--accent-fg-color);
-    border-right: 1px solid var(--border-color);
-}
+/************ 主题选择控件 ************/
 
 .center-paned {
     border-top: 1px solid var(--border-color);
@@ -37,44 +37,45 @@
     color: var(--success-color);
 }
 
-theme-switcher {
+/************ 主题选择控件 ************/
+.theme-switcher {
     margin: 9px;
 }
 
-theme-switcher checkbutton {
+.theme-switcher checkbutton {
     padding: 0;
-    min-height: 36px;
-    min-width: 36px;
+    min-height: 44px;
+    min-width: 44px;
     padding: 1px;
     background-clip: content-box;
     border-radius: 9999px;
     box-shadow: inset 0 0 0 1px var(--border-color);
 }
 
-theme-switcher checkbutton.system:checked,
-theme-switcher checkbutton.light:checked,
-theme-switcher checkbutton.dark:checked,
-theme-switcher checkbutton.sepia:checked {
+.theme-switcher checkbutton.system:checked,
+.theme-switcher checkbutton.light:checked,
+.theme-switcher checkbutton.dark:checked,
+.theme-switcher checkbutton.sepia:checked {
     box-shadow: inset 0 0 0 2px var(--accent-bg-color);
 }
 
-theme-switcher checkbutton.system {
-    background-image: linear-gradient(to bottom right, #fff 49.99%, #202020 50.01%);
+.theme-switcher checkbutton.system {
+    background-image: linear-gradient(-45deg, #202020 50.01%, #fff 49.99%);
 }
 
-theme-switcher checkbutton.light {
+.theme-switcher checkbutton.light {
     background-color: #fff;
 }
 
-theme-switcher checkbutton.dark {
+.theme-switcher checkbutton.dark {
     background-color: #2d2d2d;
 }
 
-theme-switcher checkbutton.sepia {
+.theme-switcher checkbutton.sepia {
     background-color: #e9e2d7;
 }
 
-theme-switcher checkbutton radio {
+.theme-switcher checkbutton radio {
     -gtk-icon-source: none;
     border: none;
     background: none;
@@ -85,8 +86,10 @@ theme-switcher checkbutton radio {
     padding: 2px;
 }
 
-window checkbutton.theme-selector radio:checked {
+.themeswitcher checkbutton radio:checked {
     -gtk-icon-source: -gtk-icontheme("object-select-symbolic");
     background-color: var(--accent-bg-color);
     color: var(--accent-fg-color);
 }
+
+/************ 其他 ************/

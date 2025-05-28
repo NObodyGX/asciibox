@@ -1,5 +1,5 @@
 use adw;
-use gtk::{glib, subclass::prelude::*};
+use gtk::{glib, prelude::CheckButtonExt, subclass::prelude::*};
 
 mod imp {
     use super::*;
@@ -79,10 +79,31 @@ impl ThemeSwitcher {
         let style = adw::StyleManager::default();
 
         let color_scheme = match theme.as_str() {
-            "system" => adw::ColorScheme::Default,
-            "light" => adw::ColorScheme::ForceLight,
-            "dark" => adw::ColorScheme::ForceDark,
-            _ => adw::ColorScheme::Default,
+            "system" => {
+                let btn = self.imp().system_button.get();
+                btn.set_active(true);
+                adw::ColorScheme::Default
+            }
+            "light" => {
+                let btn = self.imp().light_button.get();
+                btn.set_active(true);
+                adw::ColorScheme::ForceLight
+            }
+            "dark" => {
+                let btn = self.imp().dark_button.get();
+                btn.set_active(true);
+                adw::ColorScheme::ForceDark
+            }
+            "sepia" => {
+                let btn = self.imp().sepia_button.get();
+                btn.set_active(true);
+                adw::ColorScheme::Default
+            }
+            _ => {
+                let btn = self.imp().system_button.get();
+                btn.set_active(true);
+                adw::ColorScheme::Default
+            }
         };
         style.set_color_scheme(color_scheme);
     }
