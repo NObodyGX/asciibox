@@ -25,6 +25,7 @@
 .clicked-dock-button {
     border-left: 3px solid var(--accent-green);
     border-radius: 0px;
+    background-color: transparent;
 }
 
 /************ 主题选择控件 ************/

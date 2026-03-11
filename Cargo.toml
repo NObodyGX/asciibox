@@ -7,22 +7,22 @@ homepage = "https://github.com/nobodygx/asciibox"
 repository = "https://github.com/nobodygx/asciibox"
 
 [dependencies]
-adw = { version = "0.7.2", package = "libadwaita", features = ["v1_5"] }
+adw = { version = "0.9.1", package = "libadwaita", features = ["v1_5"] }
 base64 = "0.22.1"
-env_logger = "0.11.8"
-fork = "0.2.0"
-gettext-rs = { version = "0.7.2", features = ["gettext-system"] }
-gtk = { version = "0.9.6", package = "gtk4", features = ["v4_12"] }
-homedir = "0.3.4"
-indexmap = "2.9.0"
-log = "0.4.27"
-rust-embed = "8.7.2"
-serde = { version = "1.0.219", features = ["derive"] }
-sourceview = {package = "sourceview5", version = "0.9.1", features = ["gtk_v4_12"] }
+env_logger = "0.11.9"
+fork = "0.7.0"
+gettext-rs = { version = "0.7.7", features = ["gettext-system"] }
+gtk = { version = "0.11.0", package = "gtk4", features = ["v4_12"] }
+homedir = "0.3.5"
+indexmap = "2.13.0"
+log = "0.4.29"
+rust-embed = "8.11.0"
+serde = { version = "1.0.228", features = ["derive"] }
+sourceview = {package = "sourceview5", version = "0.11.0", features = ["gtk_v4_12"] }
 svgbob = "0.7.6"
-toml = { version = "0.8.22" }
-webkit = {package = "webkit6", version = "0.4.0"}
+toml = { version = "0.9.8" }
+webkit = {package = "webkit6", version = "0.6.0"}
 
 
 [build-dependencies]
-glib-build-tools = "0.20.0"
+glib-build-tools = "0.22.0"
