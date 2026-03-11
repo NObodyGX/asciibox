@@ -55,18 +55,18 @@ impl Not for Direct {
     }
 }
 
-#[derive(Clone, Debug, Eq, PartialEq, Hash)]
-pub struct RBox {
-    pub w_left: usize,
-    pub w_right: usize,
-    pub h_up: usize,
-    pub h_down: usize,
-    pub left: Direct,
-    pub right: Direct,
-    pub up: Direct,
-    pub down: Direct,
-    pub left_down: Direct,
-}
+// #[derive(Clone, Debug, Eq, PartialEq, Hash)]
+// pub struct RBox {
+//     pub w_left: usize,
+//     pub w_right: usize,
+//     pub h_up: usize,
+//     pub h_down: usize,
+//     pub left: Direct,
+//     pub right: Direct,
+//     pub up: Direct,
+//     pub down: Direct,
+//     pub left_down: Direct,
+// }
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum ASharp {
@@ -134,11 +134,7 @@ impl Cell {
             let spc = if self.sharp == ASharp::Square {
                 "+"
             } else {
-                if i == 0 {
-                    "."
-                } else {
-                    "'"
-                }
+                if i == 0 { "." } else { "'" }
             };
 
             if emode {
