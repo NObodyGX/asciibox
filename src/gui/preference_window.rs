@@ -81,8 +81,8 @@ mod imp {
 
 glib::wrapper! {
     pub struct MainPreferences(ObjectSubclass<imp::MainPreferences>)
-        @extends Widget, adw::Dialog, adw::PreferencesDialog,
-        @implements Accessible;
+        @extends Widget, Window, adw::Dialog, adw::PreferencesDialog,
+        @implements gtk::Accessible, gtk::Buildable, gtk::ConstraintTarget,gtk::Native,gtk::Root, gtk::ShortcutManager;
 }
 
 impl MainPreferences {

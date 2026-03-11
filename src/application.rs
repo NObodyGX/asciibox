@@ -131,7 +131,7 @@ impl BasicApplication {
     fn show_prefrerences(&self) {
         let window = self.active_window().unwrap();
         let preferences = MainPreferences::new();
-        preferences.present(Some(&window));
+        adw::prelude::AdwDialogExt::present(&preferences, Some(&window));
     }
 
     fn show_about(&self) {

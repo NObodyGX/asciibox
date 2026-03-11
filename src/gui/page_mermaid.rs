@@ -108,7 +108,7 @@ mod imp {
 glib::wrapper! {
     pub struct MermaidPage(ObjectSubclass<imp::MermaidPage>)
     @extends gtk::Widget, adw::Bin,
-    @implements gtk::Accessible;
+    @implements gtk::Accessible, gtk::Buildable, gtk::ConstraintTarget;
 }
 
 impl MermaidPage {

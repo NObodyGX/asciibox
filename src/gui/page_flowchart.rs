@@ -89,8 +89,8 @@ mod imp {
 
 glib::wrapper! {
     pub struct FlowchartPage(ObjectSubclass<imp::FlowchartPage>)
-        @extends gtk::Widget, adw::Bin,
-        @implements gtk::Accessible;
+        @extends adw::Bin, gtk::Widget,
+        @implements gtk::Accessible, gtk::Buildable, gtk::ConstraintTarget;
 }
 
 impl Default for FlowchartPage {

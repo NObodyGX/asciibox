@@ -67,7 +67,7 @@ mod imp {
 glib::wrapper! {
     pub struct TablePage(ObjectSubclass<imp::TablePage>)
     @extends gtk::Widget, adw::Bin,
-    @implements gtk::Accessible;
+    @implements gtk::Accessible, gtk::Buildable, gtk::ConstraintTarget;
 }
 
 impl TablePage {

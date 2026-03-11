@@ -36,7 +36,7 @@ mod imp {
 glib::wrapper! {
     pub struct ShortcutsWindow(ObjectSubclass<imp::ShortcutsWindow>)
         @extends gtk::Widget, adw::Dialog,
-        @implements gtk::Accessible, gtk::Buildable;
+        @implements gtk::Accessible, gtk::Buildable, gtk::ConstraintTarget;
 }
 
 impl Default for ShortcutsWindow {
