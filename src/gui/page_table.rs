@@ -6,6 +6,7 @@ use gtk::gdk;
 use gtk::glib;
 use gtk::prelude::{TextBufferExt, TextViewExt};
 use sourceview;
+use sourceview::prelude::BufferExt;
 
 mod imp {
 
@@ -58,6 +59,7 @@ mod imp {
 
             obj.setup_config();
             obj.setup_font_setting();
+            obj.setup_gtk_theme();
         }
     }
     impl WidgetImpl for TablePage {}
@@ -123,6 +125,68 @@ impl TablePage {
             );
         }
         self.refresh_font();
+    }
+
+    fn setup_gtk_theme(&self) {
+        let style_mgr = adw::StyleManager::default();
+
+        style_mgr.connect_color_scheme_notify(glib::clone!(
+            #[weak(rename_to = app)]
+            self,
+            move |manager| {
+                let in_buffer = app
+                    .imp()
+                    .in_view
+                    .buffer()
+                    .downcast::<sourceview::Buffer>()
+                    .unwrap();
+                let out_buffer = app
+                    .imp()
+                    .out_view
+                    .buffer()
+                    .downcast::<sourceview::Buffer>()
+                    .unwrap();
+                let ssm = sourceview::StyleSchemeManager::default();
+                match manager.color_scheme() {
+                    adw::ColorScheme::ForceDark | adw::ColorScheme::PreferDark => {
+                        for sc in vec![
+                            "Adwaita-dark",
+                            "classic-dark",
+                            "cobalt",
+                            "kate-dark",
+                            "oblivion",
+                            "solarized-dark",
+                        ] {
+                            if let Some(scheme) = ssm.scheme(sc) {
+                                in_buffer.set_style_scheme(Some(&scheme));
+                                out_buffer.set_style_scheme(Some(&scheme));
+                                break;
+                            }
+                        }
+                    }
+                    adw::ColorScheme::ForceLight | adw::ColorScheme::PreferLight => {
+                        for sc in vec![
+                            "Adwaita",
+                            "classic",
+                            "cobalt-light",
+                            "kate",
+                            "solarized-light",
+                            "tango",
+                        ] {
+                            if let Some(scheme) = ssm.scheme(sc) {
+                                in_buffer.set_style_scheme(Some(&scheme));
+                                out_buffer.set_style_scheme(Some(&scheme));
+                                break;
+                            }
+                        }
+                    }
+                    _ => {
+                        in_buffer.set_style_scheme(Some(&ssm.scheme("Adwaita").unwrap()));
+                        out_buffer.set_style_scheme(Some(&ssm.scheme("Adwaita").unwrap()));
+                    }
+                }
+            }
+        ));
     }
 
     fn refresh_font(&self) {}

@@ -158,7 +158,7 @@ impl BasicApplication {
             .website(APP_URL)
             .issue_url(format!("{APP_URL}/issues"))
             .comments(comments)
-            .copyright("© 2024-2025 NObodyGX")
+            .copyright("© 2024-2026 NObodyGX")
             .build();
         dialog.present(Some(&window));
     }

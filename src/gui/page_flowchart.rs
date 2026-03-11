@@ -8,6 +8,7 @@ use gtk::glib;
 use gtk::glib::property::PropertySet;
 use gtk::prelude::{TextBufferExt, TextViewExt};
 use sourceview;
+use sourceview::prelude::BufferExt;
 use std::cell::RefCell;
 use svgbob;
 
@@ -73,6 +74,7 @@ mod imp {
 
             let obj = self.obj();
             obj.setup_text_view();
+            obj.setup_gtk_theme();
         }
     }
     impl WidgetImpl for FlowchartPage {}
@@ -114,11 +116,73 @@ impl FlowchartPage {
     // 配置默认的 placeholdtext
     fn setup_text_view(&self) {}
 
+    fn setup_gtk_theme(&self) {
+        let style_mgr = adw::StyleManager::default();
+
+        style_mgr.connect_color_scheme_notify(glib::clone!(
+            #[weak(rename_to = app)]
+            self,
+            move |manager| {
+                let in_buffer = app
+                    .imp()
+                    .in_view
+                    .buffer()
+                    .downcast::<sourceview::Buffer>()
+                    .unwrap();
+                let out_buffer = app
+                    .imp()
+                    .out_view
+                    .buffer()
+                    .downcast::<sourceview::Buffer>()
+                    .unwrap();
+                let ssm = sourceview::StyleSchemeManager::default();
+                match manager.color_scheme() {
+                    adw::ColorScheme::ForceDark | adw::ColorScheme::PreferDark => {
+                        for sc in vec![
+                            "Adwaita-dark",
+                            "classic-dark",
+                            "cobalt",
+                            "kate-dark",
+                            "oblivion",
+                            "solarized-dark",
+                        ] {
+                            if let Some(scheme) = ssm.scheme(sc) {
+                                in_buffer.set_style_scheme(Some(&scheme));
+                                out_buffer.set_style_scheme(Some(&scheme));
+                                break;
+                            }
+                        }
+                    }
+                    adw::ColorScheme::ForceLight | adw::ColorScheme::PreferLight => {
+                        for sc in vec![
+                            "Adwaita",
+                            "classic",
+                            "cobalt-light",
+                            "kate",
+                            "solarized-light",
+                            "tango",
+                        ] {
+                            if let Some(scheme) = ssm.scheme(sc) {
+                                in_buffer.set_style_scheme(Some(&scheme));
+                                out_buffer.set_style_scheme(Some(&scheme));
+                                break;
+                            }
+                        }
+                    }
+                    _ => {
+                        in_buffer.set_style_scheme(Some(&ssm.scheme("Adwaita").unwrap()));
+                        out_buffer.set_style_scheme(Some(&ssm.scheme("Adwaita").unwrap()));
+                    }
+                }
+            }
+        ));
+    }
+
     fn execute_transform(&self) {
         let ibuffer: gtk::TextBuffer = self.imp().in_view.get().buffer();
         let content = ibuffer.text(&ibuffer.bounds().0, &ibuffer.bounds().1, false);
 
-        // 当输入为 0 的时候不覆盖，这样可以编辑 svgbob 窗口并转换
+        // 当输入为 0 的时候不覆盖，这样可以编辑 flowchart 窗口并转换
         if content.len() != 0 {
             let mut mmap: AMap = AMap::new(true);
             let otext: String = mmap.load_content(content.as_str());
