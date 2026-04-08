@@ -5,6 +5,7 @@ use ascii_dag::Graph;
 use crate::{
     core::asciibox::{
         ab_cell::{ASharp, Direct},
+        ab_grid::AsciiboxGrid,
         ab_parse::{parse_edge, parse_node},
     },
     utils::cn_length,
@@ -127,7 +128,21 @@ impl AsciiBoxMap<'_> {
         }
     }
 
-    pub fn render_to_svgbob(&self) {}
+    pub fn render_to_svgbob(&self) -> String {
+        let ir = self.graph.compute_layout();
+        let mut grid = AsciiboxGrid::new(256, 256);
+        for node in ir.nodes() {
+            grid.draw_box_with_name(
+                &node.label.to_string(),
+                node.x,
+                node.y,
+                node.width,
+                node.height,
+            );
+        }
+
+        grid.to_string()
+    }
 }
 
 mod test {

@@ -1,7 +1,7 @@
 rust_sources += files([
-  'graph.rs',
-  'maps.rs',
+  'ab_cell.rs',
+  'ab_grid.rs',
+  'ab_map.rs',
+  'ab_parse.rs',
   'mod.rs',
-  'cell.rs',
-  'parse.rs',
 ])

@@ -1,10 +1,10 @@
 use grid::Grid;
 
-pub struct AsciiGrid {
+pub struct AsciiboxGrid {
     grid: Grid<char>,
 }
 
-impl AsciiGrid {
+impl AsciiboxGrid {
     pub fn new(width: usize, height: usize) -> Self {
         let mut grid = Grid::new(height, width);
         grid.fill(' ');
@@ -98,7 +98,7 @@ mod test {
 
     #[test]
     fn test_abc() {
-        let mut grid = AsciiGrid::new(24, 6);
+        let mut grid = AsciiboxGrid::new(24, 6);
 
         // 绘制流程图节点
         grid.draw_box(2, 1, 16, 3); // Start 框
