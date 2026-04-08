@@ -6,7 +6,7 @@ use glib::subclass::InitializingObject;
 use gtk::{Button, CompositeTemplate, gio, glib, prelude::WidgetExt};
 use sourceview::prelude::Cast;
 
-use crate::gui::{FlowchartPage, MermaidPage, TablePage};
+use crate::gui::{AsciiboxPage, MermaidPage, TablePage};
 
 use super::ThemeSwitcher;
 
@@ -26,7 +26,7 @@ mod imp {
         #[template_child]
         pub stack: TemplateChild<ViewStack>,
         #[template_child]
-        pub flowchart: TemplateChild<FlowchartPage>,
+        pub flowchart: TemplateChild<AsciiboxPage>,
         #[template_child]
         pub mermaid: TemplateChild<MermaidPage>,
         #[template_child]

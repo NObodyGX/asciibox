@@ -18,10 +18,7 @@ Cargo.lock
 _build
 
 test/pkg_build/
-asciibox
-asciibox.gresource
 data/bin/
 
-*.ui
 test
 *.mo

@@ -18,8 +18,8 @@ mod imp {
     use super::*;
 
     #[derive(Debug, Default, CompositeTemplate)]
-    #[template(resource = "/com/github/nobodygx/asciibox/ui/page_flowchart.ui")]
-    pub struct FlowchartPage {
+    #[template(resource = "/com/github/nobodygx/asciibox/ui/page_asciibox.ui")]
+    pub struct AsciiboxPage {
         #[template_child]
         pub in_view: TemplateChild<sourceview::View>,
         #[template_child]
@@ -29,9 +29,9 @@ mod imp {
     }
 
     #[glib::object_subclass]
-    impl ObjectSubclass for FlowchartPage {
-        const NAME: &'static str = "FlowchartPage";
-        type Type = super::FlowchartPage;
+    impl ObjectSubclass for AsciiboxPage {
+        const NAME: &'static str = "AsciiboxPage";
+        type Type = super::AsciiboxPage;
         type ParentType = adw::Bin;
 
         fn class_init(klass: &mut Self::Class) {
@@ -41,23 +41,19 @@ mod imp {
             klass.install_action("execute-transform", None, move |obj, _, _| {
                 obj.execute_transform();
             });
-            klass.install_action("flowchart.execute-clear", None, move |obj, _, _| {
+            klass.install_action("asciibox.execute-clear", None, move |obj, _, _| {
                 obj.execute_clear();
             });
 
-            klass.install_action("flowchart.execute-clear-result", None, move |obj, _, _| {
+            klass.install_action("asciibox.execute-clear-result", None, move |obj, _, _| {
                 obj.execute_clear_result();
             });
 
-            klass.install_action(
-                "flowchart.execute-preview-svgbob",
-                None,
-                move |obj, _, _| {
-                    obj.execute_preview_svgbob();
-                },
-            );
+            klass.install_action("asciibox.execute-preview-svgbob", None, move |obj, _, _| {
+                obj.execute_preview_svgbob();
+            });
 
-            klass.install_action_async("flowchart.execute-save", None, |obj, _, _| async move {
+            klass.install_action_async("asciibox.execute-save", None, |obj, _, _| async move {
                 obj.save().await
             });
         }
@@ -67,7 +63,7 @@ mod imp {
         }
     }
 
-    impl ObjectImpl for FlowchartPage {
+    impl ObjectImpl for AsciiboxPage {
         fn constructed(&self) {
             self.parent_constructed();
 
@@ -76,11 +72,11 @@ mod imp {
             obj.setup_gtk_theme();
         }
     }
-    impl WidgetImpl for FlowchartPage {}
-    impl BinImpl for FlowchartPage {}
+    impl WidgetImpl for AsciiboxPage {}
+    impl BinImpl for AsciiboxPage {}
 
     #[gtk::template_callbacks]
-    impl FlowchartPage {
+    impl AsciiboxPage {
         #[template_callback]
         fn svgbob_svg_copy(&self) {
             self.obj().do_copy_svg_file();
@@ -89,20 +85,20 @@ mod imp {
 }
 
 glib::wrapper! {
-    pub struct FlowchartPage(ObjectSubclass<imp::FlowchartPage>)
+    pub struct AsciiboxPage(ObjectSubclass<imp::AsciiboxPage>)
         @extends adw::Bin, gtk::Widget,
         @implements gtk::Accessible, gtk::Buildable, gtk::ConstraintTarget;
 }
 
-impl Default for FlowchartPage {
+impl Default for AsciiboxPage {
     fn default() -> Self {
         Self::new()
     }
 }
 
-impl FlowchartPage {
+impl AsciiboxPage {
     pub fn new() -> Self {
-        let page: FlowchartPage = glib::Object::new();
+        let page: AsciiboxPage = glib::Object::new();
         page
     }
 
@@ -111,7 +107,7 @@ impl FlowchartPage {
     }
 }
 
-impl FlowchartPage {
+impl AsciiboxPage {
     // 配置默认的 placeholdtext
     fn setup_text_view(&self) {}
 
