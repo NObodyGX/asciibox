@@ -1,5 +1,5 @@
+use petgraph::{graph::NodeIndex, stable_graph::StableDiGraph};
 use std::collections::HashMap;
-
 // use ascii_dag::Graph;
 
 use crate::{
@@ -13,7 +13,7 @@ use crate::{
 
 #[derive(Clone, Default)]
 pub struct AsciiBoxMap {
-    // pub graph: Graph<'a>,
+    pub graph: StableDiGraph<String, usize>,
     pub node_index: usize,
     pub node_id_map: HashMap<String, usize>,
 }
@@ -21,7 +21,7 @@ pub struct AsciiBoxMap {
 impl AsciiBoxMap {
     pub fn load_content(content: &str) -> Self {
         let mut map = AsciiBoxMap {
-            // graph: Graph::new(),
+            graph: StableDiGraph::new(),
             node_index: 0,
             node_id_map: HashMap::new(),
         };
@@ -96,37 +96,17 @@ impl AsciiBoxMap {
         self.node_index += 1;
         let node_id = self.node_index;
         self.node_id_map.insert(name.clone(), node_id);
-        let n: &'static str = Box::leak(name.clone().into_boxed_str());
-        // self.graph.add_node_with_size(
-        //     node_id,
-        //     n,
-        //     cn_length(name) + 4,
-        //     name.matches('\n').count() + 3,
-        // );
+        self.graph.add_node(id.to_string());
         return node_id;
     }
 
     pub fn show(&self) {
         // println!("{}", self.graph.render());
     }
-
-    pub fn show_layout(&self) {
-        // let ir = self.graph.compute_layout();
-        // println!("Width: {}, Height: {}", ir.width(), ir.height());
-        // for node in ir.nodes() {
-        //     println!("{} at ({}, {})", node.label, node.x, node.y);
-        // }
-        // for edge in ir.edges() {
-        //     println!(
-        //         "{} at ({}, {}) -> ({}, {})",
-        //         edge.label.unwrap_or_default(),
-        //         edge.from_x,
-        //         edge.from_y,
-        //         edge.to_x,
-        //         edge.to_y
-        //     )
-        // }
+    fn calculate_size(idx: NodeIndex, node: &String) -> (f64, f64) {
+        (1.0, 1.0)
     }
+    pub fn show_layout(&self) {}
 
     pub fn render_to_svgbob(&self) -> String {
         // let ir = self.graph.compute_layout();
