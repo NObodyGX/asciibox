@@ -7,8 +7,6 @@ mod utils;
 use core::AppSettings;
 
 use application::BasicApplication;
-#[allow(unused_imports)]
-use fork::{Fork, daemon};
 use gettextrs::LocaleCategory;
 use gtk::prelude::*;
 use gtk::{gio, glib};
@@ -46,7 +44,7 @@ fn init_i18n() {
     gettextrs::textdomain(config::APP_NAME).expect("Unable to switch to the text domain");
 }
 
-fn do_main_run() -> glib::ExitCode {
+fn main() -> glib::ExitCode {
     env_logger::init();
     gtk::init().expect("can not init gtk");
 
@@ -60,28 +58,6 @@ fn do_main_run() -> glib::ExitCode {
     });
 
     app.run()
-}
-
-fn main() -> glib::ExitCode {
-    let _is_release = true;
-    #[cfg(debug_assertions)]
-    let _is_release = false;
-
-    if !_is_release {
-        return do_main_run();
-    }
-
-    match daemon(false, true) {
-        Ok(Fork::Child) => do_main_run(),
-        Ok(Fork::Parent(pid)) => {
-            log::debug!("daemon pid: {}", pid);
-            return glib::ExitCode::from(0);
-        }
-        Err(e) => {
-            log::error!("Fork failed: code({e})");
-            return glib::ExitCode::from(1);
-        }
-    }
 }
 
 fn setup_shortcuts(app: &BasicApplication) {

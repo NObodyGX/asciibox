@@ -1,4 +1,3 @@
-use crate::core::AMap;
 use crate::utils;
 use adw::prelude::*;
 use adw::subclass::prelude::*;
@@ -179,17 +178,17 @@ impl FlowchartPage {
     }
 
     fn execute_transform(&self) {
-        let ibuffer: gtk::TextBuffer = self.imp().in_view.get().buffer();
-        let content = ibuffer.text(&ibuffer.bounds().0, &ibuffer.bounds().1, false);
+        // let ibuffer: gtk::TextBuffer = self.imp().in_view.get().buffer();
+        // let content = ibuffer.text(&ibuffer.bounds().0, &ibuffer.bounds().1, false);
 
-        // 当输入为 0 的时候不覆盖，这样可以编辑 flowchart 窗口并转换
-        if content.len() != 0 {
-            let mut mmap: AMap = AMap::new(true);
-            let otext: String = mmap.load_content(content.as_str());
+        // // 当输入为 0 的时候不覆盖，这样可以编辑 flowchart 窗口并转换
+        // if content.len() != 0 {
+        //     let mut mmap: AMap = AMap::new(true);
+        //     let otext: String = mmap.load_content(content.as_str());
 
-            let obuffer = self.imp().out_view.get().buffer();
-            obuffer.set_text(otext.as_str());
-        }
+        //     let obuffer = self.imp().out_view.get().buffer();
+        //     obuffer.set_text(otext.as_str());
+        // }
     }
 
     fn execute_clear(&self) {
