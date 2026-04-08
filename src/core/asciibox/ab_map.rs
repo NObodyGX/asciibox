@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use ascii_dag::Graph;
+// use ascii_dag::Graph;
 
 use crate::{
     core::asciibox::{
@@ -12,16 +12,16 @@ use crate::{
 };
 
 #[derive(Clone, Default)]
-pub struct AsciiBoxMap<'a> {
-    pub graph: Graph<'a>,
+pub struct AsciiBoxMap {
+    // pub graph: Graph<'a>,
     pub node_index: usize,
     pub node_id_map: HashMap<String, usize>,
 }
 
-impl AsciiBoxMap<'_> {
+impl AsciiBoxMap {
     pub fn load_content(content: &str) -> Self {
         let mut map = AsciiBoxMap {
-            graph: Graph::new(),
+            // graph: Graph::new(),
             node_index: 0,
             node_id_map: HashMap::new(),
         };
@@ -65,25 +65,25 @@ impl AsciiBoxMap<'_> {
             }
             dst_node_id = self.add_node(&id, &name);
             // TODO: add arrow label
-            match direct {
-                Direct::None => {}
-                Direct::Double => {
-                    self.graph.add_edge(src_node_id, dst_node_id, None);
-                    self.graph.add_edge(dst_node_id, src_node_id, None);
-                }
-                Direct::Left | Direct::LeftUp | Direct::LeftDown => {
-                    self.graph.add_edge(dst_node_id, src_node_id, None);
-                }
-                Direct::Right | Direct::RightUp | Direct::RightDown => {
-                    self.graph.add_edge(src_node_id, dst_node_id, None);
-                }
-                Direct::Up => {
-                    self.graph.add_edge(dst_node_id, src_node_id, None);
-                }
-                Direct::Down => {
-                    self.graph.add_edge(src_node_id, dst_node_id, None);
-                }
-            }
+            // match direct {
+            //     Direct::None => {}
+            //     Direct::Double => {
+            //         self.graph.add_edge(src_node_id, dst_node_id, None);
+            //         self.graph.add_edge(dst_node_id, src_node_id, None);
+            //     }
+            //     Direct::Left | Direct::LeftUp | Direct::LeftDown => {
+            //         self.graph.add_edge(dst_node_id, src_node_id, None);
+            //     }
+            //     Direct::Right | Direct::RightUp | Direct::RightDown => {
+            //         self.graph.add_edge(src_node_id, dst_node_id, None);
+            //     }
+            //     Direct::Up => {
+            //         self.graph.add_edge(dst_node_id, src_node_id, None);
+            //     }
+            //     Direct::Down => {
+            //         self.graph.add_edge(src_node_id, dst_node_id, None);
+            //     }
+            // }
             src_node_id = dst_node_id;
         }
         true
@@ -97,51 +97,52 @@ impl AsciiBoxMap<'_> {
         let node_id = self.node_index;
         self.node_id_map.insert(name.clone(), node_id);
         let n: &'static str = Box::leak(name.clone().into_boxed_str());
-        self.graph.add_node_with_size(
-            node_id,
-            n,
-            cn_length(name) + 4,
-            name.matches('\n').count() + 3,
-        );
+        // self.graph.add_node_with_size(
+        //     node_id,
+        //     n,
+        //     cn_length(name) + 4,
+        //     name.matches('\n').count() + 3,
+        // );
         return node_id;
     }
 
     pub fn show(&self) {
-        println!("{}", self.graph.render());
+        // println!("{}", self.graph.render());
     }
 
     pub fn show_layout(&self) {
-        let ir = self.graph.compute_layout();
-        println!("Width: {}, Height: {}", ir.width(), ir.height());
-        for node in ir.nodes() {
-            println!("{} at ({}, {})", node.label, node.x, node.y);
-        }
-        for edge in ir.edges() {
-            println!(
-                "{} at ({}, {}) -> ({}, {})",
-                edge.label.unwrap_or_default(),
-                edge.from_x,
-                edge.from_y,
-                edge.to_x,
-                edge.to_y
-            )
-        }
+        // let ir = self.graph.compute_layout();
+        // println!("Width: {}, Height: {}", ir.width(), ir.height());
+        // for node in ir.nodes() {
+        //     println!("{} at ({}, {})", node.label, node.x, node.y);
+        // }
+        // for edge in ir.edges() {
+        //     println!(
+        //         "{} at ({}, {}) -> ({}, {})",
+        //         edge.label.unwrap_or_default(),
+        //         edge.from_x,
+        //         edge.from_y,
+        //         edge.to_x,
+        //         edge.to_y
+        //     )
+        // }
     }
 
     pub fn render_to_svgbob(&self) -> String {
-        let ir = self.graph.compute_layout();
-        let mut grid = AsciiboxGrid::new(256, 256);
-        for node in ir.nodes() {
-            grid.draw_box_with_name(
-                &node.label.to_string(),
-                node.x,
-                node.y,
-                node.width,
-                node.height,
-            );
-        }
+        // let ir = self.graph.compute_layout();
+        // let mut grid = AsciiboxGrid::new(256, 256);
+        // for node in ir.nodes() {
+        //     grid.draw_box_with_name(
+        //         &node.label.to_string(),
+        //         node.x,
+        //         node.y,
+        //         node.width,
+        //         node.height,
+        //     );
+        // }
 
-        grid.to_string()
+        // grid.to_string()
+        "".to_string()
     }
 }
 

@@ -8,11 +8,9 @@ repository = "https://github.com/nobodygx/asciibox"
 
 [dependencies]
 adw = { version = "0.9.1", package = "libadwaita", features = ["v1_5"] }
-ascii-dag = "0.9.1"
 base64 = "0.22.1"
 env_logger = "0.11.10"
 gettext-rs = { version = "0.7.7", features = ["gettext-system"] }
-grid = "1.0.0"
 gtk = { version = "0.11.1", package = "gtk4", features = ["v4_12"] }
 homedir = "0.3.5"
 indexmap = "2.13.0"

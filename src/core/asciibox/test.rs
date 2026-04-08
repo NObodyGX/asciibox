@@ -1,19 +1,17 @@
 #[cfg(test)]
 mod tests {
-    use ascii_dag::Graph;
-
     #[test]
     fn test_xxx() {
-        let mut dag = Graph::new();
+        // let mut dag = Graph::new();
 
-        dag.add_node(1, "Parse");
-        dag.add_node(2, "Compile");
-        dag.add_node(3, "Link");
+        // dag.add_node(1, "Parse");
+        // dag.add_node(2, "Compile");
+        // dag.add_node(3, "Link");
 
-        dag.add_edge(1, 2, None); // Parse -> Compile
-        dag.add_edge(2, 3, None); // Compile -> Link
+        // dag.add_edge(1, 2, None); // Parse -> Compile
+        // dag.add_edge(2, 3, None); // Compile -> Link
 
-        println!("{}", dag.render());
+        // println!("{}", dag.render());
     }
 
     //     #[test]

@@ -1,28 +1,45 @@
-use grid::Grid;
-
 pub struct AsciiboxGrid {
-    grid: Grid<char>,
+    pub width: usize,
+    pub height: usize,
+    data: Vec<char>,
 }
 
 impl AsciiboxGrid {
-    pub fn new(width: usize, height: usize) -> Self {
-        let mut grid = Grid::new(height, width);
-        grid.fill(' ');
-        Self { grid }
+    pub fn new(width: usize, height: usize, ch: char) -> Self {
+        let mut data = Vec::new();
+        for _ in 0..=width * height {
+            data.push(ch);
+        }
+        Self {
+            width,
+            height,
+            data,
+        }
+    }
+
+    pub fn fill(&mut self, ch: char) {
+        self.data.clear();
+        for _ in 0..=self.width * self.height {
+            self.data.push(ch);
+        }
     }
 
     pub fn set(&mut self, x: usize, y: usize, ch: char) {
-        if y < self.grid.rows() && x < self.grid.cols() {
-            self.grid[(y, x)] = ch;
-        }
+        self.data[x + y * self.width] = ch
     }
 
-    pub fn get(&self, x: usize, y: usize) -> Option<char> {
-        if y < self.grid.rows() && x < self.grid.cols() {
-            Some(self.grid[(y, x)])
-        } else {
-            None
-        }
+    pub fn get(&self, x: usize, y: usize) -> char {
+        return self.data[x + y * self.width];
+    }
+
+    pub fn row(&self, y: usize) -> &[char] {
+        let start = y * self.width;
+        let end = start + self.width;
+        &self.data[start..end]
+    }
+
+    pub fn iter_rows(&self) -> impl Iterator<Item = &[char]> {
+        self.data.chunks(self.width)
     }
 
     pub fn draw_line(&mut self, x1: usize, y1: usize, x2: usize, y2: usize, ch: char) {
@@ -72,16 +89,20 @@ impl AsciiboxGrid {
     ) {
         self.draw_box(x, y, width, height);
         for (j, line) in name.split("\n").enumerate() {
+            let ty = y + j + 1;
             for (i, ch) in line.chars().enumerate() {
                 // 从左开始，但保留一个空格
-                self.set(x + i + 2, y + j + 1, ch);
+                let tx = x + i + 2;
+                if tx < x + width - 1 && ty < y + height - 1 {
+                    self.set(tx, ty, ch);
+                }
             }
         }
     }
 
     pub fn to_string(&self) -> String {
         let mut result = String::new();
-        for row in self.grid.iter_rows() {
+        for row in self.iter_rows() {
             for ch in row {
                 result.push(*ch);
             }
@@ -93,28 +114,27 @@ impl AsciiboxGrid {
 
 mod test {
 
-    #[warn(unused_imports)]
     use super::*;
 
     #[test]
     fn test_abc() {
-        let mut grid = AsciiboxGrid::new(24, 6);
+        let mut grid = AsciiboxGrid::new(24, 12, ' ');
 
         // 绘制流程图节点
-        grid.draw_box(2, 1, 16, 3); // Start 框
-        // grid.draw_box(2, 6, 12, 3); // End 框
+        grid.draw_box(0, 0, 16, 3); // Start 框
+        grid.draw_box(2, 4, 16, 3); // Start 框
+        grid.draw_box_with_name(&"aaaaaaaaaa\naaaa\na\naa".to_string(), 0, 8, 12, 4); // End 框
 
         // 绘制连接线
         //grid.draw_line(6, 4, 6, 6, '|');
-
         // 添加文本（需要手动实现）
         // ...
 
         let ascii = grid.to_string();
         println!("{}", ascii);
 
-        // 转换为 SVG
-        let svg = svgbob::to_svg(&ascii);
-        std::fs::write("output.svg", svg).unwrap();
+        // // 转换为 SVG
+        // let svg = svgbob::to_svg(&ascii);
+        // std::fs::write("output.svg", svg).unwrap();
     }
 }
