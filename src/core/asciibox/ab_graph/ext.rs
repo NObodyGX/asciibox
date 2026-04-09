@@ -12,7 +12,7 @@ use petgraph::graphmap::DiGraphMap;
 use petgraph::stable_graph::StableGraph;
 use petgraph::visit::{EdgeRef, IntoEdgeReferences, IntoNodeReferences, NodeIndexable, NodeRef};
 
-use crate::core::asciibox::ab_graph::graph::RenderedGraph;
+use super::graph::RenderedGraph;
 
 /// Generic graph conversion helper that converts any graph type to DiGraph.
 ///

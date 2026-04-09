@@ -9,11 +9,9 @@ use ratatui::layout::Rect;
 use ratatui::style::Color;
 use ratatui::widgets::Widget;
 
-use crate::core::asciibox::ab_graph::physics::{PhysicsConfig, PhysicsEngine};
-use crate::core::asciibox::ab_graph::render::{
-    CharGrid, GraphRenderer, RenderedEdge, RenderedNode,
-};
-use crate::core::asciibox::ab_graph::style::{BoxBorder, EdgeStyle, NodeStyle};
+use super::physics::{PhysicsConfig, PhysicsEngine};
+use super::render::{CharGrid, GraphRenderer, RenderedEdge, RenderedNode};
+use super::style::{BoxBorder, EdgeStyle, NodeStyle};
 
 /// A rendered graph ready for display in a TUI.
 ///
@@ -230,14 +228,14 @@ impl<N: Display + Clone, E: Display + Clone> RenderedGraph<N, E> {
     }
 
     /// Set the scaling mode for handling large graphs.
-    pub fn set_scaling_mode(&mut self, mode: crate::core::asciibox::ab_graph::render::ScalingMode) {
+    pub fn set_scaling_mode(&mut self, mode: super::render::ScalingMode) {
         self.renderer.scaling_mode = mode;
         self.layout_dirty = true;
     }
 
     /// Auto-detect and apply appropriate scaling mode based on terminal width.
     pub fn auto_scale(&mut self, max_width: usize) {
-        use crate::core::asciibox::ab_graph::render::ScalingMode;
+        use super::render::ScalingMode;
 
         // First try full labels
         self.renderer.scaling_mode = ScalingMode::Full;
@@ -659,14 +657,13 @@ mod tests {
         rendered.run_simulation();
 
         // Test different scaling modes
-        rendered.set_scaling_mode(crate::core::asciibox::ab_graph::render::ScalingMode::Full);
+        rendered.set_scaling_mode(super::super::render::ScalingMode::Full);
         let grid1 = rendered.render_to_grid();
 
-        rendered
-            .set_scaling_mode(crate::core::asciibox::ab_graph::render::ScalingMode::Truncate(5));
+        rendered.set_scaling_mode(super::super::render::ScalingMode::Truncate(5));
         rendered.render_to_grid(); // Trigger re-render with truncated mode
 
-        rendered.set_scaling_mode(crate::core::asciibox::ab_graph::render::ScalingMode::NumericIds);
+        rendered.set_scaling_mode(super::super::render::ScalingMode::NumericIds);
         let grid3 = rendered.render_to_grid();
 
         // NumericIds should produce smallest grid

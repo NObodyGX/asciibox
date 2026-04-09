@@ -2,7 +2,7 @@
 
 use std::fmt::Display;
 
-use crate::core::asciibox::ab_graph::style::{EdgeChars, EdgeStyle, NodeStyle};
+use super::style::{EdgeChars, EdgeStyle, NodeStyle};
 use petgraph::graph::{EdgeIndex, NodeIndex};
 use ratatui::style::Color;
 
