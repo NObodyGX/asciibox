@@ -20,7 +20,7 @@ asciibox 是一个意向简易化 ascii 文本操作的辅助工具，实现的�
 
 ## 路线图 ##
 
-- [x] 流程图(svgbob)
+- [x] 流程图(asciibox)
     - [x] svgbob 预览
     - [x] 中文支持
     - [x] 上下左右箭头支持
@@ -30,8 +30,11 @@ asciibox 是一个意向简易化 ascii 文本操作的辅助工具，实现的�
     - [x] asciidoc表格
     - [x] markdown表格
     - [x] markdown-gfm表格
-    - [ ] 表格美化
-    - [ ] 表格调整
+    - [ ] csv支持
+    - [ ] tsv支持
+    - [ ] dsv支持
+    - [ ] 表格源数据
+    - [ ] 表格型界面
 - [x] mermaid 支持
     - [x] mermaid 预览
     - [x] mermaid 转 svg

@@ -126,7 +126,7 @@ corresponding .blp file and regenerate this file with blueprint-compiler.
                             <property name="icon-name">logo-symbolic</property>
                             <property name="title" translatable="yes">flowchart</property>
                             <property name="child">
-                              <object class="FlowchartPage" id="flowchart"></object>
+                              <object class="AsciiboxPage" id="flowchart"></object>
                             </property>
                           </object>
                         </child>

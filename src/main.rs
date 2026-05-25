@@ -2,6 +2,7 @@ mod application;
 mod config;
 mod core;
 mod gui;
+mod ui_utils;
 mod utils;
 
 use core::AppSettings;

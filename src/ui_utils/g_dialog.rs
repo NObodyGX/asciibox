@@ -1,6 +1,6 @@
 use sourceview::prelude::FileExt;
 
-use super::save_file;
+use crate::utils::save_file;
 
 pub async fn save_dialog(
     window: &gtk::Window,

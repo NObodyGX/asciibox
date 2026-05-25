@@ -1,4 +1,5 @@
 use crate::core::AsciiBoxMap;
+use crate::ui_utils;
 use crate::utils;
 use adw::prelude::*;
 use adw::subclass::prelude::*;
@@ -219,7 +220,7 @@ impl AsciiboxPage {
     async fn save(&self) {
         let title = format!("{} {} {}", &gettext("Save"), "svg", &gettext("file"));
 
-        utils::save_dialog(
+        ui_utils::save_dialog(
             &self.root().and_downcast::<gtk::Window>().unwrap(),
             &title,
             &self.imp().svg_content.borrow().as_bytes(),

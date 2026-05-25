@@ -32,6 +32,18 @@ pub fn create_state_machine() -> DiGraph<&'static str, &'static str> {
 // =============================================================================
 // OUTPUT COMPLETENESS TESTS
 // =============================================================================
+#[test]
+fn test_basic_nodes() {
+    let mut graph: DiGraph<&str, &str> = DiGraph::new();
+    let pre_node = graph.add_node("aaa");
+    let aft_node = graph.add_node("bbb");
+    graph.add_edge(pre_node, aft_node, "");
+
+    let mut rendered = RenderedGraph::from_graph(graph);
+    rendered.run_simulation();
+    let output = render_to_string(&mut rendered);
+    println!("{}", output);
+}
 
 #[test]
 fn test_all_nodes_visible() {
@@ -204,7 +216,7 @@ fn test_back_edges() {
     let mut rendered = RenderedGraph::from_graph(graph);
     rendered.run_simulation();
     let output = render_to_string(&mut rendered);
-
+    println!("{}", output);
     assert!(output.contains("A"));
     assert!(output.contains("B"));
     assert!(output.contains("C"));

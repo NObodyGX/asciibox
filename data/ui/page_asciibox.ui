@@ -6,7 +6,7 @@ corresponding .blp file and regenerate this file with blueprint-compiler.
 -->
 <interface>
   <requires lib="gtk" version="4.0"/>
-  <template class="FlowchartPage" parent="AdwBin">
+  <template class="AsciiboxPage" parent="AdwBin">
     <child>
       <object class="GtkPaned" id="paned">
         <property name="visible">true</property>

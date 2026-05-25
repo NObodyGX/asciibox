@@ -17,7 +17,7 @@ use crate::core::AppSettings;
 use crate::core::MermaidTheme;
 use crate::core::MermaidThemeConfig;
 use crate::core::MermaidThemeManager;
-use crate::utils;
+use crate::ui_utils;
 
 mod imp {
 
@@ -223,7 +223,7 @@ impl MermaidPage {
 
     /// 初始化默认html内容
     fn setup_content(&self, name: &String) {
-        let mut content = utils::load_gresource("/com/github/nobodygx/asciibox/html/index.html");
+        let mut content = ui_utils::load_gresource("/com/github/nobodygx/asciibox/html/index.html");
         if content.is_empty() {
             return;
         }
@@ -251,7 +251,7 @@ impl MermaidPage {
         }
 
         let mermaid_js_content =
-            utils::load_gresource("/com/github/nobodygx/asciibox/html/mermaid.min.js");
+            ui_utils::load_gresource("/com/github/nobodygx/asciibox/html/mermaid.min.js");
         if !mermaid_js_content.is_empty() {
             content = content.replace("<script src=\"https://cdn.jsdelivr.net/npm/mermaid@11.6.0/dist/mermaid.min.js\"></script>", &format!("<script>{}</script>", &mermaid_js_content));
         }
@@ -351,7 +351,7 @@ impl MermaidPage {
             "svg" => content.as_bytes(),
             _ => content.as_bytes(),
         };
-        utils::save_dialog(
+        ui_utils::save_dialog(
             &self.root().and_downcast::<gtk::Window>().unwrap(),
             &title,
             &save_content,
